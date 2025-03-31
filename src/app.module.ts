@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { CqrsModule } from '@nestjs/cqrs';
+import { EventSubscribeModule } from '@sputnik-labs/api-sdk';
+import { SessionModule } from './modules/session/session.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [CqrsModule.forRoot(), EventSubscribeModule, SessionModule],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
