@@ -1,8 +1,8 @@
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { Adapter } from '@sputnik-labs/api-sdk';
-import { SessionViewModel } from '../view-model/session.view-model';
+import { SessionViewModel } from '../view-model/session-response.view-model';
 
-export class SessionToPresentationAdapter
+export class SessionToResponseAdapter
   implements Adapter<Session, SessionViewModel>
 {
   adaptOne(session: Session): SessionViewModel {
@@ -10,7 +10,7 @@ export class SessionToPresentationAdapter
       session.toObject();
 
     return {
-      id: id!.value(),
+      id: id.value(),
       device,
       userAgent,
       ip,

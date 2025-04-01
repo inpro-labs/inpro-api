@@ -17,7 +17,7 @@ export class CreateSessionHandler
   ) {}
 
   async execute(command: CreateSessionCommand): Promise<Session> {
-    const hash = hashSync('meu hash', 10);
+    const hash = hashSync('meu hash', 10); // TODO: move to a service
     const refreshTokenHash = RefreshTokenHash.create(hash).unwrap();
 
     const result = Session.create({
