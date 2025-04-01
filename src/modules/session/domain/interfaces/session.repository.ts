@@ -1,5 +1,5 @@
-import { Session } from '../aggregate/session.aggregate';
-import { Result } from 'types-ddd';
+import { Session } from '../aggregates/session.aggregate';
+import { Result } from '@sputnik-labs/api-sdk';
 
 export interface SessionModel {
   id: string;

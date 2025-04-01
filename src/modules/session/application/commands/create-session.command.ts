@@ -1,4 +1,4 @@
-import { Session } from '@modules/session/domain/aggregate/session.aggregate';
+import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { Command } from '@nestjs/cqrs';
 
 export class CreateSessionCommand extends Command<Session> {

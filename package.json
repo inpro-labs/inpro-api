@@ -25,11 +25,10 @@
     "@nestjs/cqrs": "^11.0.3",
     "@nestjs/microservices": "^11.0.12",
     "@nestjs/platform-express": "^11.0.1",
-    "@sputnik-labs/api-sdk": "^0.0.3",
+    "@sputnik-labs/api-sdk": "^1.0.2",
     "bcrypt": "^5.1.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "types-ddd": "^3.11.1"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

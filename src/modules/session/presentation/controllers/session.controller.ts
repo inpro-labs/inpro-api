@@ -1,7 +1,7 @@
 import { CreateSessionCommand } from '@modules/session/application/commands/create-session.command';
-import { SessionToObjectAdapter } from '@modules/session/domain/adapter/session.adapter';
 import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { SessionToPresentationAdapter } from '../adapters/session-to-presentation.adapter';
 
 @Controller('sessions')
 export class SessionController {
@@ -18,6 +18,6 @@ export class SessionController {
       ),
     );
 
-    return session.toObject(new SessionToObjectAdapter());
+    return new SessionToPresentationAdapter().adaptOne(session);
   }
 }

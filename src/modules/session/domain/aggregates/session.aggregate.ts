@@ -1,16 +1,16 @@
-import { Aggregate, Result, Fail, Ok, UID } from 'types-ddd';
 import { SessionCreatedEvent } from '../events/session-created.event';
 import { RefreshTokenHash } from '../value-objects/refresh-token-hash.value-object';
 import { SessionRevokedEvent } from '../events/session-revoked.event';
 import { DEVICE_TYPES } from '@shared/constants/devices';
+import { Aggregate, Err, ID, Ok, Result } from '@sputnik-labs/api-sdk';
 
 interface Props {
-  id?: UID;
+  id?: ID;
   device: (typeof DEVICE_TYPES.values)[number];
   userAgent: string;
   refreshTokenHash: RefreshTokenHash;
   ip: string;
-  userId: UID;
+  userId: ID;
   expiresAt: Date;
   revokedAt?: Date;
   createdAt?: Date;
@@ -23,15 +23,16 @@ export class Session extends Aggregate<Props> {
     super(props);
   }
 
-  static create(props: Props): Result<Session> {
-    if (!Session.isValidProps(props)) return Fail('Invalid Session props');
+  static create(props: Props): Result<Session, Error> {
+    if (!Session.isValidProps(props))
+      return Err(new Error('Invalid Session props'));
 
     if (!props.createdAt) props.createdAt = new Date();
 
     const session = new Session(props);
 
     if (session.isNew()) {
-      session.addEvent(new SessionCreatedEvent());
+      session.apply(new SessionCreatedEvent(session));
     }
 
     return Ok(session);
@@ -44,15 +45,15 @@ export class Session extends Aggregate<Props> {
   }
 
   public revoke() {
-    this.props.revokedAt = new Date();
-    this.addEvent(new SessionRevokedEvent());
+    this.set('revokedAt', new Date());
+    this.apply(new SessionRevokedEvent(this));
   }
 
   get isExpired() {
-    return !!this.props.revokedAt;
+    return !!this.get('revokedAt');
   }
 
   get isRevoked() {
-    return this.props.expiresAt < new Date();
+    return !!this.get('revokedAt');
   }
 }
