@@ -13,7 +13,8 @@ interface Props {
   userId: ID;
   expiresAt: Date;
   revokedAt?: Date;
-  createdAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export class Session extends Aggregate<Props> {
@@ -45,6 +46,8 @@ export class Session extends Aggregate<Props> {
   }
 
   public revoke() {
+    if (this.isRevoked) return;
+
     this.set('revokedAt', new Date());
     this.apply(new SessionRevokedEvent(this));
   }

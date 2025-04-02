@@ -21,12 +21,14 @@ export class CreateSessionHandler
     const refreshTokenHash = RefreshTokenHash.create(hash).unwrap();
 
     const result = Session.create({
-      device: command.device,
-      userAgent: command.userAgent,
-      ip: command.ip,
-      userId: ID.create().unwrap(),
+      device: command.dto.device,
+      userAgent: command.dto.userAgent,
+      ip: command.dto.ip,
+      userId: ID.create(command.dto.userId).unwrap(),
       refreshTokenHash,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     if (result.isErr()) {

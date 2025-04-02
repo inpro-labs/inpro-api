@@ -4,8 +4,18 @@ import { SessionModel } from '../../domain/interfaces/session.repository';
 
 export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
   adaptOne(item: Session): SessionModel {
-    const { id, device, userAgent, ip, userId, refreshTokenHash, expiresAt } =
-      item.toObject();
+    const {
+      id,
+      device,
+      userAgent,
+      ip,
+      userId,
+      refreshTokenHash,
+      expiresAt,
+      createdAt,
+      revokedAt,
+      updatedAt,
+    } = item.toObject();
 
     return {
       id: id.value(),
@@ -15,6 +25,9 @@ export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
       userId: userId.value(),
       refreshTokenHash: refreshTokenHash.get('value'),
       expiresAt,
+      createdAt: createdAt,
+      revokedAt: revokedAt ?? null,
+      updatedAt,
     };
   }
 

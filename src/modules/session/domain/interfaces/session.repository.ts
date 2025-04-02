@@ -1,16 +1,20 @@
 import { Session } from '../aggregates/session.aggregate';
 import { Result } from '@sputnik-labs/api-sdk';
 
-export interface SessionModel {
+export type SessionModel = {
   id: string;
-  device: string;
-  userAgent: string;
-  ip: string;
   userId: string;
+  device: string;
+  ip: string;
+  userAgent: string;
   refreshTokenHash: string;
+  revokedAt: Date | null;
   expiresAt: Date;
-}
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export abstract class SessionRepository {
   abstract save(session: Session): Promise<Result<Session>>;
+  abstract findByUserId(userId: string): Promise<Result<Session>>;
 }

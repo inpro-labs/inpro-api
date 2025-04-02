@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: max
+      POSTGRES_PASSWORD: max123
+      POSTGRES_DB: inpro_dev

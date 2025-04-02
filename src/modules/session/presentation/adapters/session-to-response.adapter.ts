@@ -10,7 +10,7 @@ export class SessionToResponseAdapter
       session.toObject();
 
     return {
-      id: id.value(),
+      id,
       device,
       userAgent,
       ip,
