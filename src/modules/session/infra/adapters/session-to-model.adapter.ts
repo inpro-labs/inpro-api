@@ -18,16 +18,16 @@ export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
     } = item.toObject();
 
     return {
-      id: id.value(),
+      id,
       device,
       userAgent,
       ip,
-      userId: userId.value(),
-      refreshTokenHash: refreshTokenHash.get('value'),
-      expiresAt,
+      userId: userId,
+      refreshTokenHash: refreshTokenHash.value,
+      expiresAt: expiresAt,
       createdAt: createdAt,
       revokedAt: revokedAt ?? null,
-      updatedAt,
+      updatedAt: updatedAt,
     };
   }
 

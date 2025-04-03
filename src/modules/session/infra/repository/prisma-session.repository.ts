@@ -13,20 +13,15 @@ export class PrismaSessionRepository implements SessionRepository {
   async save(session: Session): Promise<Result<Session>> {
     const sessionModel = session.toObject(new SessionToModelAdapter());
 
-    console.log('sessionModel', sessionModel);
-
     try {
-      const t = await this.prisma.session.upsert({
+      await this.prisma.session.upsert({
         where: { id: sessionModel.id },
         update: sessionModel,
         create: sessionModel,
       });
 
-      console.log('criado', t);
-
       return Ok(session);
     } catch (error) {
-      console.log('error', error);
       return Err(error);
     }
   }
