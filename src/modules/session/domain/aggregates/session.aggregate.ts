@@ -49,11 +49,17 @@ export class Session extends Aggregate<Props> {
     if (this.isRevoked) return;
 
     this.set('revokedAt', new Date());
+    this.set('updatedAt', new Date());
     this.apply(new SessionRevokedEvent(this));
   }
 
+  public rotateRefreshToken(newHash: RefreshTokenHash) {
+    this.set('refreshTokenHash', newHash);
+    this.set('updatedAt', new Date());
+  }
+
   get isExpired() {
-    return !!this.get('revokedAt');
+    return !!this.get('expiresAt') && this.get('expiresAt') < new Date();
   }
 
   get isRevoked() {

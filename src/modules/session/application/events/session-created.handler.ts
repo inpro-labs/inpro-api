@@ -10,6 +10,6 @@ export class SessionCreatedHandler
   handle(event: SessionCreatedEvent) {
     const session = event.session.toObject();
 
-    console.log(`Notification sent to ${session.userId.value()}`);
+    console.log(`Notification sent to ${session.userId}`);
   }
 }

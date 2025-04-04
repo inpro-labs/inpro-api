@@ -39,4 +39,32 @@ export class PrismaSessionRepository implements SessionRepository {
 
     return Ok(session);
   }
+
+  async findByRefreshToken(refreshToken: string): Promise<Result<Session>> {
+    const sessionModel = await this.prisma.session.findFirst({
+      where: { refreshTokenHash: refreshToken },
+    });
+
+    if (!sessionModel) {
+      return Err(new Error('Session not found'));
+    }
+
+    const session = new SessionToDomainAdapter().adaptOne(sessionModel);
+
+    return Ok(session);
+  }
+
+  async findById(id: string): Promise<Result<Session>> {
+    const sessionModel = await this.prisma.session.findUnique({
+      where: { id },
+    });
+
+    if (!sessionModel) {
+      return Err(new Error('Session not found'));
+    }
+
+    const session = new SessionToDomainAdapter().adaptOne(sessionModel);
+
+    return Ok(session);
+  }
 }

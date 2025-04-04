@@ -14,8 +14,8 @@ export class SessionToResponseAdapter
       device,
       userAgent,
       ip,
-      userId: userId.value(),
-      refreshTokenHash: refreshTokenHash.get('value'),
+      userId,
+      refreshTokenHash: refreshTokenHash.value,
       expiresAt,
     };
   }

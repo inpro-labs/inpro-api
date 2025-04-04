@@ -17,4 +17,6 @@ export type SessionModel = {
 export abstract class SessionRepository {
   abstract save(session: Session): Promise<Result<Session>>;
   abstract findByUserId(userId: string): Promise<Result<Session>>;
+  abstract findByRefreshToken(refreshToken: string): Promise<Result<Session>>;
+  abstract findById(id: string): Promise<Result<Session>>;
 }

@@ -26,5 +26,8 @@ model Session {
   updatedAt        DateTime  @updatedAt
 
   @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@index([refreshTokenHash])
   @@map("sessions")
 }
