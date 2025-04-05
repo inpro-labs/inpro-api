@@ -4,7 +4,7 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
 import { CreateSessionHandler } from '@modules/session/application/commands/create-session.handler';
 import { CreateSessionCommand } from '@modules/session/application/commands/create-session.command';
-import { SessionRepository } from '@modules/session/domain/interfaces/session.repository';
+import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
 import { BadRequestException } from '@nestjs/common';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { CreateSessionDto } from '@modules/session/application/dtos/create-session.dto';
@@ -45,6 +45,7 @@ describe('CreateSessionHandler', () => {
     device: DEVICE_TYPES.IOS,
     userAgent: 'test-agent',
     ip: '127.0.0.1',
+    deviceId: 'test-device-id',
   };
 
   it('should create a session and call save + commit', async () => {

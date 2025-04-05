@@ -1,7 +1,8 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RevokeSessionCommand } from './revoke-session.command';
-import { NotFoundException } from '@nestjs/common';
-import { SessionRepository } from '@modules/session/domain/interfaces/session.repository';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
+import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 
 @CommandHandler(RevokeSessionCommand)
 export class RevokeSessionHandler
@@ -12,16 +13,26 @@ export class RevokeSessionHandler
     private readonly publish: EventPublisher,
   ) {}
 
-  async execute(command: RevokeSessionCommand): Promise<void> {
+  async execute(command: RevokeSessionCommand): Promise<Session> {
     const { sessionId } = command;
 
-    const result = await this.sessionRepository.findByUserId(sessionId);
+    const result = await this.sessionRepository.findById(sessionId);
 
     if (result.isErr()) {
-      throw new NotFoundException('Session not found');
+      const error = result.getErr();
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new BadRequestException(error!.message);
     }
 
     const session = result.unwrap();
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
 
     session.revoke();
 
@@ -30,5 +41,7 @@ export class RevokeSessionHandler
     this.publish.mergeObjectContext(session);
 
     session.commit();
+
+    return session;
   }
 }

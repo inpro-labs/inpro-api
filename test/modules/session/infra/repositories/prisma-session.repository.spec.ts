@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '@shared/services/prisma.service';
+import { PrismaService } from '@shared/infra/services/prisma.service';
 import { PrismaSessionRepository } from '@modules/session/infra/repository/prisma-session.repository';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { Combine, ID } from '@sputnik-labs/api-sdk';
@@ -48,6 +48,7 @@ describe('PrismaSessionRepository (integration)', () => {
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + 86400000),
       updatedAt: new Date(),
+      deviceId: 'test-device-id',
     }).unwrap();
   };
 

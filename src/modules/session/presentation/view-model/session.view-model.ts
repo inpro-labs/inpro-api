@@ -4,6 +4,7 @@ export interface SessionViewModel {
   userAgent: string;
   ip: string;
   userId: string;
-  refreshTokenHash: string;
   expiresAt: Date;
+  deviceId: string;
+  revokedAt: Date | null;
 }

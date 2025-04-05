@@ -1,6 +1,6 @@
 import { Adapter } from '@sputnik-labs/api-sdk';
 import { Session } from '../../domain/aggregates/session.aggregate';
-import { SessionModel } from '../../domain/interfaces/session.repository';
+import { SessionModel } from '../models/session.model';
 
 export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
   adaptOne(item: Session): SessionModel {
@@ -15,6 +15,7 @@ export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
       createdAt,
       revokedAt,
       updatedAt,
+      deviceId,
     } = item.toObject();
 
     return {
@@ -28,6 +29,7 @@ export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
       createdAt: createdAt,
       revokedAt: revokedAt ?? null,
       updatedAt: updatedAt,
+      deviceId: deviceId,
     };
   }
 

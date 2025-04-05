@@ -17,6 +17,7 @@ model Session {
   id               String    @id @default(uuid())
   userId           String
   device           String
+  deviceId         String    @unique
   ip               String
   userAgent        String
   refreshTokenHash String

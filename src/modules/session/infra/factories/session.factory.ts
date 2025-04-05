@@ -1,5 +1,5 @@
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { SessionModel } from '@modules/session/domain/interfaces/session.repository';
+import { SessionModel } from '@modules/session/infra/models/session.model';
 import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
 import { Combine, ID, Result } from '@sputnik-labs/api-sdk';
 
@@ -16,6 +16,7 @@ export class SessionFactory {
       userId,
       refreshTokenHash,
       device: data.device,
+      deviceId: data.deviceId,
       userAgent: data.userAgent,
       ip: data.ip,
       createdAt: data.createdAt,

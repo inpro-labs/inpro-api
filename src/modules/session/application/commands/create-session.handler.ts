@@ -1,11 +1,11 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionCommand } from './create-session.command';
-import { SessionRepository } from '@modules/session/domain/interfaces/session.repository';
+import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { BadRequestException } from '@nestjs/common';
 import { ID } from '@sputnik-labs/api-sdk';
 import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
-import { hashSync } from 'bcrypt';
+import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionHandler
@@ -14,14 +14,16 @@ export class CreateSessionHandler
   constructor(
     private readonly sessionRepository: SessionRepository,
     private readonly publish: EventPublisher,
+    private readonly hashService: HashService,
   ) {}
 
   async execute(command: CreateSessionCommand): Promise<Session> {
-    const hash = hashSync('meu hash', 10); // TODO: move to a service
-    const refreshTokenHash = RefreshTokenHash.create(hash).unwrap();
+    const hash = await this.hashService.generateHash('meu hash');
+    const refreshTokenHash = RefreshTokenHash.create(hash.unwrap()).unwrap();
 
     const result = Session.create({
       device: command.dto.device,
+      deviceId: command.dto.deviceId,
       userAgent: command.dto.userAgent,
       ip: command.dto.ip,
       userId: ID.create(command.dto.userId).unwrap(),

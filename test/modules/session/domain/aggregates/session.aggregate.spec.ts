@@ -21,6 +21,7 @@ describe('Session Aggregate', () => {
       userId,
       refreshTokenHash,
       device: DEVICE_TYPES.values[0],
+      deviceId: 'test-device-id',
       userAgent: 'TestAgent/1.0',
       ip: '127.0.0.1',
       createdAt: now,
@@ -44,6 +45,7 @@ describe('Session Aggregate', () => {
       true,
     );
     expect(session.get('device')).toEqual(props.device);
+    expect(session.get('deviceId')).toEqual(props.deviceId);
     expect(session.get('userAgent')).toEqual(props.userAgent);
     expect(session.get('ip')).toEqual(props.ip);
     expect(session.get('createdAt')).toEqual(props.createdAt);
@@ -59,6 +61,7 @@ describe('Session Aggregate', () => {
       userId,
       refreshTokenHash,
       device: 'invalid-device',
+      deviceId: 'test-device-id',
       userAgent: 'Agent',
       ip: 'localhost',
       createdAt: now,

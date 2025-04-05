@@ -17,7 +17,7 @@
     "test:watch": "dotenv -e .env.test -- jest --watch",
     "test:cov": "dotenv -e .env.test -- jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json --detectOpenHandles",
     "db:test:reset": "dotenv -e .env.test -- prisma db push --force-reset --schema=prisma/schema.prisma",
     "update:sdk": "npm i @sputnik-labs/api-sdk@latest"
   },

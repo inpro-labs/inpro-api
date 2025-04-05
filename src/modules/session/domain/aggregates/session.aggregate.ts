@@ -7,6 +7,7 @@ import { Aggregate, Err, ID, Ok, Result } from '@sputnik-labs/api-sdk';
 interface Props {
   id?: ID;
   device: (typeof DEVICE_TYPES.values)[number];
+  deviceId: string;
   userAgent: string;
   refreshTokenHash: RefreshTokenHash;
   ip: string;
