@@ -1,5 +1,5 @@
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { Adapter } from '@sputnik-labs/api-sdk';
+import { Adapter } from '@inpro-labs/api-sdk';
 import { SessionViewModel } from '../view-model/session.view-model';
 
 export class SessionToResponseAdapter

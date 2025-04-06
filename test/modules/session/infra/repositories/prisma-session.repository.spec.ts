@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@shared/infra/services/prisma.service';
 import { PrismaSessionRepository } from '@modules/session/infra/repository/prisma-session.repository';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { Combine, ID } from '@sputnik-labs/api-sdk';
 import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
+import { Combine, ID } from '@inpro-labs/api-sdk';
 
 describe('PrismaSessionRepository (integration)', () => {
   if (!process.env.DATABASE_URL?.includes('inpro_test')) {

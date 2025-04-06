@@ -2,7 +2,7 @@ import { SessionCreatedEvent } from '../events/session-created.event';
 import { RefreshTokenHash } from '../value-objects/refresh-token-hash.value-object';
 import { SessionRevokedEvent } from '../events/session-revoked.event';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { Aggregate, Err, ID, Ok, Result } from '@sputnik-labs/api-sdk';
+import { Aggregate, Err, ID, Ok, Result } from '@inpro-labs/api-sdk';
 
 interface Props {
   id?: ID;
@@ -26,8 +26,9 @@ export class Session extends Aggregate<Props> {
   }
 
   static create(props: Props): Result<Session, Error> {
-    if (!Session.isValidProps(props))
+    if (!Session.isValidProps(props)) {
       return Err(new Error('Invalid Session props'));
+    }
 
     if (!props.createdAt) props.createdAt = new Date();
 
@@ -47,11 +48,13 @@ export class Session extends Aggregate<Props> {
   }
 
   public revoke() {
-    if (this.isRevoked) return;
+    if (this.isRevoked) return Err(new Error('Session already revoked'));
 
     this.set('revokedAt', new Date());
     this.set('updatedAt', new Date());
     this.apply(new SessionRevokedEvent(this));
+
+    return Ok(this);
   }
 
   public rotateRefreshToken(newHash: RefreshTokenHash) {

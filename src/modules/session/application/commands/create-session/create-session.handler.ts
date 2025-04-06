@@ -2,8 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionCommand } from './create-session.command';
 import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { BadRequestException } from '@nestjs/common';
-import { ID } from '@sputnik-labs/api-sdk';
+import { ApplicationException, ID } from '@inpro-labs/api-sdk';
 import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 
@@ -34,7 +33,11 @@ export class CreateSessionHandler
     });
 
     if (result.isErr()) {
-      throw new BadRequestException('Failed to create session');
+      throw new ApplicationException(
+        result.getErr()!.message,
+        500,
+        'INTERNAL_SERVER_ERROR',
+      );
     }
 
     const session = result.unwrap();

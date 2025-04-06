@@ -1,6 +1,5 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RevokeSessionCommand } from './revoke-session.command';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 
@@ -14,27 +13,23 @@ export class RevokeSessionHandler
   ) {}
 
   async execute(command: RevokeSessionCommand): Promise<Session> {
-    const { sessionId } = command;
+    const { dto } = command;
 
-    const result = await this.sessionRepository.findById(sessionId);
+    const result = await this.sessionRepository.findById(dto.sessionId);
+
+    console.log(result);
 
     if (result.isErr()) {
-      const error = result.getErr();
-
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      throw new BadRequestException(error!.message);
+      throw result.getErr()!;
     }
 
     const session = result.unwrap();
 
-    if (!session) {
-      throw new NotFoundException('Session not found');
-    }
+    const revokeResult = session.revoke();
 
-    session.revoke();
+    if (revokeResult.isErr()) {
+      throw revokeResult.getErr()!;
+    }
 
     await this.sessionRepository.save(session);
 

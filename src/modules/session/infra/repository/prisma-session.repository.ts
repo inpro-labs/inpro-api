@@ -1,10 +1,10 @@
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
-import { Err, Ok, Result } from '@sputnik-labs/api-sdk';
+import { ApplicationException, Err, Ok, Result } from '@inpro-labs/api-sdk';
 import { PrismaService } from '@shared/infra/services/prisma.service';
 import { SessionToModelAdapter } from '../adapters/session-to-model.adapter';
 import { SessionToDomainAdapter } from '../adapters/session-to-domain.adapter';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class PrismaSessionRepository implements SessionRepository {
@@ -51,7 +51,13 @@ export class PrismaSessionRepository implements SessionRepository {
       });
 
       if (!sessionModel) {
-        return Err(new NotFoundException('Session not found'));
+        return Err(
+          new ApplicationException(
+            'Session not found',
+            404,
+            'SESSION_NOT_FOUND',
+          ),
+        );
       }
 
       const session = new SessionToDomainAdapter().adaptOne(sessionModel);
@@ -69,17 +75,19 @@ export class PrismaSessionRepository implements SessionRepository {
       });
 
       if (!sessionModel) {
-        return Err(new NotFoundException('Session not found'));
+        return Err(
+          new ApplicationException(
+            'Session not found',
+            404,
+            'SESSION_NOT_FOUND',
+          ),
+        );
       }
 
       const session = new SessionToDomainAdapter().adaptOne(sessionModel);
 
       return Ok(session);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        return Err(error);
-      }
-
       return Err(error);
     }
   }
@@ -91,7 +99,13 @@ export class PrismaSessionRepository implements SessionRepository {
       });
 
       if (!sessionModels) {
-        return Err(new NotFoundException('No sessions found'));
+        return Err(
+          new ApplicationException(
+            'No sessions found',
+            404,
+            'NO_SESSIONS_FOUND',
+          ),
+        );
       }
 
       const sessions = sessionModels.map((sessionModel) => {

@@ -6,11 +6,11 @@ import { Transport } from '@nestjs/microservices';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { CreateSessionDto } from '@modules/session/application/dtos/create-session.dto';
+import { CreateSessionDto } from '@modules/session/application/dtos/session/create-session.dto';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { ListUserSessionsDto } from '@modules/session/application/dtos/list-user-sessions.dto';
+import { ListUserSessionsDto } from '@modules/session/application/dtos/session/list-user-sessions.dto';
 import { PrismaService } from '@shared/infra/services/prisma.service';
-import { RevokeSessionDto } from '@modules/session/application/dtos/revoke-session.dto';
+import { RevokeSessionDto } from '@modules/session/application/dtos/session/revoke-session.dto';
 import { SessionViewModel } from '@modules/session/presentation/view-model/session.view-model';
 
 type SessionResponse = SessionViewModel;

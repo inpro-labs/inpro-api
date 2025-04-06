@@ -1,4 +1,4 @@
-import { Result } from '@sputnik-labs/api-sdk';
+import { Result } from '@inpro-labs/api-sdk';
 
 export abstract class HashService {
   abstract generateHash(payload: string): Promise<Result<string>>;

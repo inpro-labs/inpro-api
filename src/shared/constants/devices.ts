@@ -1,4 +1,4 @@
-import { createConstant } from '@sputnik-labs/api-sdk';
+import { createConstant } from '@inpro-labs/api-sdk';
 
 export const DEVICE_TYPES = createConstant({
   IOS: 'IOS',

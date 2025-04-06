@@ -1,4 +1,4 @@
-import { Result } from '@sputnik-labs/api-sdk';
+import { Result } from '@inpro-labs/api-sdk';
 import * as bcrypt from 'bcrypt';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 

@@ -1,7 +1,7 @@
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { SessionModel } from '@modules/session/infra/models/session.model';
 import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
-import { Combine, ID, Result } from '@sputnik-labs/api-sdk';
+import { Combine, ID, Result } from '@inpro-labs/api-sdk';
 
 export class SessionFactory {
   static make(data: SessionModel): Result<Session> {

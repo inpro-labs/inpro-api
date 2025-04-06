@@ -2,14 +2,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
-import { CreateSessionHandler } from '@modules/session/application/commands/create-session.handler';
-import { CreateSessionCommand } from '@modules/session/application/commands/create-session.command';
+import { CreateSessionHandler } from '@modules/session/application/commands/create-session/create-session.handler';
+import { CreateSessionCommand } from '@modules/session/application/commands/create-session/create-session.command';
 import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
-import { BadRequestException } from '@nestjs/common';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { CreateSessionDto } from '@modules/session/application/dtos/create-session.dto';
+import { CreateSessionDto } from '@modules/session/application/dtos/session/create-session.dto';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { Result } from '@sputnik-labs/api-sdk';
+import { ApplicationException, Result } from '@inpro-labs/api-sdk';
+import { HashModule } from '@shared/infra/security/hash/hash.module';
 
 describe('CreateSessionHandler', () => {
   let handler: CreateSessionHandler;
@@ -23,7 +23,7 @@ describe('CreateSessionHandler', () => {
     eventPublisher.mergeObjectContext.mockImplementation((s) => s);
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [CqrsModule],
+      imports: [CqrsModule, HashModule],
       providers: [
         CreateSessionHandler,
         {
@@ -60,16 +60,24 @@ describe('CreateSessionHandler', () => {
     expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(session);
   });
 
-  it('should throw BadRequestException when session creation fails', async () => {
-    jest
-      .spyOn(Session, 'create')
-      .mockReturnValueOnce({ isErr: () => true } as unknown as Result<Session>);
+  it('should throw ApplicationException when session creation fails', async () => {
+    jest.spyOn(Session, 'create').mockReturnValueOnce({
+      isErr: () => true,
+      getErr: () =>
+        new ApplicationException(
+          'Session creation failed',
+          500,
+          'SESSION_CREATION_FAILED',
+        ),
+    } as unknown as Result<Session>);
 
     const command = new CreateSessionCommand({
       ...validDto,
       device: 'invalid-device',
     });
 
-    await expect(handler.execute(command)).rejects.toThrow(BadRequestException);
+    await expect(handler.execute(command)).rejects.toThrow(
+      ApplicationException,
+    );
   });
 });

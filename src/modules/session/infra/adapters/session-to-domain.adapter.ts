@@ -1,4 +1,4 @@
-import { Adapter } from '@sputnik-labs/api-sdk';
+import { Adapter } from '@inpro-labs/api-sdk';
 import { Session } from '../../domain/aggregates/session.aggregate';
 import { SessionModel } from '../models/session.model';
 import { SessionFactory } from '../factories/session.factory';
