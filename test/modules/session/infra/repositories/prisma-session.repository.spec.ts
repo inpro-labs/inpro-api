@@ -57,9 +57,21 @@ describe('PrismaSessionRepository (integration)', () => {
 
     await repository.save(session);
 
-    const found = await repository.findByUserId(session.get('userId').value());
+    const found = await repository.findById(session.id.value());
 
     expect(found.isOk()).toBe(true);
     expect(found.unwrap().id.equals(session.id)).toBe(true);
+  });
+
+  it('should find active session by device ID', async () => {
+    const session = createValidSession();
+
+    await repository.save(session);
+
+    const found = await repository.findActiveSessionByDeviceId(
+      session.get('deviceId'),
+    );
+
+    expect(found.isOk()).toBe(true);
   });
 });

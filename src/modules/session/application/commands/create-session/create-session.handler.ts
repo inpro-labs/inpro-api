@@ -17,9 +17,23 @@ export class CreateSessionHandler
   ) {}
 
   async execute(command: CreateSessionCommand): Promise<Session> {
+    const activeSession =
+      await this.sessionRepository.findActiveSessionByDeviceId(
+        command.dto.deviceId,
+      );
+
+    console.log(activeSession.isOk() && activeSession.unwrap());
+
+    if (activeSession.isOk()) {
+      throw new ApplicationException(
+        'This device already has an active session',
+        400,
+        'SESSION_ALREADY_EXISTS',
+      );
+    }
+
     const hash = await this.hashService.generateHash('meu hash');
     const refreshTokenHash = RefreshTokenHash.create(hash.unwrap()).unwrap();
-
     const result = Session.create({
       device: command.dto.device,
       deviceId: command.dto.deviceId,
@@ -31,6 +45,8 @@ export class CreateSessionHandler
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    console.log(result);
 
     if (result.isErr()) {
       throw new ApplicationException(

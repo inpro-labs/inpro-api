@@ -16,7 +16,7 @@ describe('RevokeSessionHandler', () => {
   let sessionRepository: MockProxy<SessionRepository>;
   let eventPublisher: MockProxy<EventPublisher>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     sessionRepository = mock<SessionRepository>();
     eventPublisher = mock<EventPublisher>();
 

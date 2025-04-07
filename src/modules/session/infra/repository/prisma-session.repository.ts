@@ -13,6 +13,8 @@ export class PrismaSessionRepository implements SessionRepository {
   async save(session: Session): Promise<Result<Session>> {
     const sessionModel = session.toObject(new SessionToModelAdapter());
 
+    console.log(sessionModel);
+
     try {
       await this.prisma.session.upsert({
         where: { id: sessionModel.id },
@@ -26,14 +28,24 @@ export class PrismaSessionRepository implements SessionRepository {
     }
   }
 
-  async findByUserId(userId: string): Promise<Result<Session>> {
+  async findActiveSessionByDeviceId(
+    deviceId: string,
+  ): Promise<Result<Session>> {
     try {
       const sessionModel = await this.prisma.session.findFirst({
-        where: { userId },
+        where: { deviceId, expiresAt: { gt: new Date() }, revokedAt: null },
       });
 
+      console.log('found', sessionModel);
+
       if (!sessionModel) {
-        return Err(new Error('Session not found'));
+        return Err(
+          new ApplicationException(
+            'Session not found',
+            404,
+            'SESSION_NOT_FOUND',
+          ),
+        );
       }
 
       const session = new SessionToDomainAdapter().adaptOne(sessionModel);

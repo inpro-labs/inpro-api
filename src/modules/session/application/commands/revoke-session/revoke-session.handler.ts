@@ -17,8 +17,6 @@ export class RevokeSessionHandler
 
     const result = await this.sessionRepository.findById(dto.sessionId);
 
-    console.log(result);
-
     if (result.isErr()) {
       throw result.getErr()!;
     }
