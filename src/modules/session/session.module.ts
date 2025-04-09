@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SessionRepository } from './domain/interfaces/repositories/session.repository.interface';
-import { PrismaSessionRepository } from './infra/repository/prisma-session.repository';
+import { PrismaSessionRepository } from './infra/repositories/prisma-session.repository';
 import { CreateSessionHandler } from './application/commands/create-session/create-session.handler';
 import { SessionCreatedHandler } from './application/events/session/session-created.handler';
 import { PrismaService } from '@shared/infra/services/prisma.service';

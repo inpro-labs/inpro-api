@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@shared/infra/services/prisma.service';
-import { PrismaSessionRepository } from '@modules/session/infra/repository/prisma-session.repository';
+import { PrismaSessionRepository } from '@modules/session/infra/repositories/prisma-session.repository';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
