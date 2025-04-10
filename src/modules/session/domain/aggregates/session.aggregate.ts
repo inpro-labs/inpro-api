@@ -3,8 +3,23 @@ import { RefreshTokenHash } from '../value-objects/refresh-token-hash.value-obje
 import { SessionRevokedEvent } from '../events/session-revoked.event';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Aggregate, Err, ID, Ok, Result } from '@inpro-labs/api-sdk';
+import { z } from 'zod';
 
-interface Props {
+interface CreateProps {
+  id?: ID;
+  device: (typeof DEVICE_TYPES.values)[number];
+  deviceId: string;
+  userAgent: string;
+  refreshTokenHash: RefreshTokenHash;
+  ip: string;
+  userId: ID;
+  expiresAt: Date;
+  revokedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface SessionProps {
   id?: ID;
   device: (typeof DEVICE_TYPES.values)[number];
   deviceId: string;
@@ -18,21 +33,36 @@ interface Props {
   updatedAt: Date;
 }
 
-export class Session extends Aggregate<Props> {
+export class Session extends Aggregate<SessionProps> {
   static readonly deviceTypes = DEVICE_TYPES.values;
+  static readonly schema = z.object({
+    id: z.string().uuid().optional(),
+    device: z.enum(Session.deviceTypes as [string, ...string[]]),
+    deviceId: z.string(),
+    userAgent: z.string(),
+    refreshTokenHash: z.string(),
+    ip: z.string(),
+    userId: z.string().uuid(),
+    expiresAt: z.date(),
+    revokedAt: z.date().optional(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+  });
 
-  private constructor(props: Props) {
+  private constructor(props: SessionProps) {
     super(props);
   }
 
-  static create(props: Props): Result<Session, Error> {
+  static create(props: CreateProps): Result<Session, Error> {
     if (!Session.isValidProps(props)) {
       return Err(new Error('Invalid Session props'));
     }
 
-    if (!props.createdAt) props.createdAt = new Date();
-
-    const session = new Session(props);
+    const session = new Session({
+      ...props,
+      createdAt: props.createdAt ?? new Date(),
+      updatedAt: props.updatedAt ?? new Date(),
+    });
 
     if (session.isNew()) {
       session.apply(new SessionCreatedEvent(session));
@@ -41,8 +71,8 @@ export class Session extends Aggregate<Props> {
     return Ok(session);
   }
 
-  static isValidProps(props: Props) {
-    if (!Session.deviceTypes.includes(props.device)) return false;
+  static isValidProps(props: CreateProps) {
+    if (!Session.schema.safeParse(props).success) return false;
 
     return true;
   }

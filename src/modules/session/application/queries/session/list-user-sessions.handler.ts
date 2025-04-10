@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListUserSessionsQuery } from './list-user-sessions.query';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
+import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
 import { NotFoundException } from '@nestjs/common';
 
 @QueryHandler(ListUserSessionsQuery)

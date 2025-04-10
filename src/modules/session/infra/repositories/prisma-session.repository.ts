@@ -1,5 +1,5 @@
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
+import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
 import { ApplicationException, Err, Ok, Result } from '@inpro-labs/api-sdk';
 import { PrismaService } from '@shared/infra/services/prisma.service';
 import { SessionToModelAdapter } from '../adapters/session-to-model.adapter';

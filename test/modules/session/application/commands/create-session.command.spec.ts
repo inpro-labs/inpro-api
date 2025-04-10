@@ -2,9 +2,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
-import { CreateSessionHandler } from '@modules/session/application/commands/create-session/create-session.handler';
-import { CreateSessionCommand } from '@modules/session/application/commands/create-session/create-session.command';
-import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
+import { CreateSessionHandler } from '@modules/session/application/commands/session/create-session.handler';
+import { CreateSessionCommand } from '@modules/session/application/commands/session/create-session.command';
+import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { CreateSessionDto } from '@modules/session/application/dtos/session/create-session.dto';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';

@@ -1,6 +1,6 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionCommand } from './create-session.command';
-import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
+import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { ApplicationException, ID } from '@inpro-labs/api-sdk';
 import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
@@ -21,8 +21,6 @@ export class CreateSessionHandler
       await this.sessionRepository.findActiveSessionByDeviceId(
         command.dto.deviceId,
       );
-
-    console.log(activeSession.isOk() && activeSession.unwrap());
 
     if (activeSession.isOk()) {
       throw new ApplicationException(

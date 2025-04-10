@@ -2,13 +2,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
-import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
+import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 import { Result } from '@inpro-labs/api-sdk';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
-import { ListUserSessionsHandler } from '@modules/session/application/queries/list-user-sessions/list-user-sessions.handler';
+import { ListUserSessionsHandler } from '@modules/session/application/queries/session/list-user-sessions.handler';
 import { ListUserSessionsDto } from '@modules/session/application/dtos/session/list-user-sessions.dto';
-import { ListUserSessionsQuery } from '@modules/session/application/queries/list-user-sessions/list-user-sessions.query';
+import { ListUserSessionsQuery } from '@modules/session/application/queries/session/list-user-sessions.query';
 import { PrismaService } from '@shared/infra/services/prisma.service';
 
 describe('ListUserSessionsHandler', () => {

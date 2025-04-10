@@ -1,6 +1,6 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RevokeSessionCommand } from './revoke-session.command';
-import { SessionRepository } from '@modules/session/domain/interfaces/repositories/session.repository.interface';
+import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
 import { Session } from '@modules/session/domain/aggregates/session.aggregate';
 
 @CommandHandler(RevokeSessionCommand)
