@@ -18,7 +18,7 @@ async function bootstrap() {
     },
   );
   app.useGlobalFilters(new MicroserviceExceptionFilter());
-  app.useGlobalGuards(new TcpAuthGuard(new Reflector(), new JwtService()));
+  //app.useGlobalGuards(new TcpAuthGuard(new Reflector(), new JwtService()));
   await app.listen();
 }
 

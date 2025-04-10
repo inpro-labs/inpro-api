@@ -36,13 +36,15 @@ interface SessionProps {
 export class Session extends Aggregate<SessionProps> {
   static readonly deviceTypes = DEVICE_TYPES.values;
   static readonly schema = z.object({
-    id: z.string().uuid().optional(),
+    id: z.optional(z.custom<ID>((value) => value instanceof ID)),
     device: z.enum(Session.deviceTypes as [string, ...string[]]),
     deviceId: z.string(),
     userAgent: z.string(),
-    refreshTokenHash: z.string(),
+    refreshTokenHash: z.custom<RefreshTokenHash>(
+      (value) => value instanceof RefreshTokenHash,
+    ),
     ip: z.string(),
-    userId: z.string().uuid(),
+    userId: z.custom<ID>((value) => value instanceof ID),
     expiresAt: z.date(),
     revokedAt: z.date().optional(),
     createdAt: z.date(),
@@ -54,6 +56,8 @@ export class Session extends Aggregate<SessionProps> {
   }
 
   static create(props: CreateProps): Result<Session, Error> {
+    console.log(props);
+
     if (!Session.isValidProps(props)) {
       return Err(new Error('Invalid Session props'));
     }
@@ -72,6 +76,7 @@ export class Session extends Aggregate<SessionProps> {
   }
 
   static isValidProps(props: CreateProps) {
+    console.log(Session.schema.safeParse(props).error);
     if (!Session.schema.safeParse(props).success) return false;
 
     return true;

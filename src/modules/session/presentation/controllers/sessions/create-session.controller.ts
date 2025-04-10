@@ -1,4 +1,4 @@
-import { CreateSessionCommand } from '@modules/session/application/commands/create-session/create-session.command';
+import { CreateSessionCommand } from '@modules/session/application/commands/session/create-session.command';
 import { CommandBus } from '@nestjs/cqrs';
 import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
 import { MessagePattern, Payload } from '@nestjs/microservices';

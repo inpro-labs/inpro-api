@@ -57,6 +57,8 @@ describe('PrismaSessionRepository (integration)', () => {
 
     await repository.save(session);
 
+    console.log('saved session', session);
+
     const found = await repository.findById(session.id.value());
 
     expect(found.isOk()).toBe(true);

@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
@@ -36,7 +31,11 @@ export class TcpAuthGuard implements CanActivate {
     const token = request.metadata?.authorization;
 
     if (!token) {
-      throw new UnauthorizedException('Authorization token is missing.');
+      throw new ApplicationException(
+        'Authorization token is missing.',
+        401,
+        'UNAUTHORIZED',
+      );
     }
 
     try {

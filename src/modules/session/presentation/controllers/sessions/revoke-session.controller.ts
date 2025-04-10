@@ -1,7 +1,7 @@
 import { CommandBus } from '@nestjs/cqrs';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
-import { RevokeSessionCommand } from '@modules/session/application/commands/revoke-session/revoke-session.command';
+import { RevokeSessionCommand } from '@modules/session/application/commands/session/revoke-session.command';
 import { RevokeSessionDto } from '@modules/session/application/dtos/session/revoke-session.dto';
 import {
   MicroserviceRequest,

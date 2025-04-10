@@ -2,7 +2,7 @@ import { QueryBus } from '@nestjs/cqrs';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
 import { ListUserSessionsDto } from '@modules/session/application/dtos/session/list-user-sessions.dto';
-import { ListUserSessionsQuery } from '@modules/session/application/queries/list-user-sessions/list-user-sessions.query';
+import { ListUserSessionsQuery } from '@modules/session/application/queries/session/list-user-sessions.query';
 import {
   MicroserviceRequest,
   ObservableResponse,
