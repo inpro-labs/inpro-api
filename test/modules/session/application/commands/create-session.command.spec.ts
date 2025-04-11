@@ -2,12 +2,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
-import { CreateSessionHandler } from '@modules/session/application/commands/session/create-session.handler';
-import { CreateSessionCommand } from '@modules/session/application/commands/session/create-session.command';
-import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
+import { CreateSessionHandler } from '@modules/auth/application/commands/session/create-session.handler';
+import { CreateSessionCommand } from '@modules/auth/application/commands/session/create-session.command';
+import { SessionRepository } from '@modules/auth/domain/repositories/session.repository.interface';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { CreateSessionDto } from '@modules/session/application/dtos/session/create-session.dto';
-import { Session } from '@modules/session/domain/aggregates/session.aggregate';
+import { CreateSessionDto } from '@modules/auth/application/dtos/session/create-session.dto';
+import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException, Result } from '@inpro-labs/api-sdk';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { PrismaService } from '@shared/infra/services/prisma.service';

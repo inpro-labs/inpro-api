@@ -1,6 +1,6 @@
-import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { Combine, ID } from '@inpro-labs/api-sdk';
-import { Session } from '@modules/session/domain/aggregates/session.aggregate';
+import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 
 describe('Session Aggregate', () => {

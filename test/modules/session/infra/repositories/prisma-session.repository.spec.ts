@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@shared/infra/services/prisma.service';
-import { PrismaSessionRepository } from '@modules/session/infra/repositories/prisma-session.repository';
-import { Session } from '@modules/session/domain/aggregates/session.aggregate';
-import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
+import { PrismaSessionRepository } from '@modules/auth/infra/repositories/prisma-session.repository';
+import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
+import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Combine, ID } from '@inpro-labs/api-sdk';
 

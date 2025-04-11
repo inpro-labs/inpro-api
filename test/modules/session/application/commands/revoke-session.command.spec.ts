@@ -2,14 +2,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
-import { SessionRepository } from '@modules/session/domain/repositories/session.repository.interface';
-import { Session } from '@modules/session/domain/aggregates/session.aggregate';
+import { SessionRepository } from '@modules/auth/domain/repositories/session.repository.interface';
+import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException, Err, ID, Ok } from '@inpro-labs/api-sdk';
-import { RevokeSessionHandler } from '@modules/session/application/commands/session/revoke-session.handler';
-import { RevokeSessionDto } from '@modules/session/application/dtos/session/revoke-session.dto';
-import { RevokeSessionCommand } from '@modules/session/application/commands/session/revoke-session.command';
+import { RevokeSessionHandler } from '@modules/auth/application/commands/session/revoke-session.handler';
+import { RevokeSessionDto } from '@modules/auth/application/dtos/session/revoke-session.dto';
+import { RevokeSessionCommand } from '@modules/auth/application/commands/session/revoke-session.command';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { RefreshTokenHash } from '@modules/session/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 
 describe('RevokeSessionHandler', () => {
   let handler: RevokeSessionHandler;
