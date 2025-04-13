@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { SessionRepository } from '@modules/auth/domain/repositories/session.repository';
+import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { PrismaSessionRepository } from '@modules/auth/infra/repositories/prisma-session.repository';
 import { SessionCreatedHandler } from '@modules/auth/application/events/session/session-created.handler';
 import { PrismaService } from '@shared/infra/services/prisma.service';
@@ -11,6 +11,8 @@ import { RetrieveUserSessionsController } from './presentation/controllers/sessi
 import { RevokeSessionController } from './presentation/controllers/sessions/revoke-session.controller';
 import { SessionRevokedHandler } from './application/events/session/session-revoked.handler';
 import { CreateSessionHandler } from './application/commands/session/create-session.handler';
+import { SessionQueryService } from './application/interfaces/queries/session-query.service.interface';
+import { PrismaSessionQueryService } from './infra/queries/prisma-session-query.service';
 
 @Module({
   imports: [HashModule],
@@ -26,12 +28,18 @@ import { CreateSessionHandler } from './application/commands/session/create-sess
     },
     PrismaService,
 
-    // Commands & Queries & Events Handlers
+    // CQRS: Commands & Queries & Events Handlers
     CreateSessionHandler,
     SessionCreatedHandler,
     ListUserSessionsHandler,
     RevokeSessionHandler,
     SessionRevokedHandler,
+
+    // Infra Queries
+    {
+      provide: SessionQueryService,
+      useClass: PrismaSessionQueryService,
+    },
   ],
 })
 export class SessionModule {}

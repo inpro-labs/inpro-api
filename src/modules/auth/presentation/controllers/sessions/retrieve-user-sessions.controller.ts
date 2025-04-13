@@ -9,7 +9,7 @@ import {
   ZodValidationPipe,
 } from '@inpro-labs/api-sdk';
 import { ListUserSessionsSchema } from '@modules/auth/presentation/schemas/session/list-user-sessions.schema';
-import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
+import { zodQueryParams } from '@shared/utils/types';
 
 @Controller()
 export class RetrieveUserSessionsController {
@@ -17,15 +17,13 @@ export class RetrieveUserSessionsController {
 
   @MessagePattern('list_user_sessions')
   async listUserSessions(
-    @Payload(new ZodValidationPipe(ListUserSessionsSchema))
+    @Payload(new ZodValidationPipe(zodQueryParams(ListUserSessionsSchema)))
     payload: MicroserviceRequest<ListUserSessionsDto>,
   ) {
     const sessions = await this.queryBus.execute(
-      new ListUserSessionsQuery(payload.data.userId),
+      new ListUserSessionsQuery(payload.data),
     );
 
-    return ObservableResponse.ok(
-      new SessionToResponseAdapter().adaptMany(sessions),
-    );
+    return ObservableResponse.ok(sessions);
   }
 }

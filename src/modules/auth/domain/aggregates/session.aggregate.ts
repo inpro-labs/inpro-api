@@ -17,6 +17,7 @@ interface CreateProps {
   revokedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  lastRefreshAt?: Date;
 }
 
 interface SessionProps {
@@ -31,6 +32,7 @@ interface SessionProps {
   revokedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  lastRefreshAt?: Date;
 }
 
 export class Session extends Aggregate<SessionProps> {
@@ -49,6 +51,7 @@ export class Session extends Aggregate<SessionProps> {
     revokedAt: z.date().optional(),
     createdAt: z.date(),
     updatedAt: z.date(),
+    lastRefreshAt: z.date().optional(),
   });
 
   private constructor(props: SessionProps) {

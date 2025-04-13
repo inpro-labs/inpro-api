@@ -8,7 +8,7 @@ import {
   ObservableResponse,
   ZodValidationPipe,
 } from '@inpro-labs/api-sdk';
-import { RevokeSessionSchema } from '@modules/auth/presentation/schemas/revoke-session.schema';
+import { RevokeSessionSchema } from '@modules/auth/presentation/schemas/session/revoke-session.schema';
 import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
 
 @Controller()

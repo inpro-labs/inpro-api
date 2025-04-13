@@ -4,20 +4,18 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
 import { CreateSessionHandler } from '@modules/auth/application/commands/session/create-session.handler';
 import { CreateSessionCommand } from '@modules/auth/application/commands/session/create-session.command';
-import { SessionRepository } from '@modules/auth/domain/repositories/session.repository';
+import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { CreateSessionDto } from '@modules/auth/application/dtos/session/create-session.dto';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException, Result } from '@inpro-labs/api-sdk';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
-import { PrismaService } from '@shared/infra/services/prisma.service';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 
 describe('CreateSessionHandler', () => {
   let handler: CreateSessionHandler;
   let sessionRepository: MockProxy<SessionRepository>;
   let eventPublisher: MockProxy<EventPublisher>;
-  let prisma: PrismaService;
 
   beforeAll(async () => {
     sessionRepository = mock<SessionRepository>();
@@ -37,16 +35,23 @@ describe('CreateSessionHandler', () => {
           provide: EventPublisher,
           useValue: eventPublisher,
         },
-        PrismaService,
       ],
     }).compile();
 
     handler = module.get(CreateSessionHandler);
-    prisma = module.get(PrismaService);
-  });
 
-  beforeEach(async () => {
-    await prisma.session.deleteMany();
+    sessionRepository.findActiveSessionByDeviceId.mockResolvedValue(
+      Result.ok(SessionFactory.make('session-123').unwrap()),
+    );
+    sessionRepository.save.mockResolvedValue(
+      Result.ok(SessionFactory.make('session-123').unwrap()),
+    );
+
+    sessionRepository.findActiveSessionByDeviceId.mockRejectedValue(
+      Result.err(
+        new ApplicationException('Session not found', 404, 'SESSION_NOT_FOUND'),
+      ),
+    );
   });
 
   const validDto: CreateSessionDto = {

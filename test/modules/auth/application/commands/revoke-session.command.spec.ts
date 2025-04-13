@@ -2,7 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
-import { SessionRepository } from '@modules/auth/domain/repositories/session.repository';
+import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException, Err, ID, Ok } from '@inpro-labs/api-sdk';
 import { RevokeSessionHandler } from '@modules/auth/application/commands/session/revoke-session.handler';
