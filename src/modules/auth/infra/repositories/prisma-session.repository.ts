@@ -1,9 +1,9 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { SessionRepository } from '@modules/auth/domain/repositories/session.repository.interface';
+import { SessionRepository } from '@modules/auth/domain/repositories/session.repository';
 import { ApplicationException, Err, Ok, Result } from '@inpro-labs/api-sdk';
 import { PrismaService } from '@shared/infra/services/prisma.service';
-import { SessionToModelAdapter } from '../adapters/session-to-model.adapter';
-import { SessionToDomainAdapter } from '../adapters/session-to-domain.adapter';
+import { SessionToModelAdapter } from '../adapters/session/session-to-model.adapter';
+import { SessionToDomainAdapter } from '../adapters/session/session-to-domain.adapter';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -12,8 +12,6 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async save(session: Session): Promise<Result<Session>> {
     const sessionModel = session.toObject(new SessionToModelAdapter());
-
-    console.log(sessionModel);
 
     try {
       await this.prisma.session.upsert({
@@ -24,6 +22,7 @@ export class PrismaSessionRepository implements SessionRepository {
 
       return Ok(session);
     } catch (error) {
+      console.log(error);
       return Err(error);
     }
   }
@@ -35,8 +34,6 @@ export class PrismaSessionRepository implements SessionRepository {
       const sessionModel = await this.prisma.session.findFirst({
         where: { deviceId, expiresAt: { gt: new Date() }, revokedAt: null },
       });
-
-      console.log('found', sessionModel);
 
       if (!sessionModel) {
         return Err(

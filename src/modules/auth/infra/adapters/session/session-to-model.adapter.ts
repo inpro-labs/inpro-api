@@ -1,6 +1,6 @@
 import { Adapter } from '@inpro-labs/api-sdk';
-import { Session } from '../../domain/aggregates/session.aggregate';
-import { SessionModel } from '../models/session.model';
+import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
+import { SessionModel } from '@modules/auth/infra/models/session.model';
 
 export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
   adaptOne(item: Session): SessionModel {

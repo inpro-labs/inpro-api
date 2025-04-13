@@ -1,23 +1,17 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListUserSessionsQuery } from './list-user-sessions.query';
-import { ApplicationException, Result } from '@inpro-labs/api-sdk';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { ApplicationException } from '@inpro-labs/api-sdk';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
+import { SessionRepository } from '@modules/auth/domain/repositories/session.repository';
 
 @QueryHandler(ListUserSessionsQuery)
 export class ListUserSessionsHandler
   implements IQueryHandler<ListUserSessionsQuery, Session[]>
 {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly sessionRepository: SessionRepository) {}
 
   async execute(query: ListUserSessionsQuery): Promise<Session[]> {
-    const sessions = await Result.fromPromise(
-      this.prismaService.session.findMany({
-        where: {
-          userId: query.userId,
-        },
-      }),
-    );
+    const sessions = await this.sessionRepository.findAllByUserId(query.userId);
 
     if (sessions.isErr()) {
       throw new ApplicationException(

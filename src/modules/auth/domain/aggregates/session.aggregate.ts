@@ -56,8 +56,6 @@ export class Session extends Aggregate<SessionProps> {
   }
 
   static create(props: CreateProps): Result<Session, Error> {
-    console.log(props);
-
     if (!Session.isValidProps(props)) {
       return Err(new Error('Invalid Session props'));
     }

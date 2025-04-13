@@ -1,6 +1,6 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionCommand } from './create-session.command';
-import { SessionRepository } from '@modules/auth/domain/repositories/session.repository.interface';
+import { SessionRepository } from '@modules/auth/domain/repositories/session.repository';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException, ID } from '@inpro-labs/api-sdk';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
@@ -43,8 +43,6 @@ export class CreateSessionHandler
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-
-    console.log(result);
 
     if (result.isErr()) {
       throw new ApplicationException(
