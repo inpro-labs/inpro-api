@@ -1,4 +1,4 @@
-import { Adapter } from '@inpro-labs/api-sdk';
+import { Adapter } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserModel } from '@modules/account/infra/models/user.model';
 

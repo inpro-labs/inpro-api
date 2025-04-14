@@ -2,7 +2,7 @@ import { SessionCreatedEvent } from '../events/session-created.event';
 import { RefreshTokenHash } from '../value-objects/refresh-token-hash.value-object';
 import { SessionRevokedEvent } from '../events/session-revoked.event';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { Aggregate, Err, ID, Ok, Result } from '@inpro-labs/api-sdk';
+import { Aggregate, Err, ID, Ok, Result } from '@inpro-labs/core';
 import { z } from 'zod';
 
 interface CreateProps {

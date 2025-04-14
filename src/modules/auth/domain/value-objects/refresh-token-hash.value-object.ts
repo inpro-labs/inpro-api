@@ -1,4 +1,4 @@
-import { Result, ValueObject } from '@inpro-labs/api-sdk';
+import { Result, ValueObject } from '@inpro-labs/core';
 
 interface Props {
   value: string;

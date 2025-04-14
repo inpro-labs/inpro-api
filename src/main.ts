@@ -1,24 +1,24 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
 import { MicroserviceOptions } from '@nestjs/microservices';
-import { MicroserviceExceptionFilter } from '@inpro-labs/api-sdk';
-import { JwtService } from '@nestjs/jwt';
-import { TcpAuthGuard } from '@shared/infra/security/jwt/guards/tcp-auth.guard';
+import { MicroserviceExceptionFilter } from '@inpro-labs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.TCP,
+      transport: Transport.RMQ,
       options: {
-        host: '127.0.0.1',
-        port: 4001,
+        urls: ['amqp://guest:guest@localhost:5672'],
+        queue: 'auth-service',
+        queueOptions: {
+          durable: false,
+        },
       },
     },
   );
   app.useGlobalFilters(new MicroserviceExceptionFilter());
-  //app.useGlobalGuards(new TcpAuthGuard(new Reflector(), new JwtService()));
   await app.listen();
 }
 

@@ -1,7 +1,7 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
-import { Combine, ID, Result } from '@inpro-labs/api-sdk';
+import { Combine, ID, Result } from '@inpro-labs/core';
 
 export class SessionFactory {
   static make(data: SessionModel): Result<Session> {

@@ -1,7 +1,7 @@
-import { Result } from '@inpro-labs/api-sdk';
+import { Result } from '@inpro-labs/core';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { ListUserSessionsQuery } from '../../queries/session/list-user-sessions.query';
-import { Paginated } from '@shared/utils/types';
+import { Paginated } from '@inpro-labs/microservices';
 
 export abstract class SessionQueryService {
   abstract listUserSessions(

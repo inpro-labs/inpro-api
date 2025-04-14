@@ -2,9 +2,12 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionCommand } from './create-session.command';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { ApplicationException, ID } from '@inpro-labs/api-sdk';
+import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
+import { ID } from '@inpro-labs/core';
+import { UserRepository } from '@modules/account/domain/repositories/user.repository';
+import { JwtService } from '@nestjs/jwt';
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionHandler
@@ -14,13 +17,15 @@ export class CreateSessionHandler
     private readonly sessionRepository: SessionRepository,
     private readonly publish: EventPublisher,
     private readonly hashService: HashService,
+    private readonly userRepository: UserRepository,
+    private readonly jwtService: JwtService,
   ) {}
 
   async execute(command: CreateSessionCommand): Promise<Session> {
-    const activeSession =
-      await this.sessionRepository.findActiveSessionByDeviceId(
-        command.dto.deviceId,
-      );
+    const activeSession = await this.sessionRepository.findActiveSession(
+      command.dto.deviceId,
+      command.dto.userId,
+    );
 
     if (activeSession.isOk()) {
       throw new ApplicationException(
@@ -30,7 +35,28 @@ export class CreateSessionHandler
       );
     }
 
-    const hash = await this.hashService.generateHash('meu hash');
+    const userResult = await this.userRepository.findByEmail(command.dto.email);
+
+    if (userResult.isErr()) {
+      throw new ApplicationException('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    const user = userResult.unwrap();
+
+    const payload = {
+      sub: user.id,
+      email: user.get('email').props.value,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '5m',
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '30d',
+    });
+
+    const hash = await this.hashService.generateHash(refreshToken);
     const refreshTokenHash = RefreshTokenHash.create(hash.unwrap()).unwrap();
     const result = Session.create({
       device: command.dto.device,

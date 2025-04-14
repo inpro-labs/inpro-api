@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListUserSessionsQuery } from './list-user-sessions.query';
-import { ApplicationException } from '@inpro-labs/api-sdk';
+import { ApplicationException } from '@inpro-labs/microservices';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { SessionQueryService } from '../../interfaces/queries/session-query.service.interface';
-import { Paginated } from '@shared/utils/types';
+import { Paginated } from '@inpro-labs/microservices';
 
 @QueryHandler(ListUserSessionsQuery)
 export class ListUserSessionsHandler

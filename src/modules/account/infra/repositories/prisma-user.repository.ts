@@ -2,7 +2,7 @@ import { PrismaService } from '@shared/infra/services/prisma.service';
 import { UserRepository } from '@modules/account/domain/repositories/user.repository';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserToModelAdapter } from '@modules/account/infra/adapters/user/user-to-model.adapter';
-import { Err, Ok, Result } from '@inpro-labs/api-sdk';
+import { Err, Ok, Result } from '@inpro-labs/core';
 import { UserToDomainAdapter } from '@modules/account/infra/factories/user.factory';
 import { Injectable } from '@nestjs/common';
 

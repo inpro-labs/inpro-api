@@ -5,9 +5,9 @@ import { RevokeSessionCommand } from '@modules/auth/application/commands/session
 import { RevokeSessionDto } from '@modules/auth/application/dtos/session/revoke-session.dto';
 import {
   MicroserviceRequest,
-  ObservableResponse,
+  MessageResponse,
   ZodValidationPipe,
-} from '@inpro-labs/api-sdk';
+} from '@inpro-labs/microservices';
 import { RevokeSessionSchema } from '@modules/auth/presentation/schemas/session/revoke-session.schema';
 import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
 
@@ -24,9 +24,6 @@ export class RevokeSessionController {
       new RevokeSessionCommand(payload.data),
     );
 
-    return ObservableResponse.ok(
-      session.toObject(new SessionToResponseAdapter()),
-      200,
-    );
+    return MessageResponse.ok(session.toObject(new SessionToResponseAdapter()));
   }
 }

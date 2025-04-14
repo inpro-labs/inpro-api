@@ -5,11 +5,11 @@ import { ListUserSessionsDto } from '@modules/auth/application/dtos/session/list
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import {
   MicroserviceRequest,
-  ObservableResponse,
+  MessageResponse,
   ZodValidationPipe,
-} from '@inpro-labs/api-sdk';
+  zodQueryParams,
+} from '@inpro-labs/microservices';
 import { ListUserSessionsSchema } from '@modules/auth/presentation/schemas/session/list-user-sessions.schema';
-import { zodQueryParams } from '@shared/utils/types';
 
 @Controller()
 export class RetrieveUserSessionsController {
@@ -24,6 +24,6 @@ export class RetrieveUserSessionsController {
       new ListUserSessionsQuery(payload.data),
     );
 
-    return ObservableResponse.ok(sessions);
+    return MessageResponse.ok(sessions);
   }
 }

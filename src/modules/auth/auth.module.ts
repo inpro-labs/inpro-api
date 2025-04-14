@@ -13,9 +13,11 @@ import { SessionRevokedHandler } from './application/events/session/session-revo
 import { CreateSessionHandler } from './application/commands/session/create-session.handler';
 import { SessionQueryService } from './application/interfaces/queries/session-query.service.interface';
 import { PrismaSessionQueryService } from './infra/queries/prisma-session-query.service';
+import { JwtModule } from '@nestjs/jwt';
+import { AccountModule } from '@modules/account/account.module';
 
 @Module({
-  imports: [HashModule],
+  imports: [HashModule, JwtModule, AccountModule],
   controllers: [
     CreateSessionController,
     RetrieveUserSessionsController,
@@ -42,4 +44,4 @@ import { PrismaSessionQueryService } from './infra/queries/prisma-session-query.
     },
   ],
 })
-export class SessionModule {}
+export class AuthModule {}

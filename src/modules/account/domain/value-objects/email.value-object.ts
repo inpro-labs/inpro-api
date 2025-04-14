@@ -1,4 +1,4 @@
-import { Err, Ok, ValueObject } from '@inpro-labs/api-sdk';
+import { Err, Ok, ValueObject } from '@inpro-labs/core';
 
 interface Props {
   value: string;

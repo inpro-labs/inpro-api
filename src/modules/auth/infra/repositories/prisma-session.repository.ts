@@ -1,6 +1,7 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
-import { ApplicationException, Err, Ok, Result } from '@inpro-labs/api-sdk';
+import { Err, Ok, Result } from '@inpro-labs/core';
+import { ApplicationException } from '@inpro-labs/microservices';
 import { PrismaService } from '@shared/infra/services/prisma.service';
 import { SessionToModelAdapter } from '../adapters/session/session-to-model.adapter';
 import { SessionToDomainAdapter } from '../adapters/session/session-to-domain.adapter';
@@ -27,12 +28,18 @@ export class PrismaSessionRepository implements SessionRepository {
     }
   }
 
-  async findActiveSessionByDeviceId(
+  async findActiveSession(
     deviceId: string,
+    userId: string,
   ): Promise<Result<Session>> {
     try {
       const sessionModel = await this.prisma.session.findFirst({
-        where: { deviceId, expiresAt: { gt: new Date() }, revokedAt: null },
+        where: {
+          deviceId,
+          expiresAt: { gt: new Date() },
+          revokedAt: null,
+          userId,
+        },
       });
 
       if (!sessionModel) {

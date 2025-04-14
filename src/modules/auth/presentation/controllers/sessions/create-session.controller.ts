@@ -4,9 +4,9 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
 import {
   MicroserviceRequest,
-  ObservableResponse,
+  MessageResponse,
   ZodValidationPipe,
-} from '@inpro-labs/api-sdk';
+} from '@inpro-labs/microservices';
 import { CreateSessionSchema } from '@modules/auth/presentation/schemas/session/create-session.schema';
 import { CreateSessionDto } from '@modules/auth/application/dtos/session/create-session.dto';
 import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
@@ -26,6 +26,6 @@ export class CreateSessionController {
 
     const sessionViewModel = session.toObject(new SessionToResponseAdapter());
 
-    return ObservableResponse.ok(sessionViewModel);
+    return MessageResponse.ok(sessionViewModel);
   }
 }

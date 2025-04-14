@@ -19,10 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json --detectOpenHandles",
     "db:test:reset": "dotenv -e .env.test -- prisma db push --force-reset --schema=prisma/schema.prisma",
-    "update:sdk": "npm i @inpro-labs/api-sdk@latest"
+    "update:sdk": "npm i @inpro-labs/core@latest @inpro-labs/microservices@latest"
   },
   "dependencies": {
-    "@inpro-labs/api-sdk": "^1.0.5",
+    "@inpro-labs/core": "^1.0.1",
+    "@inpro-labs/microservices": "^1.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/cqrs": "^11.0.3",
@@ -31,8 +32,11 @@
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/client": "^6.6.0",
     "@prisma/instrumentation": "^6.6.0",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.7",
     "bcrypt": "^5.1.1",
     "jest-mock-extended": "^4.0.0-beta1",
+    "mqtt": "^5.11.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

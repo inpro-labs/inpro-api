@@ -1,5 +1,5 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { Adapter } from '@inpro-labs/api-sdk';
+import { Adapter } from '@inpro-labs/core';
 import { SessionViewModel } from '../view-model/session.view-model';
 
 export class SessionToResponseAdapter

@@ -1,4 +1,4 @@
-import { Adapter } from '@inpro-labs/api-sdk';
+import { Adapter } from '@inpro-labs/core';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 

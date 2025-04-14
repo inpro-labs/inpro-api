@@ -2,7 +2,10 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
-import { ApplicationException, MicroserviceRequest } from '@inpro-labs/api-sdk';
+import {
+  ApplicationException,
+  MicroserviceRequest,
+} from '@inpro-labs/microservices';
 
 interface IJwtPayload {
   sub: string;

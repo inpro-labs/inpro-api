@@ -1,4 +1,4 @@
-import { Aggregate, Err, ID, Ok, Result } from '@inpro-labs/api-sdk';
+import { Aggregate, Err, ID, Ok, Result } from '@inpro-labs/core';
 import { Email } from '../value-objects/email.value-object';
 import { z } from 'zod';
 import { UserCreatedEvent } from '../events/user-created.event';
