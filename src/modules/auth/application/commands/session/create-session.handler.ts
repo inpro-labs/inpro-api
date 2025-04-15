@@ -6,8 +6,6 @@ import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import { ID } from '@inpro-labs/core';
-import { UserRepository } from '@modules/account/domain/repositories/user.repository';
-import { JwtService } from '@nestjs/jwt';
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionHandler
@@ -17,8 +15,6 @@ export class CreateSessionHandler
     private readonly sessionRepository: SessionRepository,
     private readonly publish: EventPublisher,
     private readonly hashService: HashService,
-    private readonly userRepository: UserRepository,
-    private readonly jwtService: JwtService,
   ) {}
 
   async execute(command: CreateSessionCommand): Promise<Session> {
@@ -35,37 +31,19 @@ export class CreateSessionHandler
       );
     }
 
-    const userResult = await this.userRepository.findByEmail(command.dto.email);
-
-    if (userResult.isErr()) {
-      throw new ApplicationException('User not found', 404, 'USER_NOT_FOUND');
-    }
-
-    const user = userResult.unwrap();
-
-    const payload = {
-      sub: user.id,
-      email: user.get('email').props.value,
-    };
-
-    const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '5m',
-    });
-
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: '30d',
-    });
-
-    const hash = await this.hashService.generateHash(refreshToken);
+    const hash = await this.hashService.generateHash(command.dto.refreshToken);
     const refreshTokenHash = RefreshTokenHash.create(hash.unwrap()).unwrap();
     const result = Session.create({
+      id: command.dto.id ? ID.create(command.dto.id).unwrap() : undefined,
       device: command.dto.device,
       deviceId: command.dto.deviceId,
       userAgent: command.dto.userAgent,
       ip: command.dto.ip,
       userId: ID.create(command.dto.userId).unwrap(),
       refreshTokenHash,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      expiresAt:
+        command.dto.expiresAt ??
+        new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
       createdAt: new Date(),
       updatedAt: new Date(),
     });

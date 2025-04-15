@@ -108,6 +108,34 @@ export class PrismaSessionRepository implements SessionRepository {
     }
   }
 
+  async findDeviceSession(
+    id: string,
+    userId: string,
+    deviceId: string,
+  ): Promise<Result<Session>> {
+    try {
+      const sessionModel = await this.prisma.session.findUnique({
+        where: { id, userId, deviceId },
+      });
+
+      if (!sessionModel) {
+        return Err(
+          new ApplicationException(
+            'Session not found',
+            404,
+            'SESSION_NOT_FOUND',
+          ),
+        );
+      }
+
+      const session = new SessionToDomainAdapter().adaptOne(sessionModel);
+
+      return Ok(session);
+    } catch (error) {
+      return Err(error);
+    }
+  }
+
   async findAllByUserId(userId: string): Promise<Result<Session[]>> {
     try {
       const sessionModels = await this.prisma.session.findMany({

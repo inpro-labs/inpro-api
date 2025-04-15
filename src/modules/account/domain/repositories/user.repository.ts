@@ -4,4 +4,5 @@ import { Result } from '@inpro-labs/core';
 export abstract class UserRepository {
   abstract save(user: User): Promise<Result<void>>;
   abstract findByEmail(email: string): Promise<Result<User>>;
+  abstract findById(id: string): Promise<Result<User>>;
 }

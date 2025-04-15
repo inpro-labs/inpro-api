@@ -15,6 +15,9 @@ import { SessionQueryService } from './application/interfaces/queries/session-qu
 import { PrismaSessionQueryService } from './infra/queries/prisma-session-query.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AccountModule } from '@modules/account/account.module';
+import { SignInHandler } from './application/commands/auth/sign-in.handler';
+import { SignInController } from './presentation/controllers/auth/sign-in.controller';
+import { AuthService } from './infra/services/auth.service';
 
 @Module({
   imports: [HashModule, JwtModule, AccountModule],
@@ -22,6 +25,7 @@ import { AccountModule } from '@modules/account/account.module';
     CreateSessionController,
     RetrieveUserSessionsController,
     RevokeSessionController,
+    SignInController,
   ],
   providers: [
     {
@@ -36,12 +40,13 @@ import { AccountModule } from '@modules/account/account.module';
     ListUserSessionsHandler,
     RevokeSessionHandler,
     SessionRevokedHandler,
-
+    SignInHandler,
     // Infra Queries
     {
       provide: SessionQueryService,
       useClass: PrismaSessionQueryService,
     },
+    AuthService,
   ],
 })
 export class AuthModule {}
