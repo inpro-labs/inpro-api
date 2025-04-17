@@ -1,5 +1,8 @@
-import { ICommand } from '@nestjs/cqrs';
+import { Command } from '@nestjs/cqrs';
+import { RefreshTokenOutputDTO } from '@modules/auth/application/dtos/auth/refresh-token-output.dto';
 
-export class RefreshTokenCommand implements ICommand {
-  constructor(public readonly refreshToken: string) {}
+export class RefreshTokenCommand extends Command<RefreshTokenOutputDTO> {
+  constructor(public readonly refreshToken: string) {
+    super();
+  }
 }

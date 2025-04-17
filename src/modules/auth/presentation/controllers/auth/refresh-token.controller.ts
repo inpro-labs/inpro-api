@@ -7,8 +7,8 @@ import {
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
 import { RefreshTokenCommand } from '@modules/auth/application/commands/auth/refresh-token.command';
-import { RefreshTokenEventSchema } from '@modules/auth/presentation/schemas/auth/refresh-token-event.schema';
-import { RefreshTokenDTO } from '@modules/auth/application/dtos/auth/refresh-token-command.dto';
+import { RefreshTokenInputDTO } from '@modules/auth/application/dtos/auth/refresh-token-input.dto';
+import { refreshTokenSchema } from '../../schemas/auth/refresh-token.schema';
 
 @Controller()
 export class RefreshTokenController {
@@ -16,11 +16,11 @@ export class RefreshTokenController {
 
   @MessagePattern('refresh_token')
   async refreshToken(
-    @Payload(new ZodValidationPipe(RefreshTokenEventSchema))
-    payload: MicroserviceRequest<RefreshTokenDTO>,
+    @Payload(new ZodValidationPipe(refreshTokenSchema))
+    payload: MicroserviceRequest<RefreshTokenInputDTO>,
   ) {
     const tokens = await this.commandBus.execute(
-      new RefreshTokenCommand(payload.data),
+      new RefreshTokenCommand(payload.data.refreshToken),
     );
 
     return MessageResponse.ok(tokens);

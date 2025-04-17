@@ -3,7 +3,7 @@ import { SignInCommand } from './sign-in.command';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { ID } from '@inpro-labs/core';
 import { CreateSessionCommand } from '../session/create-session.command';
-import { AuthService } from '@modules/auth/infra/services/auth.service';
+import { AuthService } from '@modules/auth/application/interfaces/services/auth.service.interface';
 import { SignInOutputDTO } from '../../dtos/auth/sign-in-output.dto';
 
 @CommandHandler(SignInCommand)
@@ -33,10 +33,20 @@ export class SignInHandler
 
     const sessionId = ID.create().unwrap();
 
-    const { accessToken, refreshToken } = this.authService.generateTokens(
+    const tokensResult = this.authService.generateTokens(
       sessionId.value(),
       user,
     );
+
+    if (tokensResult.isErr()) {
+      throw new ApplicationException(
+        'Failed to generate tokens',
+        500,
+        'FAILED_TO_GENERATE_TOKENS',
+      );
+    }
+
+    const { accessToken, refreshToken } = tokensResult.unwrap();
 
     await this.commandBus.execute(
       new CreateSessionCommand({
@@ -53,7 +63,7 @@ export class SignInHandler
     return {
       accessToken,
       refreshToken,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 5),
+      expiresAt: new Date(Date.now() + 1000 * 60 * 5), // TODO: Get from config
     };
   }
 }

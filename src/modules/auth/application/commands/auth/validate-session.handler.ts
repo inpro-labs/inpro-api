@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ValidateSessionCommand } from './validate-session.command';
-import { SessionService } from '@modules/auth/infra/services/session.service';
+import { SessionService } from '@modules/auth/application/interfaces/services/session.service.interface';
 import { ApplicationException } from '@inpro-labs/microservices';
 
 @CommandHandler(ValidateSessionCommand)
