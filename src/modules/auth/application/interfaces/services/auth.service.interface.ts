@@ -3,7 +3,10 @@ import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 
 export abstract class AuthService {
-  abstract validateUser(email: string, password: string): Promise<Result<User>>;
+  abstract validateUserCredentials(
+    email: string,
+    password: string,
+  ): Promise<Result<User>>;
   abstract generateTokens(
     sessionId: string,
     user: User,

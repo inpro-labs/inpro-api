@@ -16,7 +16,7 @@ export class SignInHandler
   ) {}
 
   async execute(command: SignInCommand): Promise<SignInOutputDTO> {
-    const userResult = await this.authService.validateUser(
+    const userResult = await this.authService.validateUserCredentials(
       command.dto.email,
       command.dto.password,
     );

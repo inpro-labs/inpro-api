@@ -17,7 +17,10 @@ export class AuthServiceImpl implements AuthService {
     private readonly sessionRepository: SessionRepository,
   ) {}
 
-  async validateUser(password: string, email: string): Promise<Result<User>> {
+  async validateUserCredentials(
+    password: string,
+    email: string,
+  ): Promise<Result<User>> {
     const user = await this.userRepository.findByEmail(email);
 
     if (user.isErr()) {
