@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from '@inpro-labs/core';
-import { UserRepository } from '@modules/account/domain/repositories/user.repository';
+import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';

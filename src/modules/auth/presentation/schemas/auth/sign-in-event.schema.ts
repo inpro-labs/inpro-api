@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { CreateSessionSchema } from '../session/create-session.schema';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 
 export const SignInEventSchema = z.object({

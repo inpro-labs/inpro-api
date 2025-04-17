@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateUserCommand } from './create-user.command';
-import { UserRepository } from '@modules/account/domain/repositories/user.repository';
+import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
