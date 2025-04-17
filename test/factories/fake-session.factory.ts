@@ -1,6 +1,6 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
-import { ID, Result } from '@inpro-labs/api-sdk';
+import { ID, Result } from '@inpro-labs/core';
 
 // TODO: Implement optional params
 

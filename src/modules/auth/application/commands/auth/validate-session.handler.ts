@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ValidateSessionCommand } from './validate-session.command';
 import { SessionService } from '@modules/auth/infra/services/session.service';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 
 @CommandHandler(ValidateSessionCommand)
 export class ValidateSessionHandler
@@ -10,9 +9,9 @@ export class ValidateSessionHandler
 {
   constructor(private readonly sessionService: SessionService) {}
 
-  async execute(command: ValidateSessionCommand): Promise<Session> {
+  async execute(command: ValidateSessionCommand): Promise<void> {
     const sessionResult = await this.sessionService.retrieveTokenSession(
-      command.accessToken,
+      command.dto.accessToken,
     );
 
     if (sessionResult.isErr()) {
@@ -22,9 +21,5 @@ export class ValidateSessionHandler
         'INVALID_TOKEN',
       );
     }
-
-    const session = sessionResult.unwrap();
-
-    return session;
   }
 }

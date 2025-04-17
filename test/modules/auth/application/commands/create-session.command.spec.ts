@@ -8,7 +8,8 @@ import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { CreateSessionDto } from '@modules/auth/application/dtos/session/create-session.dto';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { ApplicationException, Result } from '@inpro-labs/api-sdk';
+import { Result } from '@inpro-labs/core';
+import { ApplicationException } from '@inpro-labs/microservices';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 
@@ -40,14 +41,14 @@ describe('CreateSessionHandler', () => {
 
     handler = module.get(CreateSessionHandler);
 
-    sessionRepository.findActiveSessionByDeviceId.mockResolvedValue(
+    sessionRepository.findActiveSession.mockResolvedValue(
       Result.ok(SessionFactory.make('session-123').unwrap()),
     );
     sessionRepository.save.mockResolvedValue(
       Result.ok(SessionFactory.make('session-123').unwrap()),
     );
 
-    sessionRepository.findActiveSessionByDeviceId.mockRejectedValue(
+    sessionRepository.findActiveSession.mockRejectedValue(
       Result.err(
         new ApplicationException('Session not found', 404, 'SESSION_NOT_FOUND'),
       ),
@@ -60,11 +61,12 @@ describe('CreateSessionHandler', () => {
     userAgent: 'test-agent',
     ip: '127.0.0.1',
     deviceId: 'test-device-id',
+    refreshToken: 'refresh-token',
   };
 
   it('should create a session and call save + commit', async () => {
     jest
-      .spyOn(sessionRepository, 'findActiveSessionByDeviceId')
+      .spyOn(sessionRepository, 'findActiveSession')
       .mockReturnValueOnce(
         Promise.resolve(
           Result.err(
@@ -92,7 +94,7 @@ describe('CreateSessionHandler', () => {
     const session = SessionFactory.make();
 
     jest
-      .spyOn(sessionRepository, 'findActiveSessionByDeviceId')
+      .spyOn(sessionRepository, 'findActiveSession')
       .mockReturnValueOnce(Promise.resolve(Result.ok(session.unwrap())));
 
     const command = new CreateSessionCommand({
@@ -107,7 +109,7 @@ describe('CreateSessionHandler', () => {
 
   it('should throw ApplicationException when session already exists', async () => {
     jest
-      .spyOn(sessionRepository, 'findActiveSessionByDeviceId')
+      .spyOn(sessionRepository, 'findActiveSession')
       .mockReturnValueOnce(
         Promise.resolve(
           Result.ok(SessionFactory.make('session-EXISTENT-123').unwrap()),

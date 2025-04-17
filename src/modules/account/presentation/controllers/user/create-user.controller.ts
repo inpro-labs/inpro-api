@@ -20,7 +20,6 @@ export class CreateUserController {
     @Payload(new ZodValidationPipe(CreateUserSchema))
     payload: MicroserviceRequest<CreateUserDto>,
   ) {
-    console.log(payload);
     const user = await this.commandBus.execute(
       new CreateUserCommand(payload.data),
     );

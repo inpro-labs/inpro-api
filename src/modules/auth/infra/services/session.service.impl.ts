@@ -3,9 +3,10 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { SessionService } from '@modules/auth/application/interfaces/services/session.service.interface';
 
 @Injectable()
-export class SessionService {
+export class SessionServiceImpl implements SessionService {
   constructor(
     private readonly sessionRepository: SessionRepository,
     private readonly jwtService: JwtService,

@@ -6,9 +6,10 @@ import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
+import { AuthService } from '@modules/auth/application/interfaces/services/auth.service.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthServiceImpl implements AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly hashService: HashService,
@@ -38,7 +39,7 @@ export class AuthService {
   generateTokens(
     sessionId: string,
     user: User,
-  ): { accessToken: string; refreshToken: string } {
+  ): Result<{ accessToken: string; refreshToken: string }> {
     const { id, email } = user.toObject();
 
     const payload = {
@@ -48,18 +49,15 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '5m',
+      expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
       secret: process.env.JWT_SECRET,
     });
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: '30d',
+      expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
       secret: process.env.JWT_SECRET,
     });
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return Ok({ accessToken, refreshToken });
   }
 
   async getRefreshTokenSession(

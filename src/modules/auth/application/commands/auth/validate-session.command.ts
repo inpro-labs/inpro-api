@@ -1,5 +1,8 @@
-import { ICommand } from '@nestjs/cqrs';
+import { Command } from '@nestjs/cqrs';
+import { ValidateSessionDTO } from '@modules/auth/application/dtos/auth/validate-session-command.dto';
 
-export class ValidateSessionCommand implements ICommand {
-  constructor(public readonly accessToken: string) {}
+export class ValidateSessionCommand extends Command<void> {
+  constructor(public readonly dto: ValidateSessionDTO) {
+    super();
+  }
 }

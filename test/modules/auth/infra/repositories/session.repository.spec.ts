@@ -1,46 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '@shared/infra/services/prisma.service';
-import { PrismaSessionRepository } from '@modules/auth/infra/repositories/prisma-session.repository';
+import { SessionRepositoryImpl } from '@modules/auth/infra/repositories/session.repository.impl';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { Combine, ID } from '@inpro-labs/api-sdk';
+import { Combine, ID } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
-import { PrismaUserRepository } from '@modules/account/infra/repositories/prisma-user.repository';
+import { UserRepositoryImpl } from '@modules/account/infra/repositories/user.repository.impl';
 import { UserFactory } from '@test/factories/fake-user.factory';
 
-describe('PrismaSessionRepository (integration)', () => {
+describe('SessionRepositoryImpl (integration)', () => {
   if (!process.env.DATABASE_URL?.includes('inpro_test')) {
     throw new Error('⚠️ Unsafe environment detected for integration tests!');
   }
 
-  let repository: PrismaSessionRepository;
+  let repository: SessionRepositoryImpl;
   let prisma: PrismaService;
-  let userRepository: PrismaUserRepository;
+  let userRepository: UserRepositoryImpl;
   let user: User;
-
-  beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService, PrismaSessionRepository, PrismaUserRepository],
-    }).compile();
-
-    prisma = module.get(PrismaService);
-    repository = module.get(PrismaSessionRepository);
-    userRepository = module.get(PrismaUserRepository);
-
-    user = UserFactory.make();
-
-    await userRepository.save(user);
-  });
-
-  beforeEach(async () => {
-    await prisma.session.deleteMany();
-  });
-
-  afterAll(async () => {
-    await prisma.user.deleteMany();
-    await prisma.$disconnect();
-  });
+  let session: Session;
 
   const createValidSession = () => {
     const [id, refreshTokenHash] = Combine([
@@ -62,24 +40,47 @@ describe('PrismaSessionRepository (integration)', () => {
     }).unwrap();
   };
 
-  it('should save and retrieve session by ID', async () => {
-    const session = createValidSession();
+  beforeAll(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [PrismaService, SessionRepositoryImpl, UserRepositoryImpl],
+    }).compile();
 
+    prisma = module.get(PrismaService);
+    repository = module.get(SessionRepositoryImpl);
+    userRepository = module.get(UserRepositoryImpl);
+
+    user = UserFactory.make();
+
+    await userRepository.save(user);
+
+    session = createValidSession();
+  });
+
+  beforeEach(async () => {
+    await prisma.session.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.user.deleteMany();
+    await prisma.$disconnect();
+  });
+
+  beforeEach(async () => {
+    session = createValidSession();
     await repository.save(session);
+  });
 
+  it('should save and retrieve session by ID', async () => {
     const found = await repository.findById(session.id.value());
 
     expect(found.isOk()).toBe(true);
     expect(found.unwrap().id.equals(session.id)).toBe(true);
   });
 
-  it('should find active session by device ID', async () => {
-    const session = createValidSession();
-    console.log(user);
-    await repository.save(session);
-
-    const found = await repository.findActiveSessionByDeviceId(
+  it('should find active session by device ID and user ID', async () => {
+    const found = await repository.findActiveSession(
       session.get('deviceId'),
+      session.get('userId').value(),
     );
 
     expect(found.isOk()).toBe(true);

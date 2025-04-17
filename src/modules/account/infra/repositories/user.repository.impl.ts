@@ -7,7 +7,7 @@ import { UserToDomainAdapter } from '@modules/account/infra/factories/user.facto
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class PrismaUserRepository implements UserRepository {
+export class UserRepositoryImpl implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(user: User): Promise<Result<User>> {
@@ -22,7 +22,6 @@ export class PrismaUserRepository implements UserRepository {
 
       return Ok(user);
     } catch (error) {
-      console.log(error);
       return Err(error);
     }
   }
@@ -31,6 +30,24 @@ export class PrismaUserRepository implements UserRepository {
     try {
       const user = await this.prisma.user.findUnique({
         where: { email },
+      });
+
+      if (!user) {
+        return Err(new Error('User not found'));
+      }
+
+      const userDomain = new UserToDomainAdapter().adaptOne(user);
+
+      return Ok(userDomain);
+    } catch (error) {
+      return Err(error);
+    }
+  }
+
+  async findById(id: string): Promise<Result<User>> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
       });
 
       if (!user) {

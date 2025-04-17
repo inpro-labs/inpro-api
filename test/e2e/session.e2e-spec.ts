@@ -69,6 +69,7 @@ describe('Session Microservice (e2e)', () => {
       device: DEVICE_TYPES.IOS,
       userAgent: 'test-user-agent',
       ip: 'test-ip',
+      refreshToken: 'test-refresh-token',
     };
 
     const source$ = client.send<SessionResponse, CreateSessionDto>(
@@ -102,7 +103,7 @@ describe('Session Microservice (e2e)', () => {
   it('list_user_sessions / should list user sessions', async () => {
     const source$ = client.send<SessionResponse[], ListUserSessionsDto>(
       'list_user_sessions',
-      { userId },
+      { data: { userId }, pagination: { skip: 0, take: 10 } },
     );
     const result = await firstValueFrom(source$);
 

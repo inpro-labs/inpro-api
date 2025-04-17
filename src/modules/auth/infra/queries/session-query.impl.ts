@@ -7,7 +7,7 @@ import { ListUserSessionsQuery } from '@modules/auth/application/queries/session
 import { Paginated } from '@inpro-labs/microservices';
 
 @Injectable()
-export class PrismaSessionQueryService implements SessionQueryService {
+export class SessionQueryServiceImpl implements SessionQueryService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async listUserSessions(

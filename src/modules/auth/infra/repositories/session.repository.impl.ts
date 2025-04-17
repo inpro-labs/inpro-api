@@ -8,7 +8,7 @@ import { SessionToDomainAdapter } from '../adapters/session/session-to-domain.ad
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class PrismaSessionRepository implements SessionRepository {
+export class SessionRepositoryImpl implements SessionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(session: Session): Promise<Result<Session>> {
@@ -23,7 +23,6 @@ export class PrismaSessionRepository implements SessionRepository {
 
       return Ok(session);
     } catch (error) {
-      console.log(error);
       return Err(error);
     }
   }

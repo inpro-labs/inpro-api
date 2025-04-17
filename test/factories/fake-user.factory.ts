@@ -1,4 +1,4 @@
-import { Combine, ID } from '@inpro-labs/api-sdk';
+import { Combine, ID } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
 

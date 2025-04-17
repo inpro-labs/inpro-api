@@ -8,7 +8,7 @@ import {
 } from '@inpro-labs/microservices';
 import { SignInCommand } from '@modules/auth/application/commands/auth/sign-in.command';
 import { SignInEventSchema } from '@modules/auth/presentation/schemas/auth/sign-in-event.schema';
-import { SignInDTO } from '@modules/auth/application/dtos/auth/sign-in-command.dto';
+import { z } from 'zod';
 
 @Controller()
 export class SignInController {
@@ -17,7 +17,7 @@ export class SignInController {
   @MessagePattern('sign_in')
   async signIn(
     @Payload(new ZodValidationPipe(SignInEventSchema))
-    payload: MicroserviceRequest<SignInDTO>,
+    payload: MicroserviceRequest<z.infer<typeof SignInEventSchema>>,
   ) {
     const tokens = await this.commandBus.execute(
       new SignInCommand(payload.data),

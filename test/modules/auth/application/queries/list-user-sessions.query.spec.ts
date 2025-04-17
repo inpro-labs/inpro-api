@@ -2,7 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule } from '@nestjs/cqrs';
-import { Result } from '@inpro-labs/api-sdk';
+import { Result } from '@inpro-labs/core';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { ListUserSessionsHandler } from '@modules/auth/application/queries/session/list-user-sessions.handler';
 import { ListUserSessionsDto } from '@modules/auth/application/dtos/session/list-user-sessions.dto';
@@ -91,10 +91,10 @@ describe('ListUserSessionsHandler', () => {
     );
 
     const command = new ListUserSessionsQuery(validDto);
-    const data = await handler.execute(command);
+    const result = await handler.execute(command);
 
-    expect(data).toBeInstanceOf(Array);
-    expect(data.data.length).toBe(1);
+    expect(result.data).toBeInstanceOf(Array);
+    expect(result.data.length).toBe(1);
     expect(sessionQueryService.listUserSessions).toHaveBeenCalledWith(
       new ListUserSessionsQuery(validDto),
     );

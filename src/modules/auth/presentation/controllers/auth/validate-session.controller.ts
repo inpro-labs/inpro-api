@@ -6,10 +6,9 @@ import {
   MessageResponse,
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
-import { SignInCommand } from '@modules/auth/application/commands/auth/sign-in.command';
-import { SignInEventSchema } from '@modules/auth/presentation/schemas/auth/sign-in-event.schema';
-import { SignInDTO } from '@modules/auth/application/dtos/auth/sign-in-command.dto';
 import { ValidateSessionCommand } from '@modules/auth/application/commands/auth/validate-session.command';
+import { validateSessionSchema } from '../../schemas/auth/validate-session.schema';
+import { z } from 'zod';
 
 @Controller()
 export class ValidateSessionController {
@@ -17,11 +16,13 @@ export class ValidateSessionController {
 
   @MessagePattern('validate_session')
   async validateSession(
-    @Payload(new ZodValidationPipe(ValidateSessionEventSchema))
-    payload: MicroserviceRequest<ValidateSessionDTO>,
+    @Payload(new ZodValidationPipe(validateSessionSchema))
+    payload: MicroserviceRequest<z.infer<typeof validateSessionSchema>>,
   ) {
     const tokens = await this.commandBus.execute(
-      new ValidateSessionCommand(payload.data),
+      new ValidateSessionCommand({
+        accessToken: payload.data.accessToken,
+      }),
     );
 
     return MessageResponse.ok(tokens);

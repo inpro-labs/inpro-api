@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
-import { PrismaSessionRepository } from '@modules/auth/infra/repositories/prisma-session.repository';
 import { SessionCreatedHandler } from '@modules/auth/application/events/session/session-created.handler';
 import { PrismaService } from '@shared/infra/services/prisma.service';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
@@ -12,13 +11,16 @@ import { RevokeSessionController } from './presentation/controllers/sessions/rev
 import { SessionRevokedHandler } from './application/events/session/session-revoked.handler';
 import { CreateSessionHandler } from './application/commands/session/create-session.handler';
 import { SessionQueryService } from './application/interfaces/queries/session-query.service.interface';
-import { PrismaSessionQueryService } from './infra/queries/prisma-session-query.service';
+import { SessionQueryServiceImpl } from './infra/queries/session-query.impl';
 import { JwtModule } from '@nestjs/jwt';
 import { AccountModule } from '@modules/account/account.module';
 import { SignInHandler } from './application/commands/auth/sign-in.handler';
 import { SignInController } from './presentation/controllers/auth/sign-in.controller';
-import { AuthService } from './infra/services/auth.service';
-
+import { AuthServiceImpl } from './infra/services/auth.service.impl';
+import { AuthService } from './application/interfaces/services/auth.service.interface';
+import { SessionServiceImpl } from './infra/services/session.service.impl';
+import { SessionService } from './application/interfaces/services/session.service.interface';
+import { SessionRepositoryImpl } from './infra/repositories/session.repository.impl';
 @Module({
   imports: [HashModule, JwtModule, AccountModule],
   controllers: [
@@ -30,7 +32,11 @@ import { AuthService } from './infra/services/auth.service';
   providers: [
     {
       provide: SessionRepository,
-      useClass: PrismaSessionRepository,
+      useClass: SessionRepositoryImpl,
+    },
+    {
+      provide: SessionService,
+      useClass: SessionServiceImpl,
     },
     PrismaService,
 
@@ -44,9 +50,12 @@ import { AuthService } from './infra/services/auth.service';
     // Infra Queries
     {
       provide: SessionQueryService,
-      useClass: PrismaSessionQueryService,
+      useClass: SessionQueryServiceImpl,
     },
-    AuthService,
+    {
+      provide: AuthService,
+      useClass: AuthServiceImpl,
+    },
   ],
 })
 export class AuthModule {}

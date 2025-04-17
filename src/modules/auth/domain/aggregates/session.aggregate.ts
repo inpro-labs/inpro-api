@@ -77,7 +77,6 @@ export class Session extends Aggregate<SessionProps> {
   }
 
   static isValidProps(props: CreateProps) {
-    console.log(Session.schema.safeParse(props).error);
     if (!Session.schema.safeParse(props).success) return false;
 
     return true;
