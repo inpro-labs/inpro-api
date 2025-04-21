@@ -1,19 +1,18 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListUserSessionsQuery } from './list-user-sessions.query';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { SessionQueryService } from '../../interfaces/queries/session-query.service.interface';
-import { Paginated } from '@inpro-labs/microservices';
+import { ListUserSessionsOutputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-output.dto';
 
 @QueryHandler(ListUserSessionsQuery)
 export class ListUserSessionsHandler
-  implements IQueryHandler<ListUserSessionsQuery, Paginated<SessionModel>>
+  implements IQueryHandler<ListUserSessionsQuery, ListUserSessionsOutputDTO>
 {
   constructor(private readonly sessionQueryService: SessionQueryService) {}
 
   async execute(
     query: ListUserSessionsQuery,
-  ): Promise<Paginated<SessionModel>> {
+  ): Promise<ListUserSessionsOutputDTO> {
     const sessions = await this.sessionQueryService.listUserSessions(query);
 
     if (sessions.isErr()) {

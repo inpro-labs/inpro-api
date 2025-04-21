@@ -5,12 +5,12 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { Result } from '@inpro-labs/core';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { ListUserSessionsHandler } from '@modules/auth/application/queries/session/list-user-sessions.handler';
-import { ListUserSessionsDto } from '@modules/auth/application/dtos/session/list-user-sessions.dto';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { SessionQueryService } from '@modules/auth/application/interfaces/queries/session-query.service.interface';
 import { PrismaService } from '@shared/infra/services/prisma.service';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
+import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
 
 describe('ListUserSessionsHandler', () => {
   let handler: ListUserSessionsHandler;
@@ -64,7 +64,7 @@ describe('ListUserSessionsHandler', () => {
     await prisma.$disconnect();
   });
 
-  const validDto: ListUserSessionsDto = {
+  const validDto: ListUserSessionsInputDTO = {
     data: {
       userId: 'user-123',
     },

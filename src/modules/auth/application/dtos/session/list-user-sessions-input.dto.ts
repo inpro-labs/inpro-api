@@ -2,7 +2,7 @@ import { ListUserSessionsSchema } from '@modules/auth/presentation/schemas/sessi
 import { z } from 'zod';
 import { QueryParams } from '@inpro-labs/microservices';
 
-export type ListUserSessionsDto = QueryParams<
+export type ListUserSessionsInputDTO = QueryParams<
   z.infer<typeof ListUserSessionsSchema>,
   true
 >;

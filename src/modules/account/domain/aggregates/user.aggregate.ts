@@ -23,9 +23,7 @@ interface CreateProps {
 
 export class User extends Aggregate<Props> {
   static readonly schema = z.object({
-    id: z
-      .custom<ID>((v) => v instanceof ID || typeof v === 'string')
-      .optional(),
+    id: z.custom<ID>((v) => v instanceof ID).optional(),
     email: z.custom<Email>((v) => v instanceof Email),
     password: z.string().optional(),
     verified: z.boolean().optional(),
@@ -61,5 +59,9 @@ export class User extends Aggregate<Props> {
     if (this.schema.safeParse(props).success) return true;
 
     return false;
+  }
+
+  public verify() {
+    this.set('verified', true);
   }
 }

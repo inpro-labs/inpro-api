@@ -6,7 +6,7 @@ import { CreateSessionHandler } from '@modules/auth/application/commands/session
 import { CreateSessionCommand } from '@modules/auth/application/commands/session/create-session.command';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { CreateSessionDto } from '@modules/auth/application/dtos/session/create-session.dto';
+import { CreateSessionInputDTO } from '@modules/auth/application/dtos/session/create-session-input.dto';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
@@ -55,7 +55,7 @@ describe('CreateSessionHandler', () => {
     );
   });
 
-  const validDto: CreateSessionDto = {
+  const validDto: CreateSessionInputDTO = {
     userId: 'user-123',
     device: DEVICE_TYPES.IOS,
     userAgent: 'test-agent',

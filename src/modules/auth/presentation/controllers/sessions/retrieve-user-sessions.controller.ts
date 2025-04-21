@@ -1,7 +1,7 @@
 import { QueryBus } from '@nestjs/cqrs';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
-import { ListUserSessionsDto } from '@modules/auth/application/dtos/session/list-user-sessions.dto';
+import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import {
   MicroserviceRequest,
@@ -18,7 +18,7 @@ export class RetrieveUserSessionsController {
   @MessagePattern('list_user_sessions')
   async listUserSessions(
     @Payload(new ZodValidationPipe(zodQueryParams(ListUserSessionsSchema)))
-    payload: MicroserviceRequest<ListUserSessionsDto>,
+    payload: MicroserviceRequest<ListUserSessionsInputDTO>,
   ) {
     const sessions = await this.queryBus.execute(
       new ListUserSessionsQuery(payload.data),

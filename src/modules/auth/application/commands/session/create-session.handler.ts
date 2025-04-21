@@ -6,10 +6,11 @@ import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import { ID } from '@inpro-labs/core';
+import { CreateSessionOutputDTO } from '@modules/auth/application/dtos/session/create-session-output.dto';
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionHandler
-  implements ICommandHandler<CreateSessionCommand>
+  implements ICommandHandler<CreateSessionCommand, CreateSessionOutputDTO>
 {
   constructor(
     private readonly sessionRepository: SessionRepository,
@@ -17,7 +18,9 @@ export class CreateSessionHandler
     private readonly hashService: HashService,
   ) {}
 
-  async execute(command: CreateSessionCommand): Promise<Session> {
+  async execute(
+    command: CreateSessionCommand,
+  ): Promise<CreateSessionOutputDTO> {
     const activeSession = await this.sessionRepository.findActiveSession(
       command.dto.deviceId,
       command.dto.userId,

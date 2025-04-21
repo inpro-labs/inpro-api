@@ -7,7 +7,7 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Err, ID, Ok } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { RevokeSessionHandler } from '@modules/auth/application/commands/session/revoke-session.handler';
-import { RevokeSessionDto } from '@modules/auth/application/dtos/session/revoke-session.dto';
+import { RevokeSessionInputDTO } from '@modules/auth/application/dtos/session/revoke-session-input.dto';
 import { RevokeSessionCommand } from '@modules/auth/application/commands/session/revoke-session.command';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
@@ -41,7 +41,7 @@ describe('RevokeSessionHandler', () => {
     handler = module.get(RevokeSessionHandler);
   });
 
-  const validDto: RevokeSessionDto = {
+  const validDto: RevokeSessionInputDTO = {
     sessionId: 'session-123',
   };
 

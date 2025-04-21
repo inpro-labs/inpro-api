@@ -12,7 +12,7 @@ export class SessionServiceImpl implements SessionService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async retrieveTokenSession(accessToken: string): Promise<Result<Session>> {
+  async retrieveSessionByToken(accessToken: string): Promise<Result<Session>> {
     const decodedResult = await Result.fromPromise(
       this.jwtService.verifyAsync<{
         sub: string;

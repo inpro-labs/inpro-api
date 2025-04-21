@@ -1,18 +1,20 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RevokeSessionCommand } from './revoke-session.command';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
-import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
+import { RevokeSessionOutputDTO } from '@modules/auth/application/dtos/session/revoke-session-output.dto';
 
 @CommandHandler(RevokeSessionCommand)
 export class RevokeSessionHandler
-  implements ICommandHandler<RevokeSessionCommand>
+  implements ICommandHandler<RevokeSessionCommand, RevokeSessionOutputDTO>
 {
   constructor(
     private readonly sessionRepository: SessionRepository,
     private readonly publish: EventPublisher,
   ) {}
 
-  async execute(command: RevokeSessionCommand): Promise<Session> {
+  async execute(
+    command: RevokeSessionCommand,
+  ): Promise<RevokeSessionOutputDTO> {
     const { dto } = command;
 
     const result = await this.sessionRepository.findById(dto.sessionId);
