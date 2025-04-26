@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -52,7 +51,7 @@ describe('RefreshTokenHandler', () => {
     expect(result).toEqual({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      expiresAt: expect.any(Date),
+      expiresAt: expect.any(Date) as Date,
     });
 
     expect(authService.getRefreshTokenSession).toHaveBeenCalledWith(

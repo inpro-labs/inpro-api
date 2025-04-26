@@ -1,101 +1,106 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { HashServiceImpl } from '@shared/infra/security/hash/services/hash.service';
-import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import * as bcrypt from 'bcrypt';
 
-jest.mock('bcrypt');
+// Mock for bcrypt (only used in unit tests)
+jest.mock('bcrypt', () => ({
+  genSalt: jest.fn(),
+  hash: jest.fn(),
+  compare: jest.fn(),
+}));
 
-describe('HashService', () => {
-  let service: HashService;
+describe('HashServiceImpl', () => {
+  let hashService: HashServiceImpl;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        {
-          provide: HashService,
-          useClass: HashServiceImpl,
-        },
-      ],
-    }).compile();
-
-    service = module.get<HashService>(HashService);
-  });
-
-  afterEach(() => {
-    jest.resetAllMocks();
+  beforeEach(() => {
+    hashService = new HashServiceImpl();
+    jest.clearAllMocks();
   });
 
   describe('generateHash', () => {
-    it('should generate a hash successfully', async () => {
+    it('should successfully generate a hash', async () => {
+      // Arrange
       const payload = 'password123';
-      const salt = 'generated-salt';
-      const expectedHash = 'hashed-password';
+      const mockSalt = 'mock-salt';
+      const mockHash = 'hashed123456';
 
-      // Mock implementations
-      (bcrypt.genSalt as jest.Mock).mockResolvedValue(salt);
-      (bcrypt.hash as jest.Mock).mockResolvedValue(expectedHash);
+      (bcrypt.genSalt as jest.Mock).mockResolvedValue(mockSalt);
+      (bcrypt.hash as jest.Mock).mockResolvedValue(mockHash);
 
-      const result = await service.generateHash(payload);
+      // Act
+      const result = await hashService.generateHash(payload);
 
-      expect(result.isOk()).toBe(true);
-      expect(result.unwrap()).toBe(expectedHash);
+      // Assert
       expect(bcrypt.genSalt).toHaveBeenCalledWith(8);
-      expect(bcrypt.hash).toHaveBeenCalledWith(payload, salt);
+      expect(bcrypt.hash).toHaveBeenCalledWith(payload, mockSalt);
+      expect(result.isOk()).toBe(true);
+      expect(result.unwrap()).toBe(mockHash);
     });
 
-    it('should return error when hashing fails', async () => {
+    it('should return error when an exception occurs', async () => {
+      // Arrange
       const payload = 'password123';
-      const expectedError = new Error('Hash generation failed');
+      const mockError = new Error('Error generating hash');
 
-      (bcrypt.genSalt as jest.Mock).mockRejectedValue(expectedError);
+      (bcrypt.genSalt as jest.Mock).mockRejectedValue(mockError);
 
-      const result = await service.generateHash(payload);
+      // Act
+      const result = await hashService.generateHash(payload);
 
+      // Assert
       expect(result.isErr()).toBe(true);
-      expect(result.getErr()).toBe(expectedError);
+      expect(result.unwrapErr()).toBe(mockError);
     });
   });
 
   describe('compareHash', () => {
-    it('should compare hashes successfully - matching', async () => {
+    it('should successfully compare hash when values match', async () => {
+      // Arrange
       const payload = 'password123';
-      const hashed = 'hashed-password';
+      const hashedPayload = 'hashed123456';
 
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.compareHash(payload, hashed);
+      // Act
+      const result = await hashService.compareHash(payload, hashedPayload);
 
+      // Assert
+      expect(bcrypt.compare).toHaveBeenCalledWith(payload, hashedPayload);
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toBe(true);
-      expect(bcrypt.compare).toHaveBeenCalledWith(payload, hashed);
     });
 
-    it('should compare hashes successfully - non-matching', async () => {
+    it('should not successfully compare hash when values do not match', async () => {
+      // Arrange
       const payload = 'password123';
-      const hashed = 'hashed-password';
+      const hashedPayload = 'hashed123456';
 
-      // Mock implementation for a non-matching hash
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await service.compareHash(payload, hashed);
+      // Act
+      const result = await hashService.compareHash(payload, hashedPayload);
 
+      console.log(result.unwrap());
+
+      // Assert
+      expect(bcrypt.compare).toHaveBeenCalledWith(payload, hashedPayload);
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toBe(false);
-      expect(bcrypt.compare).toHaveBeenCalledWith(payload, hashed);
     });
 
-    it('should return error when comparison fails', async () => {
+    it('should return error when an exception occurs', async () => {
+      // Arrange
       const payload = 'password123';
-      const hashed = 'hashed-password';
-      const expectedError = new Error('Compare failed');
+      const hashedPayload = 'hashed123456';
+      const mockError = new Error('Error comparing hash');
 
-      // Mock implementation to throw an error
-      (bcrypt.compare as jest.Mock).mockRejectedValue(expectedError);
+      (bcrypt.compare as jest.Mock).mockRejectedValue(mockError);
 
-      const result = await service.compareHash(payload, hashed);
+      // Act
+      const result = await hashService.compareHash(payload, hashedPayload);
 
+      // Assert
       expect(result.isErr()).toBe(true);
-      expect(result.getErr()).toBe(expectedError);
+      expect(result.unwrapErr()).toBe(mockError);
     });
   });
 });

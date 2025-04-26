@@ -1,10 +1,13 @@
 import { Err, Ok, ValueObject } from '@inpro-labs/core';
+import { z } from 'zod';
 
 interface Props {
   value: string;
 }
 
 export class Email extends ValueObject<Props> {
+  static readonly schema = z.string().email();
+
   constructor(props: Props) {
     super(props);
   }
@@ -18,8 +21,6 @@ export class Email extends ValueObject<Props> {
   }
 
   private static isValid(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    return emailRegex.test(email);
+    return this.schema.safeParse(email).success;
   }
 }

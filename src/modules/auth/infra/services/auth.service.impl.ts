@@ -32,7 +32,7 @@ export class AuthServiceImpl implements AuthService {
       password,
     );
 
-    if (compareResult.isErr()) {
+    if (!compareResult.unwrap()) {
       return Err(new Error('Invalid credentials'));
     }
 

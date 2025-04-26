@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
@@ -19,7 +18,6 @@ describe('AuthService', () => {
   let sessionRepository: MockProxy<SessionRepository>;
 
   beforeEach(async () => {
-    // Create mocks
     jwtService = mock<JwtService>();
     hashService = mock<HashService>();
     userRepository = mock<UserRepository>();
@@ -62,64 +60,47 @@ describe('AuthService', () => {
     const password = 'password123';
 
     it('should validate user credentials successfully', async () => {
-      // Create a mock user
       const user = UserFactory.make('user-123');
 
-      // Mock repository to return the user
       userRepository.findByEmail.mockResolvedValue(Ok(user));
 
-      // Mock hash service to return true for comparison
       hashService.compareHash.mockResolvedValue(Ok(true));
 
-      // Call the method
       const result = await service.validateUserCredentials(password, email);
 
-      // Verify the result
       expect(result.isOk()).toBe(true);
       expect(result.unwrap()).toBe(user);
 
-      // Verify the mocks were called correctly
       expect(userRepository.findByEmail).toHaveBeenCalledWith(email);
       expect(hashService.compareHash).toHaveBeenCalled();
     });
 
     it('should return error when user is not found', async () => {
-      // Mock repository to return error
       userRepository.findByEmail.mockResolvedValue(
         Err(new Error('User not found')),
       );
 
-      // Call the method
       const result = await service.validateUserCredentials(password, email);
 
-      // Verify the result
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('Invalid credentials');
 
-      // Verify the repository was called
       expect(userRepository.findByEmail).toHaveBeenCalledWith(email);
-      // Hash service should not be called
       expect(hashService.compareHash).not.toHaveBeenCalled();
     });
 
     it('should return error when passwords do not match', async () => {
-      // Create a mock user
       const user = UserFactory.make('user-123');
 
-      // Mock repository to return the user
       userRepository.findByEmail.mockResolvedValue(Ok(user));
 
-      // Mock hash service to return false for comparison
       hashService.compareHash.mockResolvedValue(Ok(false));
 
-      // Call the method
       const result = await service.validateUserCredentials(password, email);
 
-      // Verify the result
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('Invalid credentials');
 
-      // Verify the mocks were called correctly
       expect(userRepository.findByEmail).toHaveBeenCalledWith(email);
       expect(hashService.compareHash).toHaveBeenCalled();
     });
@@ -129,19 +110,15 @@ describe('AuthService', () => {
     const sessionId = 'session-123';
 
     it('should generate tokens successfully', () => {
-      // Create a mock user
       const user = UserFactory.make('user-123');
 
-      // Expected tokens
       const accessToken = 'access-token';
       const refreshToken = 'refresh-token';
 
-      // Mock JWT service
       jwtService.sign
         .mockReturnValueOnce(accessToken)
         .mockReturnValueOnce(refreshToken);
 
-      // Mock environment variables
       const originalEnv = process.env;
       process.env = {
         ...originalEnv,
@@ -150,19 +127,15 @@ describe('AuthService', () => {
         JWT_SECRET: 'test-secret',
       };
 
-      // Call the method
       const result = service.generateTokens(sessionId, user);
 
-      // Verify the result
       expect(result.isOk()).toBe(true);
       const tokens = result.unwrap();
       expect(tokens.accessToken).toBe(accessToken);
       expect(tokens.refreshToken).toBe(refreshToken);
 
-      // Verify JWT service was called correctly
       expect(jwtService.sign).toHaveBeenCalledTimes(2);
 
-      // Restore environment
       process.env = originalEnv;
     });
   });
@@ -172,37 +145,28 @@ describe('AuthService', () => {
     const hashedToken = 'hashed-refresh-token';
 
     it('should retrieve session and user by refresh token', async () => {
-      // Create mock session and user
       const session = SessionFactory.make('session-123').unwrap();
       const user = UserFactory.make('user-123');
 
-      // Mock hash service to return hashed token
       hashService.generateHash.mockResolvedValue(Ok(hashedToken));
 
-      // Mock session repository to return session
       sessionRepository.findByRefreshToken.mockResolvedValue(Ok(session));
 
-      // Setup session properties to be valid
       Object.defineProperty(session, 'isExpired', { get: () => false });
       Object.defineProperty(session, 'isRevoked', { get: () => false });
 
-      // Mock user repository to return user
       userRepository.findById.mockResolvedValue(Ok(user));
 
-      // Mock ID value method
       const mockIdValue = jest.fn().mockReturnValue('user-123');
       jest.spyOn(ID.prototype, 'value').mockImplementation(mockIdValue);
 
-      // Call the method
       const result = await service.getRefreshTokenSession(refreshToken);
 
-      // Verify the result
       expect(result.isOk()).toBe(true);
       const data = result.unwrap();
       expect(data.session).toBe(session);
       expect(data.user).toBe(user);
 
-      // Verify the mocks were called correctly
       expect(hashService.generateHash).toHaveBeenCalledWith(refreshToken);
       expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
         hashedToken,
@@ -211,89 +175,66 @@ describe('AuthService', () => {
     });
 
     it('should return error for invalid refresh token', async () => {
-      // Mock hash service to return hashed token
       hashService.generateHash.mockResolvedValue(Ok(hashedToken));
 
-      // Mock session repository to return error
       sessionRepository.findByRefreshToken.mockResolvedValue(
         Err(new Error('Session not found')),
       );
 
-      // Call the method
       const result = await service.getRefreshTokenSession(refreshToken);
 
-      // Verify the result
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('Invalid refresh token');
 
-      // Verify the repository was called
       expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
         hashedToken,
       );
-      // User repository should not be called
       expect(userRepository.findById).not.toHaveBeenCalled();
     });
 
     it('should return error for expired or revoked session', async () => {
-      // Create mock session
       const session = SessionFactory.make('session-123').unwrap();
 
-      // Mock hash service to return hashed token
       hashService.generateHash.mockResolvedValue(Ok(hashedToken));
 
-      // Mock session repository to return session
       sessionRepository.findByRefreshToken.mockResolvedValue(Ok(session));
 
-      // Setup session to be expired
       Object.defineProperty(session, 'isExpired', { get: () => true });
 
-      // Call the method
       const result = await service.getRefreshTokenSession(refreshToken);
 
-      // Verify the result
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('Session is invalid');
 
-      // Verify the mocks were called correctly
       expect(hashService.generateHash).toHaveBeenCalledWith(refreshToken);
       expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
         hashedToken,
       );
-      // User repository should not be called
       expect(userRepository.findById).not.toHaveBeenCalled();
     });
 
     it('should return error when user is not found', async () => {
-      // Create mock session
       const session = SessionFactory.make('session-123').unwrap();
 
-      // Mock hash service to return hashed token
       hashService.generateHash.mockResolvedValue(Ok(hashedToken));
 
-      // Mock session repository to return session
       sessionRepository.findByRefreshToken.mockResolvedValue(Ok(session));
 
-      // Setup session properties to be valid
       Object.defineProperty(session, 'isExpired', { get: () => false });
       Object.defineProperty(session, 'isRevoked', { get: () => false });
 
-      // Mock user repository to return error
       userRepository.findById.mockResolvedValue(
         Err(new Error('User not found')),
       );
 
-      // Mock ID value method
       const mockIdValue = jest.fn().mockReturnValue('user-123');
       jest.spyOn(ID.prototype, 'value').mockImplementation(mockIdValue);
 
-      // Call the method
       const result = await service.getRefreshTokenSession(refreshToken);
 
-      // Verify the result
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('User not found');
 
-      // Verify the mocks were called correctly
       expect(hashService.generateHash).toHaveBeenCalledWith(refreshToken);
       expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
         hashedToken,
