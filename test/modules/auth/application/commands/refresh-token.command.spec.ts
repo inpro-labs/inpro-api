@@ -3,26 +3,33 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule } from '@nestjs/cqrs';
 import { RefreshTokenHandler } from '@modules/auth/application/commands/auth/refresh-token.handler';
 import { RefreshTokenCommand } from '@modules/auth/application/commands/auth/refresh-token.command';
-import { AuthService } from '@modules/auth/application/interfaces/services/auth.service.interface';
 import { Err, Ok } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { UserFactory } from '@test/factories/fake-user.factory';
 import { SessionFactory } from '@test/factories/fake-session.factory';
+import { GetRefreshTokenSessionService } from '@modules/auth/application/services/auth/get-refresh-token-session.service';
+import { GenerateTokensService } from '@modules/auth/application/services/auth/generate-tokens.service';
 
 describe('RefreshTokenHandler', () => {
   let handler: RefreshTokenHandler;
-  let authService: MockProxy<AuthService>;
+  let getRefreshTokenSessionService: MockProxy<GetRefreshTokenSessionService>;
+  let generateTokensService: MockProxy<GenerateTokensService>;
 
   beforeAll(async () => {
-    authService = mock<AuthService>();
+    getRefreshTokenSessionService = mock<GetRefreshTokenSessionService>();
+    generateTokensService = mock<GenerateTokensService>();
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [CqrsModule],
       providers: [
         RefreshTokenHandler,
         {
-          provide: AuthService,
-          useValue: authService,
+          provide: GetRefreshTokenSessionService,
+          useValue: getRefreshTokenSessionService,
+        },
+        {
+          provide: GenerateTokensService,
+          useValue: generateTokensService,
         },
       ],
     }).compile();
@@ -36,14 +43,16 @@ describe('RefreshTokenHandler', () => {
     const user = UserFactory.make('user-123');
     const session = SessionFactory.make('session-123').unwrap();
 
-    authService.getRefreshTokenSession.mockResolvedValue(Ok({ session, user }));
+    getRefreshTokenSessionService.execute.mockResolvedValue(
+      Ok({ session, user }),
+    );
 
     const tokens = {
       accessToken: 'new-access-token',
       refreshToken: 'new-refresh-token',
     };
 
-    authService.generateTokens.mockReturnValue(Ok(tokens));
+    generateTokensService.execute.mockReturnValue(Ok(tokens));
 
     const command = new RefreshTokenCommand(refreshToken);
     const result = await handler.execute(command);
@@ -54,17 +63,17 @@ describe('RefreshTokenHandler', () => {
       expiresAt: expect.any(Date) as Date,
     });
 
-    expect(authService.getRefreshTokenSession).toHaveBeenCalledWith(
+    expect(getRefreshTokenSessionService.execute).toHaveBeenCalledWith(
       refreshToken,
     );
-    expect(authService.generateTokens).toHaveBeenCalledWith(
+    expect(generateTokensService.execute).toHaveBeenCalledWith(
       session.id.value(),
       user,
     );
   });
 
   it('should throw ApplicationException when refresh token is invalid', async () => {
-    authService.getRefreshTokenSession.mockResolvedValue(
+    getRefreshTokenSessionService.execute.mockResolvedValue(
       Err(new Error('Invalid refresh token')),
     );
 
@@ -83,9 +92,11 @@ describe('RefreshTokenHandler', () => {
     const user = UserFactory.make('user-123');
     const session = SessionFactory.make('session-123').unwrap();
 
-    authService.getRefreshTokenSession.mockResolvedValue(Ok({ session, user }));
+    getRefreshTokenSessionService.execute.mockResolvedValue(
+      Ok({ session, user }),
+    );
 
-    authService.generateTokens.mockReturnValue(
+    generateTokensService.execute.mockReturnValue(
       Err(new Error('Failed to generate tokens')),
     );
 

@@ -3,8 +3,9 @@ import { SignInCommand } from './sign-in.command';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { ID } from '@inpro-labs/core';
 import { CreateSessionCommand } from '../session/create-session.command';
-import { AuthService } from '@modules/auth/application/interfaces/services/auth.service.interface';
 import { SignInOutputDTO } from '../../dtos/auth/sign-in-output.dto';
+import { ValidateUserCredentialsService } from '../../services/auth/validate-user-credentials.service';
+import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
 
 @CommandHandler(SignInCommand)
 export class SignInHandler
@@ -12,13 +13,14 @@ export class SignInHandler
 {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly authService: AuthService,
+    private readonly validateUserCredentialsService: ValidateUserCredentialsService,
+    private readonly generateTokensService: GenerateTokensService,
   ) {}
 
   async execute(command: SignInCommand): Promise<SignInOutputDTO> {
-    const userResult = await this.authService.validateUserCredentials(
-      command.dto.email,
+    const userResult = await this.validateUserCredentialsService.execute(
       command.dto.password,
+      command.dto.email,
     );
 
     if (userResult.isErr()) {
@@ -33,7 +35,7 @@ export class SignInHandler
 
     const sessionId = ID.create().unwrap();
 
-    const tokensResult = this.authService.generateTokens(
+    const tokensResult = this.generateTokensService.execute(
       sessionId.value(),
       user,
     );

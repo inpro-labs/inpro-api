@@ -1,18 +1,17 @@
 import { Err, Ok, Result } from '@inpro-labs/core';
-import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SessionService } from '@modules/auth/application/interfaces/services/session.service.interface';
+import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
+import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 
 @Injectable()
-export class SessionServiceImpl implements SessionService {
+export class RetrieveSessionByTokenService {
   constructor(
     private readonly sessionRepository: SessionRepository,
     private readonly jwtService: JwtService,
   ) {}
 
-  async retrieveSessionByToken(accessToken: string): Promise<Result<Session>> {
+  async execute(accessToken: string): Promise<Result<Session>> {
     const decodedResult = await Result.fromPromise(
       this.jwtService.verifyAsync<{
         sub: string;

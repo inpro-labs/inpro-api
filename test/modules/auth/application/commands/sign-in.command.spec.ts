@@ -1,23 +1,25 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CommandBus, CqrsModule } from '@nestjs/cqrs';
 import { SignInHandler } from '@modules/auth/application/commands/auth/sign-in.handler';
 import { SignInCommand } from '@modules/auth/application/commands/auth/sign-in.command';
-import { AuthService } from '@modules/auth/application/interfaces/services/auth.service.interface';
 import { SignInInputDTO } from '@modules/auth/application/dtos/auth/sign-in-input.dto';
-import { Err, ID, Ok, Result } from '@inpro-labs/core';
+import { Err, ID, Ok } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { UserFactory } from '@test/factories/fake-user.factory';
 import { DEVICE_TYPES } from '@shared/constants/devices';
+import { ValidateUserCredentialsService } from '@modules/auth/application/services/auth/validate-user-credentials.service';
+import { GenerateTokensService } from '@modules/auth/application/services/auth/generate-tokens.service';
 
 describe('SignInHandler', () => {
   let handler: SignInHandler;
-  let authService: MockProxy<AuthService>;
+  let validateUserCredentialsService: MockProxy<ValidateUserCredentialsService>;
+  let generateTokensService: MockProxy<GenerateTokensService>;
   let commandBus: MockProxy<CommandBus>;
 
   beforeAll(async () => {
-    authService = mock<AuthService>();
+    validateUserCredentialsService = mock<ValidateUserCredentialsService>();
+    generateTokensService = mock<GenerateTokensService>();
     commandBus = mock<CommandBus>();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -25,8 +27,12 @@ describe('SignInHandler', () => {
       providers: [
         SignInHandler,
         {
-          provide: AuthService,
-          useValue: authService,
+          provide: ValidateUserCredentialsService,
+          useValue: validateUserCredentialsService,
+        },
+        {
+          provide: GenerateTokensService,
+          useValue: generateTokensService,
         },
         {
           provide: CommandBus,
@@ -54,14 +60,14 @@ describe('SignInHandler', () => {
 
   it('should authenticate a user and return tokens', async () => {
     const user = UserFactory.make('user-123');
-    authService.validateUserCredentials.mockResolvedValue(Ok(user));
+    validateUserCredentialsService.execute.mockResolvedValue(Ok(user));
 
     const tokens = {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
     };
 
-    authService.generateTokens.mockReturnValue(Ok(tokens));
+    generateTokensService.execute.mockReturnValue(Ok(tokens));
     commandBus.execute.mockResolvedValue(undefined);
 
     const command = new SignInCommand(validDto);
@@ -70,21 +76,24 @@ describe('SignInHandler', () => {
     expect(result).toEqual({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      expiresAt: expect.any(Date),
+      expiresAt: expect.any(Date) as Date,
     });
 
-    expect(authService.validateUserCredentials).toHaveBeenCalledWith(
-      validDto.email,
+    expect(validateUserCredentialsService.execute).toHaveBeenCalledWith(
       validDto.password,
+      validDto.email,
     );
 
-    expect(authService.generateTokens).toHaveBeenCalledWith('session-id', user);
+    expect(generateTokensService.execute).toHaveBeenCalledWith(
+      'session-id',
+      user,
+    );
 
     expect(commandBus.execute).toHaveBeenCalledTimes(1);
   });
 
   it('should throw ApplicationException when credentials are invalid', async () => {
-    authService.validateUserCredentials.mockResolvedValue(
+    validateUserCredentialsService.execute.mockResolvedValue(
       Err(new Error('Invalid credentials')),
     );
 
@@ -101,9 +110,9 @@ describe('SignInHandler', () => {
 
   it('should throw ApplicationException when token generation fails', async () => {
     const user = UserFactory.make('user-123');
-    authService.validateUserCredentials.mockResolvedValue(Ok(user));
+    validateUserCredentialsService.execute.mockResolvedValue(Ok(user));
 
-    authService.generateTokens.mockReturnValue(
+    generateTokensService.execute.mockReturnValue(
       Err(new Error('Failed to generate tokens')),
     );
 

@@ -1,28 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
-import { SessionServiceImpl } from '@modules/auth/infra/services/session.service.impl';
-import { SessionService } from '@modules/auth/application/interfaces/services/session.service.interface';
 import { Err, Ok } from '@inpro-labs/core';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { SessionFactory } from '@test/factories/fake-session.factory';
+import { RetrieveSessionByTokenService } from '@modules/auth/application/services/session/retrieve-session-by-token.service';
 
-describe('SessionService', () => {
-  let service: SessionService;
+describe('RetrieveSessionByTokenService', () => {
+  let service: RetrieveSessionByTokenService;
   let jwtService: MockProxy<JwtService>;
   let sessionRepository: MockProxy<SessionRepository>;
 
   beforeEach(async () => {
-    // Create mocks
     jwtService = mock<JwtService>();
     sessionRepository = mock<SessionRepository>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        {
-          provide: SessionService,
-          useClass: SessionServiceImpl,
-        },
+        RetrieveSessionByTokenService,
         {
           provide: JwtService,
           useValue: jwtService,
@@ -34,14 +29,16 @@ describe('SessionService', () => {
       ],
     }).compile();
 
-    service = module.get<SessionService>(SessionService);
+    service = module.get<RetrieveSessionByTokenService>(
+      RetrieveSessionByTokenService,
+    );
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('retrieveSessionByToken', () => {
+  describe('execute', () => {
     const accessToken = 'valid-access-token';
     const sessionId = 'session-123';
     const userId = 'user-123';
@@ -66,7 +63,7 @@ describe('SessionService', () => {
       Object.defineProperty(session, 'isRevoked', { get: () => false });
 
       // Call the method
-      const result = await service.retrieveSessionByToken(accessToken);
+      const result = await service.execute(accessToken);
 
       // Verify the result
       expect(result.isOk()).toBe(true);
@@ -86,7 +83,7 @@ describe('SessionService', () => {
       jwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
 
       // Call the method
-      const result = await service.retrieveSessionByToken(accessToken);
+      const result = await service.execute(accessToken);
 
       // Verify the result
       expect(result.isErr()).toBe(true);
@@ -110,7 +107,7 @@ describe('SessionService', () => {
       );
 
       // Call the method
-      const result = await service.retrieveSessionByToken(accessToken);
+      const result = await service.execute(accessToken);
 
       // Verify the result
       expect(result.isErr()).toBe(true);
@@ -144,7 +141,7 @@ describe('SessionService', () => {
       Object.defineProperty(session, 'isRevoked', { get: () => false });
 
       // Call the method
-      const result = await service.retrieveSessionByToken(accessToken);
+      const result = await service.execute(accessToken);
 
       // Verify the result
       expect(result.isErr()).toBe(true);
@@ -178,7 +175,7 @@ describe('SessionService', () => {
       Object.defineProperty(session, 'isRevoked', { get: () => true });
 
       // Call the method
-      const result = await service.retrieveSessionByToken(accessToken);
+      const result = await service.execute(accessToken);
 
       // Verify the result
       expect(result.isErr()).toBe(true);

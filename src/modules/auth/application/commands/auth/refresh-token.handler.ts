@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { AuthService } from '@modules/auth/application/interfaces/services/auth.service.interface';
 import { RefreshTokenCommand } from './refresh-token.command';
 import { RefreshTokenOutputDTO } from '../../dtos/auth/refresh-token-output.dto';
+import { GetRefreshTokenSessionService } from '../../services/auth/get-refresh-token-session.service';
+import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler
@@ -15,10 +16,13 @@ export class RefreshTokenHandler
       }
     >
 {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly getRefreshTokenSessionService: GetRefreshTokenSessionService,
+    private readonly generateTokensService: GenerateTokensService,
+  ) {}
 
   async execute(command: RefreshTokenCommand): Promise<RefreshTokenOutputDTO> {
-    const result = await this.authService.getRefreshTokenSession(
+    const result = await this.getRefreshTokenSessionService.execute(
       command.refreshToken,
     );
 
@@ -32,7 +36,7 @@ export class RefreshTokenHandler
 
     const { session, user } = result.unwrap();
 
-    const tokensResult = this.authService.generateTokens(
+    const tokensResult = this.generateTokensService.execute(
       session.id.value(),
       user,
     );
