@@ -9,7 +9,7 @@ import {
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
 import { UserToResponseAdapter } from '../../adapters/user-to-response.adapter';
-import { CreateUserSchema } from '../../schemas/user/create-user.schema';
+import { createUserSchema } from '../../schemas/user/create-user.schema';
 
 @Controller()
 export class CreateUserController {
@@ -17,7 +17,7 @@ export class CreateUserController {
 
   @MessagePattern('create_user')
   async createUser(
-    @Payload(new ZodValidationPipe(CreateUserSchema))
+    @Payload(new ZodValidationPipe(createUserSchema))
     payload: MicroserviceRequest<CreateUserInputDTO>,
   ) {
     const user = await this.commandBus.execute(

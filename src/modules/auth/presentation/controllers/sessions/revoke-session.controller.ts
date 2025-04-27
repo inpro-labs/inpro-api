@@ -8,7 +8,7 @@ import {
   MessageResponse,
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
-import { RevokeSessionSchema } from '@modules/auth/presentation/schemas/session/revoke-session.schema';
+import { revokeSessionSchema } from '@modules/auth/presentation/schemas/session/revoke-session.schema';
 import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
 
 @Controller()
@@ -17,7 +17,7 @@ export class RevokeSessionController {
 
   @MessagePattern('revoke_session')
   async revokeSession(
-    @Payload(new ZodValidationPipe(RevokeSessionSchema))
+    @Payload(new ZodValidationPipe(revokeSessionSchema))
     payload: MicroserviceRequest<RevokeSessionInputDTO>,
   ) {
     const session = await this.commandBus.execute(

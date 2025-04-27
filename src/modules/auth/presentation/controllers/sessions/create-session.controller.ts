@@ -7,7 +7,7 @@ import {
   MessageResponse,
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
-import { CreateSessionSchema } from '@modules/auth/presentation/schemas/session/create-session.schema';
+import { createSessionSchema } from '@modules/auth/presentation/schemas/session/create-session.schema';
 import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
 import { z } from 'zod';
 
@@ -17,8 +17,8 @@ export class CreateSessionController {
 
   @MessagePattern('create_session')
   async createSession(
-    @Payload(new ZodValidationPipe(CreateSessionSchema))
-    payload: MicroserviceRequest<z.infer<typeof CreateSessionSchema>>,
+    @Payload(new ZodValidationPipe(createSessionSchema))
+    payload: MicroserviceRequest<z.infer<typeof createSessionSchema>>,
   ) {
     const session = await this.commandBus.execute(
       new CreateSessionCommand(payload.data),

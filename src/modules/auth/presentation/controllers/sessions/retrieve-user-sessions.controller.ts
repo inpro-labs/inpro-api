@@ -9,7 +9,7 @@ import {
   ZodValidationPipe,
   zodQueryParams,
 } from '@inpro-labs/microservices';
-import { ListUserSessionsSchema } from '@modules/auth/presentation/schemas/session/list-user-sessions.schema';
+import { listUserSessionsSchema } from '@modules/auth/presentation/schemas/session/list-user-sessions.schema';
 
 @Controller()
 export class RetrieveUserSessionsController {
@@ -17,7 +17,7 @@ export class RetrieveUserSessionsController {
 
   @MessagePattern('list_user_sessions')
   async listUserSessions(
-    @Payload(new ZodValidationPipe(zodQueryParams(ListUserSessionsSchema)))
+    @Payload(new ZodValidationPipe(zodQueryParams(listUserSessionsSchema)))
     payload: MicroserviceRequest<ListUserSessionsInputDTO>,
   ) {
     const sessions = await this.queryBus.execute(

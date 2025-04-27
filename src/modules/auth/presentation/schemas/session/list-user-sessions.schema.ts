@@ -1,5 +1,5 @@
 import { z } from 'zod';
 
-export const ListUserSessionsSchema = z.object({
+export const listUserSessionsSchema = z.object({
   userId: z.string().uuid(),
 });
