@@ -17,7 +17,7 @@ export class ListUserSessionsHandler
 
     if (sessions.isErr()) {
       throw new ApplicationException(
-        'Erro ao buscar sessões do usuário',
+        'Error retrieving user sessions',
         500,
         'RETRIEVE_SESSIONS_ERROR',
       );

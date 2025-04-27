@@ -11,7 +11,7 @@ import { RevokeSessionController } from './presentation/controllers/sessions/rev
 import { SessionRevokedHandler } from './application/events/session/session-revoked.handler';
 import { CreateSessionHandler } from './application/commands/session/create-session.handler';
 import { SessionQueryService } from './application/interfaces/queries/session-query.service.interface';
-import { SessionQueryServiceImpl } from './infra/queries/session-query.impl';
+import { SessionQueryServiceImpl } from './infra/services/session-query.service.impl';
 import { JwtModule } from '@nestjs/jwt';
 import { AccountModule } from '@modules/account/account.module';
 import { SignInHandler } from './application/commands/auth/sign-in.handler';
