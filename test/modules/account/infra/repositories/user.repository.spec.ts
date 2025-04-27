@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { UserRepositoryImpl } from '@modules/account/infra/repositories/user.repository.impl';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Combine, ID } from '@inpro-labs/core';
@@ -25,15 +25,15 @@ describe('UserRepositoryImpl (integration)', () => {
   }
 
   let repository: UserRepositoryImpl;
-  let prisma: PrismaService;
+  let prisma: PrismaGateway;
   let user: User;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService, UserRepositoryImpl],
+      providers: [PrismaGateway, UserRepositoryImpl],
     }).compile();
 
-    prisma = module.get(PrismaService);
+    prisma = module.get(PrismaGateway);
     repository = module.get(UserRepositoryImpl);
 
     user = createValidUser();

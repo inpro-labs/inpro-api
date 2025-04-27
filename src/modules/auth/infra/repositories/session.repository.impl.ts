@@ -2,14 +2,14 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { SessionToModelAdapter } from '../adapters/session/session-to-model.adapter';
 import { SessionToDomainAdapter } from '../adapters/session/session-to-domain.adapter';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class SessionRepositoryImpl implements SessionRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaGateway) {}
 
   async save(session: Session): Promise<Result<Session>> {
     const sessionModel = session.toObject(new SessionToModelAdapter());
@@ -156,6 +156,16 @@ export class SessionRepositoryImpl implements SessionRepository {
       });
 
       return Ok(sessions);
+    } catch (error) {
+      return Err(error);
+    }
+  }
+
+  async delete(id: string): Promise<Result<void>> {
+    try {
+      await this.prisma.session.delete({ where: { id } });
+
+      return Ok(undefined);
     } catch (error) {
       return Err(error);
     }

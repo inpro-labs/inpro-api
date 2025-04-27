@@ -46,7 +46,7 @@ describe('RetrieveSessionByTokenService', () => {
 
     it('should retrieve a session by token successfully', async () => {
       // Create a mock session
-      const session = SessionFactory.make(sessionId).unwrap();
+      const session = SessionFactory.make({ id: sessionId }).unwrap();
 
       // Mock JWT verification to return decoded token
       jwtService.verifyAsync.mockResolvedValue({
@@ -124,7 +124,7 @@ describe('RetrieveSessionByTokenService', () => {
 
     it('should return error for expired session', async () => {
       // Create a mock session
-      const session = SessionFactory.make(sessionId).unwrap();
+      const session = SessionFactory.make({ id: sessionId }).unwrap();
 
       // Mock JWT verification to return decoded token
       jwtService.verifyAsync.mockResolvedValue({
@@ -158,7 +158,7 @@ describe('RetrieveSessionByTokenService', () => {
 
     it('should return error for revoked session', async () => {
       // Create a mock session
-      const session = SessionFactory.make(sessionId).unwrap();
+      const session = SessionFactory.make({ id: sessionId }).unwrap();
 
       // Mock JWT verification to return decoded token
       jwtService.verifyAsync.mockResolvedValue({

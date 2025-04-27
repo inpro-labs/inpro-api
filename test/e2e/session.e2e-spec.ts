@@ -9,20 +9,21 @@ import { firstValueFrom } from 'rxjs';
 import { CreateSessionInputDTO } from '@modules/auth/application/dtos/session/create-session-input.dto';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { RevokeSessionInputDTO } from '@modules/auth/application/dtos/session/revoke-session-input.dto';
 import { SessionViewModel } from '@modules/auth/presentation/view-model/session.view-model';
 import { MicroserviceResponse } from '@inpro-labs/microservices';
 import { SignInOutputDTO } from '@modules/auth/application/dtos/auth/sign-in-output.dto';
 import { ValidateSessionOutputDTO } from '@modules/auth/application/dtos/auth/validate-session-ouput';
 import { RefreshTokenOutputDTO } from '@modules/auth/application/dtos/auth/refresh-token-output.dto';
+import { SignOutInputDTO } from '@modules/auth/application/dtos/auth/sign-out-input.dto';
 
 type SessionResponse = SessionViewModel;
 
 describe('Session Microservice (e2e)', () => {
   let app: INestMicroservice;
   let client: ClientProxy;
-  let prismaService: PrismaService;
+  let prismaService: PrismaGateway;
 
   const userId = 'user-id';
   let sessionId: string;
@@ -34,7 +35,7 @@ describe('Session Microservice (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    prismaService = moduleFixture.get<PrismaService>(PrismaService);
+    prismaService = moduleFixture.get<PrismaGateway>(PrismaGateway);
 
     app = moduleFixture.createNestMicroservice<MicroserviceOptions>({
       transport: Transport.TCP,
@@ -183,5 +184,14 @@ describe('Session Microservice (e2e)', () => {
 
     expect(result).toBeDefined();
     expect(result.length).toBe(1);
+  });
+
+  it('sign_out / should sign out a user', async () => {
+    const source$ = client.send<void, SignOutInputDTO>('sign_out', {
+      accessToken,
+    });
+    const result = await firstValueFrom(source$);
+
+    expect(result).toBeDefined();
   });
 });

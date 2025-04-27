@@ -1,4 +1,4 @@
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserToModelAdapter } from '@modules/account/infra/adapters/user/user-to-model.adapter';
@@ -8,7 +8,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserRepositoryImpl implements UserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaGateway) {}
 
   async save(user: User): Promise<Result<User>> {
     const userModel = user.toObject(new UserToModelAdapter());

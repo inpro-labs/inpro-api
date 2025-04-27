@@ -21,8 +21,7 @@ export class SignOutController {
   ) {
     await this.commandBus.execute(
       new SignOutCommand({
-        sessionId: payload.data.sessionId,
-        userId: payload.data.userId,
+        accessToken: payload.data.accessToken,
       }),
     );
 

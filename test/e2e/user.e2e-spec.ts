@@ -6,7 +6,7 @@ import { Transport } from '@nestjs/microservices';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { MicroserviceResponse } from '@inpro-labs/microservices';
 
 // Define interfaces for API responses
@@ -27,7 +27,7 @@ interface UserViewModel {
 describe('User Microservice (e2e)', () => {
   let app: INestMicroservice;
   let client: ClientProxy;
-  let prismaService: PrismaService;
+  let prismaService: PrismaGateway;
 
   // Test user data with random value to ensure uniqueness
   const randomSuffix = Math.floor(Math.random() * 10000);
@@ -40,7 +40,7 @@ describe('User Microservice (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    prismaService = moduleFixture.get<PrismaService>(PrismaService);
+    prismaService = moduleFixture.get<PrismaGateway>(PrismaGateway);
 
     app = moduleFixture.createNestMicroservice<MicroserviceOptions>({
       transport: Transport.TCP,

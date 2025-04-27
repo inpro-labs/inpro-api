@@ -41,7 +41,7 @@ describe('RefreshTokenHandler', () => {
 
   it('should refresh tokens successfully', async () => {
     const user = UserFactory.make('user-123');
-    const session = SessionFactory.make('session-123').unwrap();
+    const session = SessionFactory.make({ id: 'session-123' }).unwrap();
 
     getRefreshTokenSessionService.execute.mockResolvedValue(
       Ok({ session, user }),
@@ -90,7 +90,7 @@ describe('RefreshTokenHandler', () => {
 
   it('should throw ApplicationException when token generation fails', async () => {
     const user = UserFactory.make('user-123');
-    const session = SessionFactory.make('session-123').unwrap();
+    const session = SessionFactory.make({ id: 'session-123' }).unwrap();
 
     getRefreshTokenSessionService.execute.mockResolvedValue(
       Ok({ session, user }),

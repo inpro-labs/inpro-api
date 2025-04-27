@@ -2,18 +2,36 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { ID, Result } from '@inpro-labs/core';
 
-// TODO: Implement optional params
+type SessionFactoryParams = {
+  id?: string;
+  userId?: string;
+  refreshTokenHash?: string;
+  device?: string;
+  deviceId?: string;
+  userAgent?: string;
+  ip?: string;
+};
 
 export class SessionFactory {
-  static make(id?: string): Result<Session> {
+  static make({
+    id,
+    userId,
+    refreshTokenHash,
+    device,
+    deviceId,
+    userAgent,
+    ip,
+  }: SessionFactoryParams = {}): Result<Session> {
     return Session.create({
-      id: id ? ID.create(id).unwrap() : undefined,
-      userId: ID.create('user-123').unwrap(),
-      refreshTokenHash: RefreshTokenHash.create('refresh-token-hash').unwrap(),
-      device: Session.deviceTypes[0],
-      deviceId: 'device-id',
-      userAgent: 'user-agent',
-      ip: 'ip',
+      id: ID.create(id ?? 'session-123').unwrap(),
+      userId: ID.create(userId ?? 'user-123').unwrap(),
+      refreshTokenHash: RefreshTokenHash.create(
+        refreshTokenHash ?? 'refresh-token-hash',
+      ).unwrap(),
+      device: device ?? Session.deviceTypes[0],
+      deviceId: deviceId ?? 'device-id',
+      userAgent: userAgent ?? 'user-agent',
+      ip: ip ?? 'ip',
       createdAt: new Date(),
       updatedAt: new Date(),
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),

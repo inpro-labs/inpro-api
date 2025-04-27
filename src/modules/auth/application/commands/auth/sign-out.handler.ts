@@ -1,17 +1,27 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ValidateSessionCommand } from './validate-session.command';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { ValidateSessionOutputDTO } from '../../dtos/auth/validate-session-ouput';
 import { SignOutCommand } from './sign-out.command';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 
 @CommandHandler(SignOutCommand)
 export class SignOutHandler implements ICommandHandler<SignOutCommand> {
-  constructor(private readonly sessionRepository: SessionRepository) {}
+  constructor(
+    private readonly sessionRepository: SessionRepository,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async execute(command: SignOutCommand): Promise<void> {
+    const tokenPayloadResult = this.jwtService.verify(command.dto.accessToken);
+
+    if (tokenPayloadResult.isErr()) {
+      throw new ApplicationException('Invalid token', 401, 'INVALID_TOKEN');
+    }
+
+    const tokenPayload = tokenPayloadResult.unwrap();
+
     const sessionResult = await this.sessionRepository.findById(
-      command.dto.sessionId,
+      tokenPayload.get('sid'),
     );
 
     if (sessionResult.isErr()) {
@@ -24,7 +34,9 @@ export class SignOutHandler implements ICommandHandler<SignOutCommand> {
 
     const session = sessionResult.unwrap();
 
-    if (session.get('userId').value() !== command.dto.userId) {
+    console.log(session.get('userId').value(), tokenPayload.get('sub'));
+
+    if (session.get('userId').value() !== tokenPayload.get('sub')) {
       throw new ApplicationException(
         'User does not own this session',
         403,

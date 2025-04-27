@@ -4,9 +4,11 @@ import { Module } from '@nestjs/common';
 import { HashServiceImpl } from '@shared/infra/security/hash/services/hash.service';
 import { UserRepositoryImpl } from './infra/repositories/user.repository.impl';
 import { CreateUserHandler } from './application/commands/user/create-user.handler';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { CreateUserController } from './presentation/controllers/user/create-user.controller';
+import { ExistsUserByEmailHandler } from './application/queries/user/exists-user-by-email.handler';
+import { SendEmailVerificationHandler } from './application/commands/user/send-email-verification.handler';
 
 @Module({
   imports: [HashModule],
@@ -20,7 +22,7 @@ import { CreateUserController } from './presentation/controllers/user/create-use
       useClass: HashServiceImpl,
     },
     CreateUserHandler,
-    PrismaService,
+    PrismaGateway,
   ],
   controllers: [CreateUserController],
   exports: [UserRepository],

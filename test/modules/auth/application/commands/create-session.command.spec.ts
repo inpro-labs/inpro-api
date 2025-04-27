@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
@@ -42,10 +41,10 @@ describe('CreateSessionHandler', () => {
     handler = module.get(CreateSessionHandler);
 
     sessionRepository.findActiveSession.mockResolvedValue(
-      Result.ok(SessionFactory.make('session-123').unwrap()),
+      Result.ok(SessionFactory.make({ id: 'session-123' }).unwrap()),
     );
     sessionRepository.save.mockResolvedValue(
-      Result.ok(SessionFactory.make('session-123').unwrap()),
+      Result.ok(SessionFactory.make({ id: 'session-123' }).unwrap()),
     );
 
     sessionRepository.findActiveSession.mockRejectedValue(
@@ -112,7 +111,9 @@ describe('CreateSessionHandler', () => {
       .spyOn(sessionRepository, 'findActiveSession')
       .mockReturnValueOnce(
         Promise.resolve(
-          Result.ok(SessionFactory.make('session-EXISTENT-123').unwrap()),
+          Result.ok(
+            SessionFactory.make({ id: 'session-EXISTENT-123' }).unwrap(),
+          ),
         ),
       );
 

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { SessionQueryService } from '@modules/auth/application/interfaces/queries/session-query.service.interface';
-import { SessionModel } from '../models/session.model';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { SessionModel } from '@modules/auth/infra/models/session.model';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { Paginated } from '@inpro-labs/microservices';
 
 @Injectable()
 export class SessionQueryServiceImpl implements SessionQueryService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaGateway) {}
 
   async listUserSessions(
     query: ListUserSessionsQuery,

@@ -51,7 +51,7 @@ describe('GetRefreshTokenSessionService', () => {
     const hashedToken = 'hashed-refresh-token';
 
     it('should retrieve session and user by refresh token', async () => {
-      const session = SessionFactory.make('session-123').unwrap();
+      const session = SessionFactory.make({ id: 'session-123' }).unwrap();
       const user = UserFactory.make('user-123');
 
       hashService.generateHash.mockResolvedValue(Ok(hashedToken));
@@ -99,7 +99,7 @@ describe('GetRefreshTokenSessionService', () => {
     });
 
     it('should return error for expired or revoked session', async () => {
-      const session = SessionFactory.make('session-123').unwrap();
+      const session = SessionFactory.make({ id: 'session-123' }).unwrap();
 
       hashService.generateHash.mockResolvedValue(Ok(hashedToken));
 
@@ -120,7 +120,7 @@ describe('GetRefreshTokenSessionService', () => {
     });
 
     it('should return error when user is not found', async () => {
-      const session = SessionFactory.make('session-123').unwrap();
+      const session = SessionFactory.make({ id: 'session-123' }).unwrap();
 
       hashService.generateHash.mockResolvedValue(Ok(hashedToken));
 

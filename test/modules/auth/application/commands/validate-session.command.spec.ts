@@ -29,10 +29,14 @@ describe('ValidateSessionHandler', () => {
     handler = module.get(ValidateSessionHandler);
   });
 
+  beforeEach(() => {
+    retrieveSessionByTokenService.execute.mockReset();
+  });
+
   const validAccessToken = 'valid-access-token';
 
   it('should validate a session successfully', async () => {
-    const session = SessionFactory.make('session-123').unwrap();
+    const session = SessionFactory.make({ id: 'session-123' }).unwrap();
     retrieveSessionByTokenService.execute.mockResolvedValue(Ok(session));
 
     const command = new ValidateSessionCommand({

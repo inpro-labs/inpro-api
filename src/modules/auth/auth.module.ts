@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { SessionCreatedHandler } from '@modules/auth/application/events/session/session-created.handler';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { ListUserSessionsHandler } from './application/queries/session/list-user-sessions.handler';
 import { RevokeSessionHandler } from './application/commands/session/revoke-session.handler';
@@ -12,7 +12,6 @@ import { SessionRevokedHandler } from './application/events/session/session-revo
 import { CreateSessionHandler } from './application/commands/session/create-session.handler';
 import { SessionQueryService } from './application/interfaces/queries/session-query.service.interface';
 import { SessionQueryServiceImpl } from './infra/services/session-query.service.impl';
-import { JwtModule } from '@nestjs/jwt';
 import { AccountModule } from '@modules/account/account.module';
 import { SignInHandler } from './application/commands/auth/sign-in.handler';
 import { SignInController } from './presentation/controllers/auth/sign-in.controller';
@@ -23,9 +22,10 @@ import { RetrieveSessionByTokenService } from './application/services/session/re
 import { SessionRepositoryImpl } from './infra/repositories/session.repository.impl';
 import { RefreshTokenHandler } from './application/commands/auth/refresh-token.handler';
 import { ValidateSessionHandler } from './application/commands/auth/validate-session.handler';
+import { JwtProvider } from '@shared/infra/providers/jwt.provider';
 
 @Module({
-  imports: [HashModule, JwtModule, AccountModule],
+  imports: [HashModule, AccountModule],
   controllers: [
     CreateSessionController,
     RetrieveUserSessionsController,
@@ -37,7 +37,7 @@ import { ValidateSessionHandler } from './application/commands/auth/validate-ses
       provide: SessionRepository,
       useClass: SessionRepositoryImpl,
     },
-    PrismaService,
+    PrismaGateway,
 
     // Services
     ValidateUserCredentialsService,
@@ -60,6 +60,7 @@ import { ValidateSessionHandler } from './application/commands/auth/validate-ses
       provide: SessionQueryService,
       useClass: SessionQueryServiceImpl,
     },
+    JwtProvider,
   ],
 })
 export class AuthModule {}

@@ -15,4 +15,5 @@ export abstract class SessionRepository {
     deviceId: string,
   ): Promise<Result<Session>>;
   abstract findAllByUserId(userId: string): Promise<Result<Session[]>>;
+  abstract delete(id: string): Promise<Result<void>>;
 }

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { SessionRepositoryImpl } from '@modules/auth/infra/repositories/session.repository.impl';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
@@ -15,7 +15,7 @@ describe('SessionRepositoryImpl (integration)', () => {
   }
 
   let repository: SessionRepositoryImpl;
-  let prisma: PrismaService;
+  let prisma: PrismaGateway;
   let userRepository: UserRepositoryImpl;
   let user: User;
   let session: Session;
@@ -42,10 +42,10 @@ describe('SessionRepositoryImpl (integration)', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaService, SessionRepositoryImpl, UserRepositoryImpl],
+      providers: [PrismaGateway, SessionRepositoryImpl, UserRepositoryImpl],
     }).compile();
 
-    prisma = module.get(PrismaService);
+    prisma = module.get(PrismaGateway);
     repository = module.get(SessionRepositoryImpl);
     userRepository = module.get(UserRepositoryImpl);
 

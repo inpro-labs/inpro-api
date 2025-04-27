@@ -1,0 +1,131 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { mock, MockProxy } from 'jest-mock-extended';
+import { SignOutHandler } from '@modules/auth/application/commands/auth/sign-out.handler';
+import { SignOutCommand } from '@modules/auth/application/commands/auth/sign-out.command';
+import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ApplicationException } from '@inpro-labs/microservices';
+import { Err, Ok } from '@inpro-labs/core';
+import { SessionFactory } from '@test/factories/fake-session.factory';
+import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { ConfigModule } from '@nestjs/config';
+import { TokenPayload } from '@shared/domain/entities/token-payload.entity';
+import { JwtProvider } from '@shared/infra/providers/jwt.provider';
+import { JwtModule } from '@nestjs/jwt';
+
+describe('SignOutHandler', () => {
+  let handler: SignOutHandler;
+  let sessionRepository: MockProxy<SessionRepository>;
+  let jwtService: JwtService;
+  let validDto: { accessToken: string };
+
+  const tokenPayload = TokenPayload.create({
+    sid: 'session-123',
+    sub: 'user-123',
+    email: 'user@example.com',
+  }).unwrap();
+
+  beforeAll(async () => {
+    sessionRepository = mock<SessionRepository>();
+
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath: '.env.test',
+        }),
+        JwtModule.register({
+          global: true,
+        }),
+      ],
+      providers: [
+        SignOutHandler,
+        {
+          provide: SessionRepository,
+          useValue: sessionRepository,
+        },
+        JwtProvider,
+      ],
+    }).compile();
+
+    handler = module.get(SignOutHandler);
+    jwtService = module.get(JwtService);
+    validDto = {
+      accessToken: jwtService.sign(tokenPayload, {
+        expiresIn: '1h',
+      }),
+    };
+  });
+
+  beforeEach(() => {
+    sessionRepository.findById.mockReset();
+    sessionRepository.delete.mockReset();
+  });
+
+  const sessionMock = SessionFactory.make({
+    id: tokenPayload.get('sid'),
+    userId: tokenPayload.get('sub'),
+  }).unwrap();
+
+  it('should sign out successfully', async () => {
+    sessionRepository.findById.mockResolvedValue(Ok(sessionMock));
+    sessionRepository.delete.mockResolvedValue(Ok(undefined));
+
+    const command = new SignOutCommand(validDto);
+
+    await expect(handler.execute(command)).resolves.toBeUndefined();
+
+    expect(sessionRepository.findById).toHaveBeenCalledWith(
+      tokenPayload.get('sid'),
+    );
+    expect(sessionRepository.delete).toHaveBeenCalledWith(
+      tokenPayload.get('sid'),
+    );
+  });
+
+  it('should throw ApplicationException if session is not found', async () => {
+    sessionRepository.findById.mockResolvedValue(
+      Err(new Error('Session not found')),
+    );
+
+    const command = new SignOutCommand(validDto);
+
+    await expect(handler.execute(command)).rejects.toThrow(
+      new ApplicationException('Session not found', 404, 'SESSION_NOT_FOUND'),
+    );
+
+    expect(sessionRepository.findById).toHaveBeenCalledWith(
+      tokenPayload.get('sid'),
+    );
+  });
+
+  it('should throw ApplicationException if user does not own the session', async () => {
+    const wrongIdTokenPayload = TokenPayload.create({
+      sid: sessionMock.id.value(),
+      sub: 'another-user',
+      email: 'user@example.com',
+    }).unwrap();
+
+    const wrongIdToken = jwtService.sign(wrongIdTokenPayload, {
+      expiresIn: '1h',
+    });
+
+    sessionRepository.findById.mockResolvedValue(Ok(sessionMock));
+
+    const command = new SignOutCommand({
+      accessToken: wrongIdToken,
+    });
+
+    await expect(handler.execute(command)).rejects.toThrow(
+      new ApplicationException(
+        'User does not own this session',
+        403,
+        'USER_DOES_NOT_OWN_SESSION',
+      ),
+    );
+
+    expect(sessionRepository.findById).toHaveBeenCalledWith(
+      sessionMock.id.value(),
+    );
+    expect(sessionRepository.delete).not.toHaveBeenCalled();
+  });
+});

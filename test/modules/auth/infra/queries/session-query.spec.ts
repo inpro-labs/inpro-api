@@ -1,24 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { SessionQueryService } from '@modules/auth/application/interfaces/queries/session-query.service.interface';
-import { SessionQueryServiceImpl } from '@modules/auth/infra/queries/session-query.impl';
+import { SessionQueryServiceImpl } from '@modules/auth/infra/services/session-query.service.impl';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 
-// Extended model for testing with optional lastRefreshAt
 interface TestSessionModel extends SessionModel {
   lastRefreshAt?: Date;
 }
 
 describe('SessionQueryService', () => {
   let service: SessionQueryService;
-  let prismaService: PrismaService;
+  let prismaService: PrismaGateway;
   let mockSessionService: { findMany: jest.Mock };
 
   const userId = 'test-user-id';
   const pagination = { skip: 0, take: 10 };
 
-  // Mock session data
   const mockSessions: TestSessionModel[] = [
     {
       id: 'session-1',
@@ -29,7 +27,7 @@ describe('SessionQueryService', () => {
       userAgent: 'Test User Agent',
       refreshTokenHash: 'hash1',
       revokedAt: null,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60), // 1 hour from now
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60),
       createdAt: new Date(),
       updatedAt: new Date(),
       lastRefreshAt: new Date(),
@@ -43,23 +41,21 @@ describe('SessionQueryService', () => {
       userAgent: 'Another User Agent',
       refreshTokenHash: 'hash2',
       revokedAt: null,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2), // 2 hours from now
-      createdAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2),
+      createdAt: new Date(Date.now() - 1000 * 60 * 60),
       updatedAt: new Date(),
-      lastRefreshAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+      lastRefreshAt: new Date(Date.now() - 1000 * 60 * 30),
     },
   ];
 
   beforeEach(async () => {
-    // Create session mock
     mockSessionService = {
       findMany: jest.fn(),
     };
 
-    // Create a mock PrismaService that properly types session
     prismaService = {
       session: mockSessionService,
-    } as unknown as PrismaService;
+    } as unknown as PrismaGateway;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -68,7 +64,7 @@ describe('SessionQueryService', () => {
           useClass: SessionQueryServiceImpl,
         },
         {
-          provide: PrismaService,
+          provide: PrismaGateway,
           useValue: prismaService,
         },
       ],
@@ -83,31 +79,25 @@ describe('SessionQueryService', () => {
 
   describe('listUserSessions', () => {
     it('should return paginated sessions for a user', async () => {
-      // Setup the query
       const query = new ListUserSessionsQuery({
         data: { userId },
         pagination,
       });
 
-      // Setup mock to return sessions
       mockSessionService.findMany.mockResolvedValue(mockSessions);
 
-      // Call the service method
       const result = await service.listUserSessions(query);
 
-      // Verify the result
       expect(result.isOk()).toBe(true);
 
       if (result.isOk()) {
-        // Type guard to avoid unbound method issue
         const paginatedResult = result.unwrap();
 
         expect(paginatedResult.data).toEqual(mockSessions);
         expect(paginatedResult.total).toBe(mockSessions.length);
-        expect(paginatedResult.page).toBe(1); // First page (skip 0, take 10)
+        expect(paginatedResult.page).toBe(1);
       }
 
-      // Verify prisma was called with correct parameters
       expect(mockSessionService.findMany).toHaveBeenCalledWith({
         where: { userId },
         skip: pagination.skip,
@@ -117,32 +107,25 @@ describe('SessionQueryService', () => {
     });
 
     it('should handle pagination correctly', async () => {
-      // Setup pagination parameters for page 2
       const pageSize = 5;
-      const customPagination = { skip: pageSize, take: pageSize }; // Page 2
+      const customPagination = { skip: pageSize, take: pageSize };
 
-      // Setup the query
       const query = new ListUserSessionsQuery({
         data: { userId },
         pagination: customPagination,
       });
 
-      // Setup mock to return sessions
       mockSessionService.findMany.mockResolvedValue(mockSessions);
 
-      // Call the service method
       const result = await service.listUserSessions(query);
 
-      // Verify the result
       expect(result.isOk()).toBe(true);
 
       if (result.isOk()) {
-        // Type guard to avoid unbound method issue
         const paginatedResult = result.unwrap();
-        expect(paginatedResult.page).toBe(2); // Second page
+        expect(paginatedResult.page).toBe(2);
       }
 
-      // Verify prisma was called with correct parameters
       expect(mockSessionService.findMany).toHaveBeenCalledWith({
         where: { userId },
         skip: customPagination.skip,
@@ -152,30 +135,24 @@ describe('SessionQueryService', () => {
     });
 
     it('should handle empty results', async () => {
-      // Setup the query
       const query = new ListUserSessionsQuery({
         data: { userId },
         pagination,
       });
 
-      // Setup mock to return empty array
       mockSessionService.findMany.mockResolvedValue([]);
 
-      // Call the service method
       const result = await service.listUserSessions(query);
 
-      // Verify the result
       expect(result.isOk()).toBe(true);
 
       if (result.isOk()) {
-        // Type guard to avoid unbound method issue
         const paginatedResult = result.unwrap();
         expect(paginatedResult.data).toEqual([]);
         expect(paginatedResult.total).toBe(0);
         expect(paginatedResult.page).toBe(1);
       }
 
-      // Verify prisma was called with correct parameters
       expect(mockSessionService.findMany).toHaveBeenCalledWith({
         where: { userId },
         skip: pagination.skip,
@@ -185,30 +162,23 @@ describe('SessionQueryService', () => {
     });
 
     it('should return error when prisma throws exception', async () => {
-      // Setup the query
       const query = new ListUserSessionsQuery({
         data: { userId },
         pagination,
       });
 
-      // Setup the error
       const expectedError = new Error('Database error');
 
-      // Setup mock to throw error
       mockSessionService.findMany.mockRejectedValue(expectedError);
 
-      // Call the service method
       const result = await service.listUserSessions(query);
 
-      // Verify the result
       expect(result.isErr()).toBe(true);
 
       if (result.isErr()) {
-        // Type guard to avoid unbound method issue
         expect(result.getErr()).toBe(expectedError);
       }
 
-      // Verify prisma was called
       expect(mockSessionService.findMany).toHaveBeenCalled();
     });
   });

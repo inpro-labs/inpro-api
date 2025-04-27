@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -8,14 +7,14 @@ import { ListUserSessionsHandler } from '@modules/auth/application/queries/sessi
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { SessionQueryService } from '@modules/auth/application/interfaces/queries/session-query.service.interface';
-import { PrismaService } from '@shared/infra/services/prisma.service';
+import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
 
 describe('ListUserSessionsHandler', () => {
   let handler: ListUserSessionsHandler;
   let sessionQueryService: MockProxy<SessionQueryService>;
-  let prisma: PrismaService;
+  let prisma: PrismaGateway;
 
   beforeAll(async () => {
     sessionQueryService = mock<SessionQueryService>();
@@ -28,12 +27,12 @@ describe('ListUserSessionsHandler', () => {
           provide: SessionQueryService,
           useValue: sessionQueryService,
         },
-        PrismaService,
+        PrismaGateway,
       ],
     }).compile();
 
     handler = module.get(ListUserSessionsHandler);
-    prisma = module.get(PrismaService);
+    prisma = module.get(PrismaGateway);
 
     const userId = 'user-123';
     await prisma.user.create({

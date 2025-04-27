@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 
-export const SignInEventSchema = z.object({
+export const signInSchema = z.object({
   email: z.string().email(),
   password: z.string(),
   userId: z.string().uuid(),

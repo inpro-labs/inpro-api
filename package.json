@@ -22,9 +22,10 @@
     "update:sdk": "npm i @inpro-labs/core@latest @inpro-labs/microservices@latest"
   },
   "dependencies": {
-    "@inpro-labs/core": "^1.0.4",
-    "@inpro-labs/microservices": "^1.0.4",
+    "@inpro-labs/core": "^1.0.5",
+    "@inpro-labs/microservices": "^1.0.5-rc.1",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/cqrs": "^11.0.3",
     "@nestjs/jwt": "^11.0.0",
