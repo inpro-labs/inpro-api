@@ -28,6 +28,7 @@ export class SessionToDomainAdapter implements Adapter<SessionModel, Session> {
       revokedAt: item.revokedAt ?? null,
       updatedAt: item.updatedAt,
       deviceId,
+      lastRefreshAt: item.lastRefreshAt ?? null,
     }).unwrap();
   }
 

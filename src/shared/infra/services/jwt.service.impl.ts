@@ -27,6 +27,7 @@ export class JwtServiceImpl implements JwtService {
       sub: string;
       email: string;
       deviceId: string;
+      jti: string;
     }>(token, {
       secret: this.envService.get('JWT_SECRET'),
       ...options,
@@ -37,6 +38,7 @@ export class JwtServiceImpl implements JwtService {
       sub: decoded.sub,
       email: decoded.email,
       deviceId: decoded.deviceId,
+      jti: decoded.jti,
     });
   }
 }

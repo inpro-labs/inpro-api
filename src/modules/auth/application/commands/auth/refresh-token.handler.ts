@@ -30,7 +30,7 @@ export class RefreshTokenHandler
 
     if (result.isErr()) {
       throw new ApplicationException(
-        'Invalid refresh token',
+        result.getErr()!.message,
         401,
         'INVALID_REFRESH_TOKEN',
       );
@@ -54,10 +54,7 @@ export class RefreshTokenHandler
 
     const { accessToken, refreshToken } = tokensResult.unwrap();
 
-    await this.updateSessionRefreshTokenService.execute(
-      session.id.value(),
-      refreshToken,
-    );
+    await this.updateSessionRefreshTokenService.execute(session, refreshToken);
 
     return {
       accessToken,

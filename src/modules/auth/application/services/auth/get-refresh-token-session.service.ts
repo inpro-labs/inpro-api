@@ -1,16 +1,16 @@
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
-import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
 
 @Injectable()
 export class GetRefreshTokenSessionService {
   constructor(
-    private readonly hashService: HashService,
+    private readonly encryptService: EncryptService,
     private readonly jwtService: JwtService,
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
@@ -31,8 +31,13 @@ export class GetRefreshTokenSessionService {
 
     const session = sessionResult.unwrap();
 
-    const isRefreshTokenValid = await this.hashService.compareHash(
-      refreshToken,
+    const refreshTokenDigest =
+      this.encryptService.generateHmacDigest(refreshToken);
+
+    console.log(refreshTokenDigest.unwrap());
+    console.log(session.get('refreshTokenHash').get('value'));
+    const isRefreshTokenValid = this.encryptService.compareHmacDigests(
+      refreshTokenDigest.unwrap(),
       session.get('refreshTokenHash').get('value'),
     );
 

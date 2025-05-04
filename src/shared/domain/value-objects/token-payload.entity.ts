@@ -5,6 +5,7 @@ interface Props {
   sub: string;
   email: string;
   deviceId: string;
+  jti: string;
 }
 
 export class TokenPayload extends ValueObject<Props> {

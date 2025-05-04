@@ -16,8 +16,4 @@ export abstract class SessionRepository {
   ): Promise<Result<Session>>;
   abstract findAllByUserId(userId: string): Promise<Result<Session[]>>;
   abstract delete(id: string): Promise<Result<void>>;
-  abstract updateRefreshTokenHash(
-    id: string,
-    refreshTokenHash: string,
-  ): Promise<Result<void>>;
 }

@@ -29,8 +29,16 @@ import { RefreshTokenController } from './presentation/controllers/auth/refresh-
 import { SignOutController } from './presentation/controllers/auth/sign-out.controller';
 import { SignOutHandler } from './application/commands/auth/sign-out.handler';
 import { UpdateSessionRefreshTokenService } from './application/services/auth/update-session-refresh-token.service';
+import { EncryptModule } from '@shared/infra/security/encrypt/encrypt.module';
+
 @Module({
-  imports: [HashModule, AccountModule, CustomJwtModule, EnvModule],
+  imports: [
+    HashModule,
+    EncryptModule,
+    AccountModule,
+    CustomJwtModule,
+    EnvModule,
+  ],
   controllers: [
     CreateSessionController,
     RetrieveUserSessionsController,

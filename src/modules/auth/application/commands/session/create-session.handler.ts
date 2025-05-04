@@ -4,9 +4,9 @@ import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
-import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import { ID } from '@inpro-labs/core';
 import { CreateSessionOutputDTO } from '@modules/auth/application/dtos/session/create-session-output.dto';
+import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionHandler
@@ -15,7 +15,7 @@ export class CreateSessionHandler
   constructor(
     private readonly sessionRepository: SessionRepository,
     private readonly publish: EventPublisher,
-    private readonly hashService: HashService,
+    private readonly encryptService: EncryptService,
   ) {}
 
   async execute(
@@ -34,8 +34,11 @@ export class CreateSessionHandler
       );
     }
 
-    const hash = await this.hashService.generateHash(command.dto.refreshToken);
-    const refreshTokenHash = RefreshTokenHash.create(hash.unwrap()).unwrap();
+    const digest = this.encryptService.generateHmacDigest(
+      command.dto.refreshToken,
+    );
+    const refreshTokenHash = RefreshTokenHash.create(digest.unwrap()).unwrap();
+
     const result = Session.create({
       id: command.dto.id ? ID.create(command.dto.id).unwrap() : undefined,
       device: command.dto.device,

@@ -16,6 +16,7 @@ export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
       revokedAt,
       updatedAt,
       deviceId,
+      lastRefreshAt,
     } = item.toObject();
 
     return {
@@ -30,6 +31,7 @@ export class SessionToModelAdapter implements Adapter<Session, SessionModel> {
       revokedAt: revokedAt ?? null,
       updatedAt: updatedAt,
       deviceId: deviceId,
+      lastRefreshAt: lastRefreshAt ?? null,
     };
   }
 

@@ -10,4 +10,5 @@ export type SessionModel = {
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  lastRefreshAt: Date | null;
 };

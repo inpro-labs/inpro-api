@@ -170,20 +170,4 @@ export class SessionRepositoryImpl implements SessionRepository {
       return Err(error);
     }
   }
-
-  async updateRefreshTokenHash(
-    id: string,
-    refreshTokenHash: string,
-  ): Promise<Result<void>> {
-    try {
-      await this.prisma.session.update({
-        where: { id },
-        data: { refreshTokenHash, lastRefreshAt: new Date() },
-      });
-
-      return Ok(undefined);
-    } catch (error) {
-      return Err(error);
-    }
-  }
 }
