@@ -1,12 +1,13 @@
-import { Entity, Ok, Result } from '@inpro-labs/core';
+import { Ok, Result, ValueObject } from '@inpro-labs/core';
 
 interface Props {
   sid: string;
   sub: string;
   email: string;
+  deviceId: string;
 }
 
-export class TokenPayload extends Entity<Props> {
+export class TokenPayload extends ValueObject<Props> {
   private constructor(props: Props) {
     super(props);
   }

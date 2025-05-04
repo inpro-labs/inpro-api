@@ -15,16 +15,16 @@ export class ValidateUserCredentialsService {
     const user = await this.userRepository.findByEmail(email);
 
     if (user.isErr()) {
-      return Err(new Error('Invalid credentials'));
+      return Err(new Error('Invalid credentials 2'));
     }
 
     const compareResult = await this.hashService.compareHash(
-      user.unwrap().get('password')!,
       password,
+      user.unwrap().get('password')!,
     );
 
     if (!compareResult.unwrap()) {
-      return Err(new Error('Invalid credentials'));
+      return Err(new Error('Invalid credentials 3'));
     }
 
     return Ok(user.unwrap());

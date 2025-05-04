@@ -34,8 +34,6 @@ export class SignOutHandler implements ICommandHandler<SignOutCommand> {
 
     const session = sessionResult.unwrap();
 
-    console.log(session.get('userId').value(), tokenPayload.get('sub'));
-
     if (session.get('userId').value() !== tokenPayload.get('sub')) {
       throw new ApplicationException(
         'User does not own this session',

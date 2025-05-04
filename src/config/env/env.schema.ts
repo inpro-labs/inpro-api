@@ -8,3 +8,5 @@ export const envSchema = z.object({
   JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.string().regex(/^\d+[smhd]$/),
   DATABASE_URL: z.string(),
 });
+
+export type Env = z.infer<typeof envSchema>;

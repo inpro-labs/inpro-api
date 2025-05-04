@@ -1,4 +1,4 @@
 import { z } from 'zod';
-import { SignInEventSchema } from '../../../presentation/schemas/auth/sign-in-event.schema';
+import { signInSchema } from '@modules/auth/presentation/schemas/auth/sign-in.schema';
 
-export type SignInInputDTO = z.infer<typeof SignInEventSchema>;
+export type SignInInputDTO = z.infer<typeof signInSchema>;

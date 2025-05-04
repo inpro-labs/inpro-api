@@ -19,12 +19,14 @@ export class ValidateSessionController {
     @Payload(new ZodValidationPipe(validateSessionSchema))
     payload: MicroserviceRequest<z.infer<typeof validateSessionSchema>>,
   ) {
-    const tokens = await this.commandBus.execute(
+    const data = await this.commandBus.execute(
       new ValidateSessionCommand({
         accessToken: payload.data.accessToken,
       }),
     );
 
-    return MessageResponse.ok(tokens);
+    console.log(data);
+
+    return MessageResponse.ok(data);
   }
 }

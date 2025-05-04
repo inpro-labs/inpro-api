@@ -4,6 +4,7 @@ import { RefreshTokenCommand } from './refresh-token.command';
 import { RefreshTokenOutputDTO } from '../../dtos/auth/refresh-token-output.dto';
 import { GetRefreshTokenSessionService } from '../../services/auth/get-refresh-token-session.service';
 import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
+import { UpdateSessionRefreshTokenService } from '../../services/auth/update-session-refresh-token.service';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler
@@ -19,6 +20,7 @@ export class RefreshTokenHandler
   constructor(
     private readonly getRefreshTokenSessionService: GetRefreshTokenSessionService,
     private readonly generateTokensService: GenerateTokensService,
+    private readonly updateSessionRefreshTokenService: UpdateSessionRefreshTokenService,
   ) {}
 
   async execute(command: RefreshTokenCommand): Promise<RefreshTokenOutputDTO> {
@@ -28,9 +30,9 @@ export class RefreshTokenHandler
 
     if (result.isErr()) {
       throw new ApplicationException(
-        'Invalid credentials',
+        'Invalid refresh token',
         401,
-        'INVALID_CREDENTIALS',
+        'INVALID_REFRESH_TOKEN',
       );
     }
 
@@ -39,6 +41,7 @@ export class RefreshTokenHandler
     const tokensResult = this.generateTokensService.execute(
       session.id.value(),
       user,
+      session.get('deviceId'),
     );
 
     if (tokensResult.isErr()) {
@@ -50,6 +53,11 @@ export class RefreshTokenHandler
     }
 
     const { accessToken, refreshToken } = tokensResult.unwrap();
+
+    await this.updateSessionRefreshTokenService.execute(
+      session.id.value(),
+      refreshToken,
+    );
 
     return {
       accessToken,

@@ -22,15 +22,23 @@ import { RetrieveSessionByTokenService } from './application/services/session/re
 import { SessionRepositoryImpl } from './infra/repositories/session.repository.impl';
 import { RefreshTokenHandler } from './application/commands/auth/refresh-token.handler';
 import { ValidateSessionHandler } from './application/commands/auth/validate-session.handler';
-import { JwtProvider } from '@shared/infra/providers/jwt.provider';
-
+import { EnvModule } from '@config/env/env.module';
+import { CustomJwtModule } from '@shared/infra/services/jwt.module';
+import { ValidateSessionController } from './presentation/controllers/auth/validate-session.controller';
+import { RefreshTokenController } from './presentation/controllers/auth/refresh-token.controller';
+import { SignOutController } from './presentation/controllers/auth/sign-out.controller';
+import { SignOutHandler } from './application/commands/auth/sign-out.handler';
+import { UpdateSessionRefreshTokenService } from './application/services/auth/update-session-refresh-token.service';
 @Module({
-  imports: [HashModule, AccountModule],
+  imports: [HashModule, AccountModule, CustomJwtModule, EnvModule],
   controllers: [
     CreateSessionController,
     RetrieveUserSessionsController,
     RevokeSessionController,
     SignInController,
+    ValidateSessionController,
+    RefreshTokenController,
+    SignOutController,
   ],
   providers: [
     {
@@ -44,6 +52,7 @@ import { JwtProvider } from '@shared/infra/providers/jwt.provider';
     GenerateTokensService,
     GetRefreshTokenSessionService,
     RetrieveSessionByTokenService,
+    UpdateSessionRefreshTokenService,
 
     // CQRS: Commands & Queries & Events Handlers
     CreateSessionHandler,
@@ -54,13 +63,13 @@ import { JwtProvider } from '@shared/infra/providers/jwt.provider';
     SignInHandler,
     RefreshTokenHandler,
     ValidateSessionHandler,
+    SignOutHandler,
 
     // Infra Queries
     {
       provide: SessionQueryService,
       useClass: SessionQueryServiceImpl,
     },
-    JwtProvider,
   ],
 })
 export class AuthModule {}

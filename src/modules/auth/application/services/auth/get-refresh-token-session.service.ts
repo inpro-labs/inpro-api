@@ -5,11 +5,13 @@ import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 
 @Injectable()
 export class GetRefreshTokenSessionService {
   constructor(
     private readonly hashService: HashService,
+    private readonly jwtService: JwtService,
     private readonly sessionRepository: SessionRepository,
     private readonly userRepository: UserRepository,
   ) {}
@@ -17,11 +19,10 @@ export class GetRefreshTokenSessionService {
   async execute(
     refreshToken: string,
   ): Promise<Result<{ session: Session; user: User }>> {
-    const hashedRefreshToken =
-      await this.hashService.generateHash(refreshToken);
+    const tokenPayload = this.jwtService.verify(refreshToken).unwrap();
 
-    const sessionResult = await this.sessionRepository.findByRefreshToken(
-      hashedRefreshToken.unwrap(),
+    const sessionResult = await this.sessionRepository.findById(
+      tokenPayload.get('sid'),
     );
 
     if (sessionResult.isErr()) {
@@ -30,7 +31,20 @@ export class GetRefreshTokenSessionService {
 
     const session = sessionResult.unwrap();
 
-    if (session.isExpired || session.isRevoked) {
+    const isRefreshTokenValid = await this.hashService.compareHash(
+      refreshToken,
+      session.get('refreshTokenHash').get('value'),
+    );
+
+    if (!isRefreshTokenValid.unwrap()) {
+      return Err(new Error('Invalid refresh token. Not match'));
+    }
+
+    if (
+      session.isExpired ||
+      session.isRevoked ||
+      session.get('userId').value() !== tokenPayload.get('sub')
+    ) {
       return Err(new Error('Session is invalid'));
     }
 

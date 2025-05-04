@@ -1,8 +1,8 @@
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 
 @Injectable()
 export class RetrieveSessionByTokenService {
@@ -12,13 +12,7 @@ export class RetrieveSessionByTokenService {
   ) {}
 
   async execute(accessToken: string): Promise<Result<Session>> {
-    const decodedResult = await Result.fromPromise(
-      this.jwtService.verifyAsync<{
-        sub: string;
-        sid: string;
-        deviceId: string;
-      }>(accessToken),
-    );
+    const decodedResult = this.jwtService.verify(accessToken);
 
     if (decodedResult.isErr()) {
       return Err(new Error('Invalid token'));
@@ -27,9 +21,9 @@ export class RetrieveSessionByTokenService {
     const decoded = decodedResult.unwrap();
 
     const sessionResult = await this.sessionRepository.findDeviceSession(
-      decoded.sid,
-      decoded.sub,
-      decoded.deviceId,
+      decoded.get('sid'),
+      decoded.get('sub'),
+      decoded.get('deviceId'),
     );
 
     if (sessionResult.isErr()) {

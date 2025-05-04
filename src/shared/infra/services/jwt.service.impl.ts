@@ -1,22 +1,22 @@
 import { Result } from '@inpro-labs/core';
-import { ConfigService } from '@nestjs/config';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { TokenPayload } from '@shared/domain/entities/token-payload.entity';
+import { TokenPayload } from '@shared/domain/value-objects/token-payload.entity';
 import {
   JwtService,
   SignOptions,
   VerifyOptions,
 } from '@shared/domain/interfaces/jwt.service.interface';
+import { EnvService } from '@config/env/env.service';
 
 export class JwtServiceImpl implements JwtService {
   constructor(
-    private readonly configService: ConfigService,
+    private readonly envService: EnvService,
     private readonly jwtService: NestJwtService,
   ) {}
 
   sign(payload: TokenPayload, options?: SignOptions): string {
     return this.jwtService.sign(payload.toObject(), {
-      secret: this.configService.get('JWT_SECRET'),
+      secret: this.envService.get('JWT_SECRET'),
       ...options,
     });
   }
@@ -26,8 +26,9 @@ export class JwtServiceImpl implements JwtService {
       sid: string;
       sub: string;
       email: string;
+      deviceId: string;
     }>(token, {
-      secret: this.configService.get('JWT_SECRET'),
+      secret: this.envService.get('JWT_SECRET'),
       ...options,
     });
 
@@ -35,6 +36,7 @@ export class JwtServiceImpl implements JwtService {
       sid: decoded.sid,
       sub: decoded.sub,
       email: decoded.email,
+      deviceId: decoded.deviceId,
     });
   }
 }

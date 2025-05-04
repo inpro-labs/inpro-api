@@ -38,6 +38,7 @@ export class SignInHandler
     const tokensResult = this.generateTokensService.execute(
       sessionId.value(),
       user,
+      command.dto.deviceId,
     );
 
     if (tokensResult.isErr()) {

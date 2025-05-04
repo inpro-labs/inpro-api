@@ -8,7 +8,7 @@ import { Err, Ok } from '@inpro-labs/core';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 import { ConfigModule } from '@nestjs/config';
-import { TokenPayload } from '@shared/domain/entities/token-payload.entity';
+import { TokenPayload } from '@shared/domain/value-objects/token-payload.entity';
 import { JwtProvider } from '@shared/infra/providers/jwt.provider';
 import { JwtModule } from '@nestjs/jwt';
 

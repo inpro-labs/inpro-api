@@ -17,31 +17,37 @@ import { SignInOutputDTO } from '@modules/auth/application/dtos/auth/sign-in-out
 import { ValidateSessionOutputDTO } from '@modules/auth/application/dtos/auth/validate-session-ouput';
 import { RefreshTokenOutputDTO } from '@modules/auth/application/dtos/auth/refresh-token-output.dto';
 import { SignOutInputDTO } from '@modules/auth/application/dtos/auth/sign-out-input.dto';
+import { UserViewModel } from '@modules/account/presentation/view-model/user.view-model';
 
 type SessionResponse = SessionViewModel;
 
 describe('Session Microservice (e2e)', () => {
   let app: INestMicroservice;
   let client: ClientProxy;
-  let prismaService: PrismaGateway;
+  let prismaGateway: PrismaGateway;
 
-  const userId = 'user-id';
+  let userId: string;
   let sessionId: string;
   let refreshToken = 'test-refresh-token';
   let accessToken: string;
+  const userEmail = 'test@example.com';
+  const userPassword = 'Password123';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    prismaService = moduleFixture.get<PrismaGateway>(PrismaGateway);
+    prismaGateway = moduleFixture.get<PrismaGateway>(PrismaGateway);
 
     app = moduleFixture.createNestMicroservice<MicroserviceOptions>({
-      transport: Transport.TCP,
+      transport: Transport.RMQ,
       options: {
-        host: '127.0.0.1',
-        port: 4001,
+        urls: ['amqp://guest:guest@localhost:5672'],
+        queue: 'auth-service',
+        queueOptions: {
+          durable: false,
+        },
       },
     });
 
@@ -56,10 +62,35 @@ describe('Session Microservice (e2e)', () => {
     });
 
     await client.connect();
+
+    const createUserDto = {
+      email: userEmail,
+      password: userPassword,
+    };
+
+    const createUserSource$ = client.send<
+      MicroserviceResponse<UserViewModel>,
+      typeof createUserDto
+    >('create_user', createUserDto);
+
+    const response = await firstValueFrom(createUserSource$);
+    const user = response.data!;
+
+    userId = user.id;
+
+    const signInSource$ = client.send<
+      MicroserviceResponse<SignInOutputDTO>,
+      typeof createUserDto
+    >('sign_in', createUserDto);
+
+    const signInResponse = await firstValueFrom(signInSource$);
+
+    accessToken = signInResponse.data!.accessToken;
+    refreshToken = signInResponse.data!.refreshToken;
   });
 
   afterAll(async () => {
-    await prismaService.session.deleteMany({
+    await prismaGateway.session.deleteMany({
       where: {
         userId,
       },
@@ -96,9 +127,8 @@ describe('Session Microservice (e2e)', () => {
   });
 
   it('validate_session / should validate a session', async () => {
-    // First we need to sign in to get a valid access token
     const signInDto = {
-      email: 'test@example.com', // This would need to be a real user in your system
+      email: 'test@example.com',
       password: 'Password123',
       device: DEVICE_TYPES.IOS,
       deviceId: 'test-device-id',
@@ -106,18 +136,12 @@ describe('Session Microservice (e2e)', () => {
       ip: 'test-ip',
     };
 
-    try {
-      const signInSource$ = client.send<
-        MicroserviceResponse<SignInOutputDTO>,
-        typeof signInDto
-      >('sign_in', signInDto);
-      const signInResult = await firstValueFrom(signInSource$);
-      accessToken = signInResult.data!.accessToken;
-    } catch (_error) {
-      // For testing purposes, we'll use a mock token if sign-in fails
-      accessToken = 'mock-access-token';
-      console.log('Sign in test skipped due to invalid credentials', _error);
-    }
+    const signInSource$ = client.send<
+      MicroserviceResponse<SignInOutputDTO>,
+      typeof signInDto
+    >('sign_in', signInDto);
+    const signInResult = await firstValueFrom(signInSource$);
+    accessToken = signInResult.data!.accessToken;
 
     const validateDto = {
       accessToken,
@@ -133,7 +157,6 @@ describe('Session Microservice (e2e)', () => {
       expect(result).toBeDefined();
       expect(result.data).toHaveProperty('isValid');
     } catch (_err) {
-      // This might fail in tests without a real token
       console.log('Validate session test skipped due to invalid token', _err);
     }
   });
@@ -155,10 +178,8 @@ describe('Session Microservice (e2e)', () => {
       expect(result.data).toHaveProperty('refreshToken');
       expect(result.data).toHaveProperty('expiresAt');
 
-      // Update refresh token for future tests
       refreshToken = result.data!.refreshToken;
     } catch (_error) {
-      // This might fail in tests without a real token
       console.log('Refresh token test skipped due to invalid token', _error);
     }
   });

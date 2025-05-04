@@ -1,5 +1,5 @@
 import { Result } from '@inpro-labs/core';
-import { TokenPayload } from '../entities/token-payload.entity';
+import { TokenPayload } from '../value-objects/token-payload.entity';
 
 export interface SignOptions {
   expiresIn?: string;

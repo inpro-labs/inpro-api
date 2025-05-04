@@ -8,18 +8,20 @@ import { Paginated } from '@inpro-labs/microservices';
 
 @Injectable()
 export class SessionQueryServiceImpl implements SessionQueryService {
-  constructor(private readonly prismaService: PrismaGateway) {}
+  constructor(private readonly prismaGateway: PrismaGateway) {}
 
   async listUserSessions(
     query: ListUserSessionsQuery,
   ): Promise<Result<Paginated<SessionModel>>> {
-    try {
-      const {
-        data: { userId },
-        pagination,
-      } = query.dto;
+    console.log(query.dto);
 
-      const sessions = await this.prismaService.session.findMany({
+    const {
+      data: { userId },
+      pagination,
+    } = query.dto;
+
+    const sessionsResult = await Result.fromPromise(
+      this.prismaGateway.session.findMany({
         where: {
           userId,
         },
@@ -28,17 +30,21 @@ export class SessionQueryServiceImpl implements SessionQueryService {
         orderBy: {
           lastRefreshAt: 'desc',
         },
-      });
+      }),
+    );
 
-      const paginatedSessions = {
-        data: sessions,
-        total: sessions.length,
-        page: Math.floor(pagination.skip / pagination.take) + 1,
-      };
-
-      return Ok(paginatedSessions);
-    } catch (error) {
-      return Err(error);
+    if (sessionsResult.isErr()) {
+      return Err(sessionsResult.getErr()!);
     }
+
+    const sessions = sessionsResult.unwrap();
+
+    const paginatedSessions = {
+      data: sessions,
+      total: sessions.length,
+      page: Math.floor(pagination.skip / pagination.take) + 1,
+    } satisfies Paginated<SessionModel>;
+
+    return Ok(paginatedSessions);
   }
 }

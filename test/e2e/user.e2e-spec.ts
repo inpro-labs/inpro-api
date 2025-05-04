@@ -9,13 +9,6 @@ import { firstValueFrom } from 'rxjs';
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { MicroserviceResponse } from '@inpro-labs/microservices';
 
-// Define interfaces for API responses
-interface MessageResponse<T> {
-  data: T;
-  message?: string;
-  statusCode: number;
-}
-
 interface UserViewModel {
   id: string;
   email: string;
@@ -27,12 +20,11 @@ interface UserViewModel {
 describe('User Microservice (e2e)', () => {
   let app: INestMicroservice;
   let client: ClientProxy;
-  let prismaService: PrismaGateway;
+  let prismaGateway: PrismaGateway;
 
-  // Test user data with random value to ensure uniqueness
   const randomSuffix = Math.floor(Math.random() * 10000);
   const userEmail = `test-${randomSuffix}@example.com`;
-  const userPassword = 'SecurePassword123';
+  const userPassword = 'SecurePassword_123';
   let userId: string;
 
   beforeAll(async () => {
@@ -40,23 +32,29 @@ describe('User Microservice (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    prismaService = moduleFixture.get<PrismaGateway>(PrismaGateway);
+    prismaGateway = moduleFixture.get<PrismaGateway>(PrismaGateway);
 
     app = moduleFixture.createNestMicroservice<MicroserviceOptions>({
-      transport: Transport.TCP,
+      transport: Transport.RMQ,
       options: {
-        host: '127.0.0.1',
-        port: 4001,
+        urls: ['amqp://guest:guest@localhost:5672'],
+        queue: 'auth-service',
+        queueOptions: {
+          durable: false,
+        },
       },
     });
 
     await app.listen();
 
     client = ClientProxyFactory.create({
-      transport: Transport.TCP,
+      transport: Transport.RMQ,
       options: {
-        host: '127.0.0.1',
-        port: 4001,
+        urls: ['amqp://guest:guest@localhost:5672'],
+        queue: 'auth-service',
+        queueOptions: {
+          durable: false,
+        },
       },
     });
 
@@ -65,7 +63,7 @@ describe('User Microservice (e2e)', () => {
 
   afterAll(async () => {
     if (userId) {
-      await prismaService.user.delete({
+      await prismaGateway.user.delete({
         where: { id: userId },
       });
     }
@@ -103,22 +101,17 @@ describe('User Microservice (e2e)', () => {
       email: userEmail,
     };
 
-    try {
-      const source$ = client.send<
-        MessageResponse<UserViewModel>,
-        typeof findUserDto
-      >('find_user_by_email', findUserDto);
+    const source$ = client.send<
+      MicroserviceResponse<UserViewModel>,
+      typeof findUserDto
+    >('find_user_by_email', findUserDto);
 
-      const response = await firstValueFrom(source$);
-      const user = response.data;
+    const response = await firstValueFrom(source$);
+    const user = response.data;
 
-      expect(user).toBeDefined();
-      expect(user.id).toBe(userId);
-      expect(user.email).toBe(userEmail);
-    } catch (_err) {
-      // If the endpoint doesn't exist yet, skip the test
-      console.log('find_user_by_email test skipped', _err);
-    }
+    expect(user).toBeDefined();
+    expect(user!.id).toBe(userId);
+    expect(user!.email).toBe(userEmail);
   });
 
   it('find_user_by_id / should find a user by id', async () => {
@@ -126,21 +119,16 @@ describe('User Microservice (e2e)', () => {
       id: userId,
     };
 
-    try {
-      const source$ = client.send<
-        MessageResponse<UserViewModel>,
-        typeof findUserDto
-      >('find_user_by_id', findUserDto);
+    const source$ = client.send<
+      MicroserviceResponse<UserViewModel>,
+      typeof findUserDto
+    >('find_user_by_id', findUserDto);
 
-      const response = await firstValueFrom(source$);
-      const user = response.data;
+    const response = await firstValueFrom(source$);
+    const user = response.data;
 
-      expect(user).toBeDefined();
-      expect(user.id).toBe(userId);
-      expect(user.email).toBe(userEmail);
-    } catch (_err) {
-      // If the endpoint doesn't exist yet, skip the test
-      console.log('find_user_by_id test skipped', _err);
-    }
+    expect(user).toBeDefined();
+    expect(user!.id).toBe(userId);
+    expect(user!.email).toBe(userEmail);
   });
 });

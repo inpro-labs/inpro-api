@@ -19,10 +19,8 @@ export class SignInController {
     @Payload(new ZodValidationPipe(signInSchema))
     payload: MicroserviceRequest<z.infer<typeof signInSchema>>,
   ) {
-    const tokens = await this.commandBus.execute(
-      new SignInCommand(payload.data),
-    );
+    const data = await this.commandBus.execute(new SignInCommand(payload.data));
 
-    return MessageResponse.ok(tokens);
+    return MessageResponse.ok(data);
   }
 }

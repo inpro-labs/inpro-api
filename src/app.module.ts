@@ -3,19 +3,23 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { AccountModule } from '@modules/account/account.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { envSchema } from './config/env';
 import { JwtModule } from '@nestjs/jwt';
+import { envSchema } from './config/env/env.schema';
+import { EnvModule } from './config/env/env.module';
+import { CustomJwtModule } from '@shared/infra/services/jwt.module';
 
 @Module({
   imports: [
-    CqrsModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
-      validationSchema: envSchema,
+      validate: (config) => envSchema.parse(config),
     }),
+    EnvModule,
+    CqrsModule.forRoot(),
     JwtModule.register({
       global: true,
     }),
+    CustomJwtModule,
     AccountModule,
     AuthModule,
   ],

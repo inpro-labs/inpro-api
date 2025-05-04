@@ -11,7 +11,7 @@ interface TestSessionModel extends SessionModel {
 
 describe('SessionQueryService', () => {
   let service: SessionQueryService;
-  let prismaService: PrismaGateway;
+  let prismaGateway: PrismaGateway;
   let mockSessionService: { findMany: jest.Mock };
 
   const userId = 'test-user-id';
@@ -53,7 +53,7 @@ describe('SessionQueryService', () => {
       findMany: jest.fn(),
     };
 
-    prismaService = {
+    prismaGateway = {
       session: mockSessionService,
     } as unknown as PrismaGateway;
 
@@ -65,7 +65,7 @@ describe('SessionQueryService', () => {
         },
         {
           provide: PrismaGateway,
-          useValue: prismaService,
+          useValue: prismaGateway,
         },
       ],
     }).compile();

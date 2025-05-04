@@ -27,6 +27,13 @@ export class ValidateSessionHandler
       );
     }
 
-    return { isValid: true };
+    const session = sessionResult.unwrap();
+
+    return {
+      isValid: true,
+      userId: session.get('userId').value(),
+      sessionId: session.id.value(),
+      expiresAt: session.get('expiresAt'),
+    };
   }
 }
