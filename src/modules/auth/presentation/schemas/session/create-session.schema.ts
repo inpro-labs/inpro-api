@@ -7,7 +7,9 @@ export const createSessionSchema = z.object({
   deviceId: z.string(),
   userAgent: z.string(),
   ip: z.string(),
-  refreshToken: z.string(),
+  refreshToken: z
+    .string()
+    .regex(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/),
   id: z.string().uuid().optional(),
   expiresAt: z.date().optional(),
 });

@@ -36,10 +36,15 @@ export class SessionQueryServiceImpl implements SessionQueryService {
     }
 
     const sessions = sessionsResult.unwrap();
+    const total = await this.prismaGateway.session.count({
+      where: {
+        userId,
+      },
+    });
 
     const paginatedSessions = {
       data: sessions,
-      total: sessions.length,
+      total,
       page: Math.floor(pagination.skip / pagination.take) + 1,
     } satisfies Paginated<SessionModel>;
 
