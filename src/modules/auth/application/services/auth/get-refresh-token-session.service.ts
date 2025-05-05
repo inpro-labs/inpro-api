@@ -34,8 +34,8 @@ export class GetRefreshTokenSessionService {
     const refreshTokenDigest =
       this.encryptService.generateHmacDigest(refreshToken);
 
-    console.log(refreshTokenDigest.unwrap());
-    console.log(session.get('refreshTokenHash').get('value'));
+    console.log('refreshTokenDigest', refreshTokenDigest.unwrap());
+
     const isRefreshTokenValid = this.encryptService.compareHmacDigests(
       refreshTokenDigest.unwrap(),
       session.get('refreshTokenHash').get('value'),

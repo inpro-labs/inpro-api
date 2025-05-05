@@ -13,8 +13,6 @@ export class SessionQueryServiceImpl implements SessionQueryService {
   async listUserSessions(
     query: ListUserSessionsQuery,
   ): Promise<Result<Paginated<SessionModel>>> {
-    console.log(query.dto);
-
     const {
       data: { userId },
       pagination,

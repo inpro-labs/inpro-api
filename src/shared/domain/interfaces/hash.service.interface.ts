@@ -6,6 +6,4 @@ export abstract class HashService {
     payload: string,
     hashed: string,
   ): Promise<Result<boolean>>;
-  abstract generateHmac(payload: string): Result<string>;
-  abstract compareHmac(payload: string, hmac: string): Result<boolean>;
 }

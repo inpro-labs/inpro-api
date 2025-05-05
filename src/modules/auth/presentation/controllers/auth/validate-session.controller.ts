@@ -25,8 +25,6 @@ export class ValidateSessionController {
       }),
     );
 
-    console.log(data);
-
     return MessageResponse.ok(data);
   }
 }

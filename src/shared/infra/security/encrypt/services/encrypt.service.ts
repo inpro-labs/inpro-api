@@ -35,8 +35,6 @@ export class EncryptServiceImpl implements EncryptService {
 
       const equal = crypto.timingSafeEqual(bufA, bufB);
 
-      console.log(equal);
-
       return Result.ok(equal);
     } catch (err) {
       return Result.err(err as Error);

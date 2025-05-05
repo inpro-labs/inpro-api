@@ -8,14 +8,7 @@ import { UpdateSessionRefreshTokenService } from '../../services/auth/update-ses
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler
-  implements
-    ICommandHandler<
-      RefreshTokenCommand,
-      {
-        accessToken: string;
-        refreshToken: string;
-      }
-    >
+  implements ICommandHandler<RefreshTokenCommand, RefreshTokenOutputDTO>
 {
   constructor(
     private readonly getRefreshTokenSessionService: GetRefreshTokenSessionService,

@@ -1,7 +1,6 @@
 import { Result } from '@inpro-labs/core';
 import * as bcrypt from 'bcrypt';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
-import * as crypto from 'crypto';
 
 export class HashServiceImpl implements HashService {
   async generateHash(payload: string): Promise<Result<string>> {
@@ -22,28 +21,6 @@ export class HashServiceImpl implements HashService {
       return Result.ok(isMatch);
     } catch (error) {
       return Result.err(error);
-    }
-  }
-
-  generateHmac(payload: string): Result<string> {
-    try {
-      const hmac = crypto.createHmac('sha256', payload);
-      return Result.ok(hmac.digest('hex'));
-    } catch (error) {
-      return Result.err(error as Error);
-    }
-  }
-
-  compareHmac(digest: string, digestToCompare: string): Result<boolean> {
-    try {
-      const isEqual = crypto.timingSafeEqual(
-        Buffer.from(digest, 'hex'),
-        Buffer.from(digestToCompare, 'hex'),
-      );
-
-      return Result.ok(isEqual);
-    } catch (error) {
-      return Result.err(error as Error);
     }
   }
 }
