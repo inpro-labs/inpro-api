@@ -11,15 +11,18 @@ import { Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { SessionFactory } from '@test/factories/fake-session.factory';
+import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
 
 describe('CreateSessionHandler', () => {
   let handler: CreateSessionHandler;
   let sessionRepository: MockProxy<SessionRepository>;
   let eventPublisher: MockProxy<EventPublisher>;
+  let encryptService: MockProxy<EncryptService>;
 
   beforeAll(async () => {
     sessionRepository = mock<SessionRepository>();
     eventPublisher = mock<EventPublisher>();
+    encryptService = mock<EncryptService>();
 
     eventPublisher.mergeObjectContext.mockImplementation((s) => s);
 
@@ -27,6 +30,10 @@ describe('CreateSessionHandler', () => {
       imports: [CqrsModule, HashModule],
       providers: [
         CreateSessionHandler,
+        {
+          provide: EncryptService,
+          useValue: encryptService,
+        },
         {
           provide: SessionRepository,
           useValue: sessionRepository,
@@ -46,6 +53,8 @@ describe('CreateSessionHandler', () => {
     sessionRepository.save.mockResolvedValue(
       Result.ok(SessionFactory.make({ id: 'session-123' }).unwrap()),
     );
+
+    encryptService.generateHmacDigest.mockReturnValue(Result.ok('digest'));
 
     sessionRepository.findActiveSession.mockRejectedValue(
       Result.err(
