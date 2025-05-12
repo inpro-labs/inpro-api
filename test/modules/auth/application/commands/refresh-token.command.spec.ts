@@ -9,15 +9,18 @@ import { UserFactory } from '@test/factories/fake-user.factory';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { GetRefreshTokenSessionService } from '@modules/auth/application/services/auth/get-refresh-token-session.service';
 import { GenerateTokensService } from '@modules/auth/application/services/auth/generate-tokens.service';
+import { UpdateSessionRefreshTokenService } from '@modules/auth/application/services/auth/update-session-refresh-token.service';
 
 describe('RefreshTokenHandler', () => {
   let handler: RefreshTokenHandler;
   let getRefreshTokenSessionService: MockProxy<GetRefreshTokenSessionService>;
   let generateTokensService: MockProxy<GenerateTokensService>;
+  let updateSessionRefreshTokenService: MockProxy<UpdateSessionRefreshTokenService>;
 
   beforeAll(async () => {
     getRefreshTokenSessionService = mock<GetRefreshTokenSessionService>();
     generateTokensService = mock<GenerateTokensService>();
+    updateSessionRefreshTokenService = mock<UpdateSessionRefreshTokenService>();
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [CqrsModule],
@@ -30,6 +33,10 @@ describe('RefreshTokenHandler', () => {
         {
           provide: GenerateTokensService,
           useValue: generateTokensService,
+        },
+        {
+          provide: UpdateSessionRefreshTokenService,
+          useValue: updateSessionRefreshTokenService,
         },
       ],
     }).compile();

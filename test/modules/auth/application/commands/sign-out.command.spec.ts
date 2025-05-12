@@ -9,23 +9,26 @@ import { SessionFactory } from '@test/factories/fake-session.factory';
 import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 import { ConfigModule } from '@nestjs/config';
 import { TokenPayload } from '@shared/domain/value-objects/token-payload.entity';
-import { JwtProvider } from '@shared/infra/providers/jwt.provider';
 import { JwtModule } from '@nestjs/jwt';
+import { randomUUID } from 'crypto';
 
 describe('SignOutHandler', () => {
   let handler: SignOutHandler;
   let sessionRepository: MockProxy<SessionRepository>;
-  let jwtService: JwtService;
+  let jwtService: MockProxy<JwtService>;
   let validDto: { accessToken: string };
 
   const tokenPayload = TokenPayload.create({
     sid: 'session-123',
     sub: 'user-123',
     email: 'user@example.com',
+    deviceId: randomUUID(),
+    jti: randomUUID(),
   }).unwrap();
 
   beforeAll(async () => {
     sessionRepository = mock<SessionRepository>();
+    jwtService = mock<JwtService>();
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [
@@ -43,12 +46,16 @@ describe('SignOutHandler', () => {
           provide: SessionRepository,
           useValue: sessionRepository,
         },
-        JwtProvider,
+        {
+          provide: JwtService,
+          useValue: jwtService,
+        },
       ],
     }).compile();
 
     handler = module.get(SignOutHandler);
-    jwtService = module.get(JwtService);
+    jwtService.verify.mockReturnValue(Ok(tokenPayload));
+    jwtService.sign.mockReturnValue('tokenPayload');
     validDto = {
       accessToken: jwtService.sign(tokenPayload, {
         expiresIn: '1h',
@@ -103,16 +110,18 @@ describe('SignOutHandler', () => {
       sid: sessionMock.id.value(),
       sub: 'another-user',
       email: 'user@example.com',
+      deviceId: sessionMock.get('deviceId'),
+      jti: randomUUID(),
     }).unwrap();
 
-    const wrongIdToken = jwtService.sign(wrongIdTokenPayload, {
-      expiresIn: '1h',
-    });
+    jwtService.verify.mockReturnValue(Ok(wrongIdTokenPayload));
 
     sessionRepository.findById.mockResolvedValue(Ok(sessionMock));
 
     const command = new SignOutCommand({
-      accessToken: wrongIdToken,
+      accessToken: jwtService.sign(wrongIdTokenPayload, {
+        expiresIn: '1h',
+      }),
     });
 
     await expect(handler.execute(command)).rejects.toThrow(

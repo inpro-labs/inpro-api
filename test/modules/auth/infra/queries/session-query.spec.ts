@@ -6,7 +6,7 @@ import { ListUserSessionsQuery } from '@modules/auth/application/queries/session
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 
 interface TestSessionModel extends SessionModel {
-  lastRefreshAt?: Date;
+  lastRefreshAt: Date | null;
 }
 
 describe('SessionQueryService', () => {

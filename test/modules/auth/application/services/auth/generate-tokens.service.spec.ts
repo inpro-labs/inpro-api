@@ -37,6 +37,7 @@ describe('GenerateTokensService', () => {
 
   describe('execute', () => {
     const sessionId = 'session-123';
+    const deviceId = 'device-123';
 
     it('should generate tokens successfully', () => {
       const user = UserFactory.make('user-123');
@@ -48,7 +49,7 @@ describe('GenerateTokensService', () => {
         .mockReturnValueOnce(accessToken)
         .mockReturnValueOnce(refreshToken);
 
-      const result = service.execute(sessionId, user);
+      const result = service.execute(sessionId, user, deviceId);
 
       expect(result.isOk()).toBe(true);
       const tokens = result.unwrap();

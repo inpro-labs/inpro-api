@@ -87,6 +87,7 @@ describe('SignInHandler', () => {
     expect(generateTokensService.execute).toHaveBeenCalledWith(
       'session-id',
       user,
+      validDto.deviceId,
     );
 
     expect(commandBus.execute).toHaveBeenCalledTimes(1);
