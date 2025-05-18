@@ -76,6 +76,7 @@ describe('RefreshTokenHandler', () => {
     expect(generateTokensService.execute).toHaveBeenCalledWith(
       session.id.value(),
       user,
+      session.get('deviceId'),
     );
   });
 
@@ -88,7 +89,7 @@ describe('RefreshTokenHandler', () => {
 
     await expect(handler.execute(command)).rejects.toThrow(
       new ApplicationException(
-        'Invalid credentials',
+        'Invalid refresh token',
         401,
         'INVALID_CREDENTIALS',
       ),

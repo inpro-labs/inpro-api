@@ -44,7 +44,12 @@ describe('ValidateSessionHandler', () => {
     });
     const result = await handler.execute(command);
 
-    expect(result).toEqual({ isValid: true });
+    expect(result).toEqual({
+      isValid: true,
+      userId: session.get('userId'),
+      sessionId: session.id.value(),
+      expiresAt: session.get('expiresAt').toISOString(),
+    });
     expect(retrieveSessionByTokenService.execute).toHaveBeenCalledWith(
       validAccessToken,
     );
