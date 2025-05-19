@@ -1,4 +1,4 @@
-import { Result } from '@inpro-labs/core';
+import { Err, Result } from '@inpro-labs/core';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { TokenPayload } from '@shared/domain/value-objects/token-payload.entity';
 import {
@@ -22,23 +22,29 @@ export class JwtServiceImpl implements JwtService {
   }
 
   verify(token: string, options?: VerifyOptions): Result<TokenPayload> {
-    const decoded = this.jwtService.verify<{
-      sid: string;
-      sub: string;
-      email: string;
-      deviceId: string;
-      jti: string;
-    }>(token, {
-      secret: this.envService.get('JWT_SECRET'),
-      ...options,
-    });
+    try {
+      const decoded = this.jwtService.verify<{
+        sid: string;
+        sub: string;
+        email: string;
+        deviceId: string;
+        jti: string;
+      }>(token, {
+        secret: this.envService.get('JWT_SECRET'),
+        ...options,
+      });
 
-    return TokenPayload.create({
-      sid: decoded.sid,
-      sub: decoded.sub,
-      email: decoded.email,
-      deviceId: decoded.deviceId,
-      jti: decoded.jti,
-    });
+      return TokenPayload.create({
+        sid: decoded.sid,
+        sub: decoded.sub,
+        email: decoded.email,
+        deviceId: decoded.deviceId,
+        jti: decoded.jti,
+      });
+    } catch (error) {
+      return Err(
+        new Error(error instanceof Error ? error.message : 'Invalid token'),
+      );
+    }
   }
 }

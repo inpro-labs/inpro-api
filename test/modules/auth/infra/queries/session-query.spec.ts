@@ -4,6 +4,8 @@ import { SessionQueryService } from '@modules/auth/application/interfaces/querie
 import { SessionQueryServiceImpl } from '@modules/auth/infra/services/session-query.service.impl';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
+import { mock, MockProxy } from 'jest-mock-extended';
+import { PrismaClient } from '@prisma/client';
 
 interface TestSessionModel extends SessionModel {
   lastRefreshAt: Date | null;
@@ -11,8 +13,7 @@ interface TestSessionModel extends SessionModel {
 
 describe('SessionQueryService', () => {
   let service: SessionQueryService;
-  let prismaGateway: PrismaGateway;
-  let mockSessionService: { findMany: jest.Mock };
+  let mockPrismaGateway: MockProxy<PrismaGateway>;
 
   const userId = 'test-user-id';
   const pagination = { skip: 0, take: 10 };
@@ -49,13 +50,15 @@ describe('SessionQueryService', () => {
   ];
 
   beforeEach(async () => {
-    mockSessionService = {
-      findMany: jest.fn(),
-    };
+    // Create a mock PrismaClient
+    const mockPrismaClient = mock<PrismaClient>();
 
-    prismaGateway = {
-      session: mockSessionService,
-    } as unknown as PrismaGateway;
+    // Create the mock PrismaGateway with the mocked client
+    mockPrismaGateway = mock<PrismaGateway>();
+    Object.defineProperty(mockPrismaGateway, 'session', {
+      value: mockPrismaClient.session,
+      configurable: true,
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -65,7 +68,7 @@ describe('SessionQueryService', () => {
         },
         {
           provide: PrismaGateway,
-          useValue: prismaGateway,
+          useValue: mockPrismaGateway,
         },
       ],
     }).compile();
@@ -84,7 +87,12 @@ describe('SessionQueryService', () => {
         pagination,
       });
 
-      mockSessionService.findMany.mockResolvedValue(mockSessions);
+      (mockPrismaGateway.session.findMany as jest.Mock).mockResolvedValue(
+        mockSessions,
+      );
+      (mockPrismaGateway.session.count as jest.Mock).mockResolvedValue(
+        mockSessions.length,
+      );
 
       const result = await service.listUserSessions(query);
 
@@ -98,7 +106,7 @@ describe('SessionQueryService', () => {
         expect(paginatedResult.page).toBe(1);
       }
 
-      expect(mockSessionService.findMany).toHaveBeenCalledWith({
+      expect(mockPrismaGateway.session.findMany).toHaveBeenCalledWith({
         where: { userId },
         skip: pagination.skip,
         take: pagination.take,
@@ -115,7 +123,9 @@ describe('SessionQueryService', () => {
         pagination: customPagination,
       });
 
-      mockSessionService.findMany.mockResolvedValue(mockSessions);
+      (mockPrismaGateway.session.findMany as jest.Mock).mockResolvedValue(
+        mockSessions,
+      );
 
       const result = await service.listUserSessions(query);
 
@@ -126,7 +136,7 @@ describe('SessionQueryService', () => {
         expect(paginatedResult.page).toBe(2);
       }
 
-      expect(mockSessionService.findMany).toHaveBeenCalledWith({
+      expect(mockPrismaGateway.session.findMany).toHaveBeenCalledWith({
         where: { userId },
         skip: customPagination.skip,
         take: customPagination.take,
@@ -140,7 +150,8 @@ describe('SessionQueryService', () => {
         pagination,
       });
 
-      mockSessionService.findMany.mockResolvedValue([]);
+      (mockPrismaGateway.session.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrismaGateway.session.count as jest.Mock).mockResolvedValue(0);
 
       const result = await service.listUserSessions(query);
 
@@ -153,7 +164,7 @@ describe('SessionQueryService', () => {
         expect(paginatedResult.page).toBe(1);
       }
 
-      expect(mockSessionService.findMany).toHaveBeenCalledWith({
+      expect(mockPrismaGateway.session.findMany).toHaveBeenCalledWith({
         where: { userId },
         skip: pagination.skip,
         take: pagination.take,
@@ -169,7 +180,9 @@ describe('SessionQueryService', () => {
 
       const expectedError = new Error('Database error');
 
-      mockSessionService.findMany.mockRejectedValue(expectedError);
+      (mockPrismaGateway.session.findMany as jest.Mock).mockRejectedValue(
+        expectedError,
+      );
 
       const result = await service.listUserSessions(query);
 
@@ -179,7 +192,7 @@ describe('SessionQueryService', () => {
         expect(result.getErr()).toBe(expectedError);
       }
 
-      expect(mockSessionService.findMany).toHaveBeenCalled();
+      expect(mockPrismaGateway.session.findMany).toHaveBeenCalled();
     });
   });
 });
