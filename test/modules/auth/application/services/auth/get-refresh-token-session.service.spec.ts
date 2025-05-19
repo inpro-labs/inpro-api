@@ -7,17 +7,21 @@ import { UserFactory } from '@test/factories/fake-user.factory';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { GetRefreshTokenSessionService } from '@modules/auth/application/services/auth/get-refresh-token-session.service';
 import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
+import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { TokenPayloadFactory } from '@test/factories/fake-token-payload.factory';
 
 describe('GetRefreshTokenSessionService', () => {
   let service: GetRefreshTokenSessionService;
   let encryptService: MockProxy<EncryptService>;
   let userRepository: MockProxy<UserRepository>;
   let sessionRepository: MockProxy<SessionRepository>;
+  let jwtService: MockProxy<JwtService>;
 
   beforeEach(async () => {
     encryptService = mock<EncryptService>();
     userRepository = mock<UserRepository>();
     sessionRepository = mock<SessionRepository>();
+    jwtService = mock<JwtService>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +38,10 @@ describe('GetRefreshTokenSessionService', () => {
           provide: SessionRepository,
           useValue: sessionRepository,
         },
+        {
+          provide: JwtService,
+          useValue: jwtService,
+        },
       ],
     }).compile();
 
@@ -46,22 +54,23 @@ describe('GetRefreshTokenSessionService', () => {
     jest.clearAllMocks();
   });
 
+  const validSession = SessionFactory.make({ id: 'session-123' }).unwrap();
+  const validUser = UserFactory.make('user-123');
+  const tokenPayload = TokenPayloadFactory.make({
+    sub: validUser.id.value(),
+    sid: validSession.id.value(),
+  }).unwrap();
+
   describe('execute', () => {
     const refreshToken = 'refresh-token';
     const hashedToken = 'hashed-refresh-token';
 
     it('should retrieve session and user by refresh token', async () => {
-      const session = SessionFactory.make({ id: 'session-123' }).unwrap();
-      const user = UserFactory.make('user-123');
-
       encryptService.generateHmacDigest.mockReturnValue(Ok(hashedToken));
-
-      sessionRepository.findByRefreshToken.mockResolvedValue(Ok(session));
-
-      Object.defineProperty(session, 'isExpired', { get: () => false });
-      Object.defineProperty(session, 'isRevoked', { get: () => false });
-
-      userRepository.findById.mockResolvedValue(Ok(user));
+      encryptService.compareHmacDigests.mockReturnValue(Ok(true));
+      jwtService.verify.mockReturnValue(Ok(tokenPayload));
+      sessionRepository.findById.mockResolvedValue(Ok(validSession));
+      userRepository.findById.mockResolvedValue(Ok(validUser));
 
       const mockIdValue = jest.fn().mockReturnValue('user-123');
       jest.spyOn(ID.prototype, 'value').mockImplementation(mockIdValue);
@@ -70,22 +79,26 @@ describe('GetRefreshTokenSessionService', () => {
 
       expect(result.isOk()).toBe(true);
       const data = result.unwrap();
-      expect(data.session).toBe(session);
-      expect(data.user).toBe(user);
+      expect(data.session).toBe(validSession);
+      expect(data.user).toBe(validUser);
 
       expect(encryptService.generateHmacDigest).toHaveBeenCalledWith(
         refreshToken,
       );
-      expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
-        hashedToken,
+      expect(sessionRepository.findById).toHaveBeenCalledWith(
+        tokenPayload.get('sid'),
       );
-      expect(userRepository.findById).toHaveBeenCalled();
+      expect(userRepository.findById).toHaveBeenCalledWith(
+        tokenPayload.get('sub'),
+      );
     });
 
     it('should return error for invalid refresh token', async () => {
-      encryptService.generateHmacDigest.mockReturnValue(Ok(hashedToken));
-
-      sessionRepository.findByRefreshToken.mockResolvedValue(
+      encryptService.compareHmacDigests.mockReturnValue(Ok(true));
+      jwtService.verify.mockReturnValue(
+        Err(new Error('Invalid refresh token')),
+      );
+      sessionRepository.findById.mockResolvedValue(
         Err(new Error('Session not found')),
       );
 
@@ -94,44 +107,42 @@ describe('GetRefreshTokenSessionService', () => {
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('Invalid refresh token');
 
-      expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
-        hashedToken,
-      );
+      expect(sessionRepository.findById).not.toHaveBeenCalled();
       expect(userRepository.findById).not.toHaveBeenCalled();
     });
 
     it('should return error for expired or revoked session', async () => {
-      const session = SessionFactory.make({ id: 'session-123' }).unwrap();
+      const session = SessionFactory.make({
+        id: 'session-123',
+        expiresAt: new Date(Date.now() - 1000),
+        revokedAt: new Date(Date.now() - 1000),
+      }).unwrap();
 
+      encryptService.compareHmacDigests.mockReturnValue(Ok(true));
       encryptService.generateHmacDigest.mockReturnValue(Ok(hashedToken));
-
-      sessionRepository.findByRefreshToken.mockResolvedValue(Ok(session));
-
-      Object.defineProperty(session, 'isExpired', { get: () => true });
+      jwtService.verify.mockReturnValue(Ok(tokenPayload));
+      sessionRepository.findById.mockResolvedValue(Ok(session));
 
       const result = await service.execute(refreshToken);
 
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('Session is invalid');
 
-      expect(encryptService.generateHmacDigest).toHaveBeenCalledWith(
-        refreshToken,
-      );
-      expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
+      expect(encryptService.compareHmacDigests).toHaveBeenCalledWith(
         hashedToken,
+        session.get('refreshTokenHash').get('value'),
+      );
+      expect(sessionRepository.findById).toHaveBeenCalledWith(
+        tokenPayload.get('sid'),
       );
       expect(userRepository.findById).not.toHaveBeenCalled();
     });
 
     it('should return error when user is not found', async () => {
-      const session = SessionFactory.make({ id: 'session-123' }).unwrap();
-
+      encryptService.compareHmacDigests.mockReturnValue(Ok(true));
       encryptService.generateHmacDigest.mockReturnValue(Ok(hashedToken));
-
-      sessionRepository.findByRefreshToken.mockResolvedValue(Ok(session));
-
-      Object.defineProperty(session, 'isExpired', { get: () => false });
-      Object.defineProperty(session, 'isRevoked', { get: () => false });
+      jwtService.verify.mockReturnValue(Ok(tokenPayload));
+      sessionRepository.findById.mockResolvedValue(Ok(validSession));
 
       userRepository.findById.mockResolvedValue(
         Err(new Error('User not found')),
@@ -145,13 +156,16 @@ describe('GetRefreshTokenSessionService', () => {
       expect(result.isErr()).toBe(true);
       expect(result.getErr()?.message).toBe('User not found');
 
-      expect(encryptService.generateHmacDigest).toHaveBeenCalledWith(
-        refreshToken,
-      );
-      expect(sessionRepository.findByRefreshToken).toHaveBeenCalledWith(
+      expect(encryptService.compareHmacDigests).toHaveBeenCalledWith(
         hashedToken,
+        validSession.get('refreshTokenHash').get('value'),
       );
-      expect(userRepository.findById).toHaveBeenCalled();
+      expect(sessionRepository.findById).toHaveBeenCalledWith(
+        tokenPayload.get('sid'),
+      );
+      expect(userRepository.findById).toHaveBeenCalledWith(
+        tokenPayload.get('sub'),
+      );
     });
   });
 });

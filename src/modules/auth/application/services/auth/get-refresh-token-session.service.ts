@@ -19,10 +19,14 @@ export class GetRefreshTokenSessionService {
   async execute(
     refreshToken: string,
   ): Promise<Result<{ session: Session; user: User }>> {
-    const tokenPayload = this.jwtService.verify(refreshToken).unwrap();
+    const tokenPayload = this.jwtService.verify(refreshToken);
+
+    if (tokenPayload.isErr()) {
+      return Err(new Error('Invalid refresh token'));
+    }
 
     const sessionResult = await this.sessionRepository.findById(
-      tokenPayload.get('sid'),
+      tokenPayload.unwrap().get('sid'),
     );
 
     if (sessionResult.isErr()) {
@@ -46,7 +50,7 @@ export class GetRefreshTokenSessionService {
     if (
       session.isExpired ||
       session.isRevoked ||
-      session.get('userId').value() !== tokenPayload.get('sub')
+      session.get('userId').value() !== tokenPayload.unwrap().get('sub')
     ) {
       return Err(new Error('Session is invalid'));
     }
