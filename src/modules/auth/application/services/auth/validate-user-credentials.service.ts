@@ -15,7 +15,7 @@ export class ValidateUserCredentialsService {
     const user = await this.userRepository.findByEmail(email);
 
     if (user.isErr()) {
-      return Err(new Error('Invalid credentials 2'));
+      return Err(new Error('Invalid credentials'));
     }
 
     const compareResult = await this.hashService.compareHash(
@@ -24,7 +24,7 @@ export class ValidateUserCredentialsService {
     );
 
     if (!compareResult.unwrap()) {
-      return Err(new Error('Invalid credentials 3'));
+      return Err(new Error('Invalid credentials'));
     }
 
     return Ok(user.unwrap());

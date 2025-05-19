@@ -36,7 +36,12 @@ describe('ValidateSessionHandler', () => {
   const validAccessToken = 'valid-access-token';
 
   it('should validate a session successfully', async () => {
-    const session = SessionFactory.make({ id: 'session-123' }).unwrap();
+    const session = SessionFactory.make({
+      id: 'session-123',
+      deviceId: 'device-123',
+      userId: 'user-123',
+    }).unwrap();
+
     retrieveSessionByTokenService.execute.mockResolvedValue(Ok(session));
 
     const command = new ValidateSessionCommand({
@@ -46,9 +51,9 @@ describe('ValidateSessionHandler', () => {
 
     expect(result).toEqual({
       isValid: true,
-      userId: session.get('userId'),
+      userId: session.get('userId').value(),
       sessionId: session.id.value(),
-      expiresAt: session.get('expiresAt').toISOString(),
+      expiresAt: session.get('expiresAt'),
     });
     expect(retrieveSessionByTokenService.execute).toHaveBeenCalledWith(
       validAccessToken,
