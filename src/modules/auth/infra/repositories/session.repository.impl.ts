@@ -1,5 +1,5 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
@@ -8,7 +8,7 @@ import { SessionToDomainAdapter } from '../adapters/session/session-to-domain.ad
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class SessionRepositoryImpl implements SessionRepository {
+export class SessionRepository implements ISessionRepository {
   constructor(private readonly prisma: PrismaGateway) {}
 
   async save(session: Session): Promise<Result<Session>> {

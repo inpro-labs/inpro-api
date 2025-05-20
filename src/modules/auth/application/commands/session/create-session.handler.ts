@@ -1,6 +1,6 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionCommand } from './create-session.command';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
@@ -13,7 +13,7 @@ export class CreateSessionHandler
   implements ICommandHandler<CreateSessionCommand, CreateSessionOutputDTO>
 {
   constructor(
-    private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepository: ISessionRepository,
     private readonly publish: EventPublisher,
     private readonly encryptService: EncryptService,
   ) {}

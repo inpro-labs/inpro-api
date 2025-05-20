@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Err, ID, Ok } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
@@ -14,11 +13,11 @@ import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-tok
 
 describe('RevokeSessionHandler', () => {
   let handler: RevokeSessionHandler;
-  let sessionRepository: MockProxy<SessionRepository>;
+  let sessionRepository: MockProxy<ISessionRepository>;
   let eventPublisher: MockProxy<EventPublisher>;
 
   beforeAll(async () => {
-    sessionRepository = mock<SessionRepository>();
+    sessionRepository = mock<ISessionRepository>();
     eventPublisher = mock<EventPublisher>();
 
     eventPublisher.mergeObjectContext.mockImplementation((s) => s);
@@ -28,7 +27,7 @@ describe('RevokeSessionHandler', () => {
       providers: [
         RevokeSessionHandler,
         {
-          provide: SessionRepository,
+          provide: ISessionRepository,
           useValue: sessionRepository,
         },
         {

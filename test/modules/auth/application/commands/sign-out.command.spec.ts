@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { SignOutHandler } from '@modules/auth/application/commands/auth/sign-out.handler';
 import { SignOutCommand } from '@modules/auth/application/commands/auth/sign-out.command';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { Err, Ok } from '@inpro-labs/core';
 import { SessionFactory } from '@test/factories/fake-session.factory';
@@ -14,7 +14,7 @@ import { randomUUID } from 'crypto';
 
 describe('SignOutHandler', () => {
   let handler: SignOutHandler;
-  let sessionRepository: MockProxy<SessionRepository>;
+  let sessionRepository: MockProxy<ISessionRepository>;
   let jwtService: MockProxy<JwtService>;
   let validDto: { accessToken: string };
 
@@ -27,7 +27,7 @@ describe('SignOutHandler', () => {
   }).unwrap();
 
   beforeAll(async () => {
-    sessionRepository = mock<SessionRepository>();
+    sessionRepository = mock<ISessionRepository>();
     jwtService = mock<JwtService>();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,7 +43,7 @@ describe('SignOutHandler', () => {
       providers: [
         SignOutHandler,
         {
-          provide: SessionRepository,
+          provide: ISessionRepository,
           useValue: sessionRepository,
         },
         {

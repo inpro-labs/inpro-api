@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Err, ID, Ok } from '@inpro-labs/core';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { UserFactory } from '@test/factories/fake-user.factory';
@@ -13,14 +13,14 @@ import { TokenPayloadFactory } from '@test/factories/fake-token-payload.factory'
 describe('GetRefreshTokenSessionService', () => {
   let service: GetRefreshTokenSessionService;
   let encryptService: MockProxy<EncryptService>;
-  let userRepository: MockProxy<UserRepository>;
-  let sessionRepository: MockProxy<SessionRepository>;
+  let userRepository: MockProxy<IUserRepository>;
+  let sessionRepository: MockProxy<ISessionRepository>;
   let jwtService: MockProxy<JwtService>;
 
   beforeEach(async () => {
     encryptService = mock<EncryptService>();
-    userRepository = mock<UserRepository>();
-    sessionRepository = mock<SessionRepository>();
+    userRepository = mock<IUserRepository>();
+    sessionRepository = mock<ISessionRepository>();
     jwtService = mock<JwtService>();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -31,11 +31,11 @@ describe('GetRefreshTokenSessionService', () => {
           useValue: encryptService,
         },
         {
-          provide: UserRepository,
+          provide: IUserRepository,
           useValue: userRepository,
         },
         {
-          provide: SessionRepository,
+          provide: ISessionRepository,
           useValue: sessionRepository,
         },
         {

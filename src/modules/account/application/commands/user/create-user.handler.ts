@@ -6,7 +6,7 @@ import { ApplicationException } from '@inpro-labs/microservices';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
 import { CreateUserOutputDTO } from '@modules/account/application/dtos/user/create-user-output.dto';
-import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 
 @Injectable()
 @CommandHandler(CreateUserCommand)
@@ -14,7 +14,7 @@ export class CreateUserHandler
   implements ICommandHandler<CreateUserCommand, CreateUserOutputDTO>
 {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
     private readonly hashService: HashService,
   ) {}
 

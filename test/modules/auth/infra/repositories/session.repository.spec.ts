@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
-import { SessionRepositoryImpl } from '@modules/auth/infra/repositories/session.repository.impl';
+import { SessionRepository } from '@modules/auth/infra/repositories/session.repository.impl';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Combine, ID } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
-import { UserRepositoryImpl } from '@modules/account/infra/repositories/user.repository.impl';
+import { UserRepository } from '@modules/account/infra/repositories/user.repository.impl';
 import { UserFactory } from '@test/factories/fake-user.factory';
 
 describe('SessionRepositoryImpl (integration)', () => {
@@ -14,9 +14,9 @@ describe('SessionRepositoryImpl (integration)', () => {
     throw new Error('⚠️ Unsafe environment detected for integration tests!');
   }
 
-  let repository: SessionRepositoryImpl;
+  let repository: SessionRepository;
   let prisma: PrismaGateway;
-  let userRepository: UserRepositoryImpl;
+  let userRepository: UserRepository;
   let user: User;
   let session: Session;
 
@@ -42,12 +42,12 @@ describe('SessionRepositoryImpl (integration)', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaGateway, SessionRepositoryImpl, UserRepositoryImpl],
+      providers: [PrismaGateway, SessionRepository, UserRepository],
     }).compile();
 
     prisma = module.get(PrismaGateway);
-    repository = module.get(SessionRepositoryImpl);
-    userRepository = module.get(UserRepositoryImpl);
+    repository = module.get(SessionRepository);
+    userRepository = module.get(UserRepository);
 
     user = UserFactory.make();
 

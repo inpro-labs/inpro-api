@@ -6,28 +6,28 @@ import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { ListUserSessionsHandler } from '@modules/auth/application/queries/session/list-user-sessions.handler';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
-import { SessionQueryService } from '@modules/auth/application/interfaces/queries/session-query.service.interface';
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
+import { IListUserSessions } from '@modules/auth/application/interfaces/queries/list-user-sessions.query.interface';
 
 describe('ListUserSessionsHandler', () => {
   let handler: ListUserSessionsHandler;
-  let sessionQueryService: MockProxy<SessionQueryService>;
+  let mockListUserSessions: MockProxy<IListUserSessions>;
   let prisma: PrismaGateway;
 
   beforeAll(async () => {
-    sessionQueryService = mock<SessionQueryService>();
+    mockListUserSessions = mock<IListUserSessions>();
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [CqrsModule, HashModule],
       providers: [
         ListUserSessionsHandler,
-        {
-          provide: SessionQueryService,
-          useValue: sessionQueryService,
-        },
         PrismaGateway,
+        {
+          provide: IListUserSessions,
+          useValue: mockListUserSessions,
+        },
       ],
     }).compile();
 
@@ -74,7 +74,7 @@ describe('ListUserSessionsHandler', () => {
   };
 
   it('should list user sessions', async () => {
-    jest.spyOn(sessionQueryService, 'listUserSessions').mockResolvedValueOnce(
+    jest.spyOn(mockListUserSessions, 'perform').mockResolvedValueOnce(
       new Result(
         {
           data: [
@@ -94,7 +94,7 @@ describe('ListUserSessionsHandler', () => {
 
     expect(result.data).toBeInstanceOf(Array);
     expect(result.data.length).toBe(1);
-    expect(sessionQueryService.listUserSessions).toHaveBeenCalledWith(
+    expect(mockListUserSessions.perform).toHaveBeenCalledWith(
       new ListUserSessionsQuery(validDto),
     );
   });

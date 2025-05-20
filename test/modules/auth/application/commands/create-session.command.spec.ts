@@ -3,7 +3,7 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
 import { CreateSessionHandler } from '@modules/auth/application/commands/session/create-session.handler';
 import { CreateSessionCommand } from '@modules/auth/application/commands/session/create-session.command';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { CreateSessionInputDTO } from '@modules/auth/application/dtos/session/create-session-input.dto';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
@@ -15,12 +15,12 @@ import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interf
 
 describe('CreateSessionHandler', () => {
   let handler: CreateSessionHandler;
-  let sessionRepository: MockProxy<SessionRepository>;
+  let sessionRepository: MockProxy<ISessionRepository>;
   let eventPublisher: MockProxy<EventPublisher>;
   let encryptService: MockProxy<EncryptService>;
 
   beforeAll(async () => {
-    sessionRepository = mock<SessionRepository>();
+    sessionRepository = mock<ISessionRepository>();
     eventPublisher = mock<EventPublisher>();
     encryptService = mock<EncryptService>();
 
@@ -35,7 +35,7 @@ describe('CreateSessionHandler', () => {
           useValue: encryptService,
         },
         {
-          provide: SessionRepository,
+          provide: ISessionRepository,
           useValue: sessionRepository,
         },
         {

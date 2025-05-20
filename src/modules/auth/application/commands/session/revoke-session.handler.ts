@@ -1,6 +1,6 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RevokeSessionCommand } from './revoke-session.command';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { RevokeSessionOutputDTO } from '@modules/auth/application/dtos/session/revoke-session-output.dto';
 
 @CommandHandler(RevokeSessionCommand)
@@ -8,7 +8,7 @@ export class RevokeSessionHandler
   implements ICommandHandler<RevokeSessionCommand, RevokeSessionOutputDTO>
 {
   constructor(
-    private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepository: ISessionRepository,
     private readonly publish: EventPublisher,
   ) {}
 

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
-import { UserRepositoryImpl } from '@modules/account/infra/repositories/user.repository.impl';
+import { UserRepository } from '@modules/account/infra/repositories/user.repository.impl';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Combine, ID } from '@inpro-labs/core';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
@@ -24,17 +24,17 @@ describe('UserRepositoryImpl (integration)', () => {
     throw new Error('⚠️ Unsafe environment detected for integration tests!');
   }
 
-  let repository: UserRepositoryImpl;
+  let repository: UserRepository;
   let prisma: PrismaGateway;
   let user: User;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaGateway, UserRepositoryImpl],
+      providers: [PrismaGateway, UserRepository],
     }).compile();
 
     prisma = module.get(PrismaGateway);
-    repository = module.get(UserRepositoryImpl);
+    repository = module.get(UserRepository);
 
     user = createValidUser();
   });

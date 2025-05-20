@@ -1,13 +1,13 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { SignOutCommand } from './sign-out.command';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 
 @CommandHandler(SignOutCommand)
 export class SignOutHandler implements ICommandHandler<SignOutCommand> {
   constructor(
-    private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepository: ISessionRepository,
     private readonly jwtService: JwtService,
   ) {}
 

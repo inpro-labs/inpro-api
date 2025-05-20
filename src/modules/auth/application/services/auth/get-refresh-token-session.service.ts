@@ -1,9 +1,9 @@
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
-import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
 
@@ -12,8 +12,8 @@ export class GetRefreshTokenSessionService {
   constructor(
     private readonly encryptService: EncryptService,
     private readonly jwtService: JwtService,
-    private readonly sessionRepository: SessionRepository,
-    private readonly userRepository: UserRepository,
+    private readonly sessionRepository: ISessionRepository,
+    private readonly userRepository: IUserRepository,
   ) {}
 
   async execute(

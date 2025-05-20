@@ -1,7 +1,7 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Result } from '@inpro-labs/core';
 
-export abstract class SessionRepository {
+export abstract class ISessionRepository {
   abstract save(session: Session): Promise<Result<Session>>;
   abstract findActiveSession(
     deviceId: string,

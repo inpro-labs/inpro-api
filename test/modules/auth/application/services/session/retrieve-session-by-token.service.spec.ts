@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Err, Ok } from '@inpro-labs/core';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { SessionFactory } from '@test/factories/fake-session.factory';
@@ -10,11 +10,11 @@ import { TokenPayloadFactory } from '@test/factories/fake-token-payload.factory'
 describe('RetrieveSessionByTokenService', () => {
   let service: RetrieveSessionByTokenService;
   let jwtService: MockProxy<JwtService>;
-  let sessionRepository: MockProxy<SessionRepository>;
+  let sessionRepository: MockProxy<ISessionRepository>;
 
   beforeEach(async () => {
     jwtService = mock<JwtService>();
-    sessionRepository = mock<SessionRepository>();
+    sessionRepository = mock<ISessionRepository>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -24,7 +24,7 @@ describe('RetrieveSessionByTokenService', () => {
           useValue: jwtService,
         },
         {
-          provide: SessionRepository,
+          provide: ISessionRepository,
           useValue: sessionRepository,
         },
       ],

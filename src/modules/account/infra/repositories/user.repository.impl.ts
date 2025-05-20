@@ -1,5 +1,5 @@
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
-import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserToModelAdapter } from '@modules/account/infra/adapters/user/user-to-model.adapter';
 import { Err, Ok, Result } from '@inpro-labs/core';
@@ -7,7 +7,7 @@ import { UserToDomainAdapter } from '@modules/account/infra/factories/user.facto
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class UserRepositoryImpl implements UserRepository {
+export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaGateway) {}
 
   async save(user: User): Promise<Result<User>> {

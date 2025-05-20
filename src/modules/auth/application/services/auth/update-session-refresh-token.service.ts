@@ -1,6 +1,6 @@
 import { Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
@@ -8,16 +8,13 @@ import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interf
 @Injectable()
 export class UpdateSessionRefreshTokenService {
   constructor(
-    private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepository: ISessionRepository,
     private readonly encryptService: EncryptService,
   ) {}
 
   async execute(session: Session, refreshToken: string): Promise<Result<void>> {
     const refreshTokenDigest =
       this.encryptService.generateHmacDigest(refreshToken);
-
-    console.log('new token before encrypt', refreshToken);
-    console.log('new refresh token', refreshTokenDigest.unwrap());
 
     const refreshTokenHash = RefreshTokenHash.create(
       refreshTokenDigest.unwrap(),

@@ -1,13 +1,13 @@
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 
 @Injectable()
 export class RetrieveSessionByTokenService {
   constructor(
-    private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepository: ISessionRepository,
     private readonly jwtService: JwtService,
   ) {}
 

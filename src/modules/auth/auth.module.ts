@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { SessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { SessionCreatedHandler } from '@modules/auth/application/events/session/session-created.handler';
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
@@ -10,8 +9,6 @@ import { RetrieveUserSessionsController } from './presentation/controllers/sessi
 import { RevokeSessionController } from './presentation/controllers/sessions/revoke-session.controller';
 import { SessionRevokedHandler } from './application/events/session/session-revoked.handler';
 import { CreateSessionHandler } from './application/commands/session/create-session.handler';
-import { SessionQueryService } from './application/interfaces/queries/session-query.service.interface';
-import { SessionQueryServiceImpl } from './infra/services/session-query.service.impl';
 import { AccountModule } from '@modules/account/account.module';
 import { SignInHandler } from './application/commands/auth/sign-in.handler';
 import { SignInController } from './presentation/controllers/auth/sign-in.controller';
@@ -19,7 +16,6 @@ import { ValidateUserCredentialsService } from './application/services/auth/vali
 import { GenerateTokensService } from './application/services/auth/generate-tokens.service';
 import { GetRefreshTokenSessionService } from './application/services/auth/get-refresh-token-session.service';
 import { RetrieveSessionByTokenService } from './application/services/session/retrieve-session-by-token.service';
-import { SessionRepositoryImpl } from './infra/repositories/session.repository.impl';
 import { RefreshTokenHandler } from './application/commands/auth/refresh-token.handler';
 import { ValidateSessionHandler } from './application/commands/auth/validate-session.handler';
 import { EnvModule } from '@config/env/env.module';
@@ -30,6 +26,8 @@ import { SignOutController } from './presentation/controllers/auth/sign-out.cont
 import { SignOutHandler } from './application/commands/auth/sign-out.handler';
 import { UpdateSessionRefreshTokenService } from './application/services/auth/update-session-refresh-token.service';
 import { EncryptModule } from '@shared/infra/security/encrypt/encrypt.module';
+import { listUserSessionsProvider } from './infra/providers/list-user-sessions.provider';
+import { sessionRepositoryProvider } from './infra/providers/session-repository.provider';
 
 @Module({
   imports: [
@@ -49,10 +47,10 @@ import { EncryptModule } from '@shared/infra/security/encrypt/encrypt.module';
     SignOutController,
   ],
   providers: [
-    {
-      provide: SessionRepository,
-      useClass: SessionRepositoryImpl,
-    },
+    listUserSessionsProvider,
+    sessionRepositoryProvider,
+
+    // Gateways
     PrismaGateway,
 
     // Services
@@ -72,12 +70,6 @@ import { EncryptModule } from '@shared/infra/security/encrypt/encrypt.module';
     RefreshTokenHandler,
     ValidateSessionHandler,
     SignOutHandler,
-
-    // Infra Queries
-    {
-      provide: SessionQueryService,
-      useClass: SessionQueryServiceImpl,
-    },
   ],
 })
 export class AuthModule {}

@@ -1,6 +1,6 @@
 // create-user.handler.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { HashService } from '@shared/domain/interfaces/hash.service.interface';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
@@ -18,7 +18,7 @@ const buildUser = (email: string, password: string): User =>
 
 describe('CreateUserHandler', () => {
   let handler: CreateUserHandler;
-  let userRepository: jest.Mocked<UserRepository>;
+  let userRepository: jest.Mocked<IUserRepository>;
   let hashService: jest.Mocked<HashService>;
 
   beforeEach(async () => {
@@ -26,7 +26,7 @@ describe('CreateUserHandler', () => {
       save: jest.fn(),
       findByEmail: jest.fn(),
       findById: jest.fn(),
-    } as unknown as jest.Mocked<UserRepository>;
+    } as unknown as jest.Mocked<IUserRepository>;
 
     hashService = {
       generateHash: jest.fn(),
@@ -36,7 +36,7 @@ describe('CreateUserHandler', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreateUserHandler,
-        { provide: UserRepository, useValue: userRepository },
+        { provide: IUserRepository, useValue: userRepository },
         { provide: HashService, useValue: hashService },
       ],
     }).compile();
