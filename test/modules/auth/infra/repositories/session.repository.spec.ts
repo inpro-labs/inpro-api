@@ -1,22 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
-import { SessionRepository } from '@modules/auth/infra/repositories/session.repository.impl';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Combine, ID } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
-import { UserRepository } from '@modules/account/infra/repositories/user.repository.impl';
 import { UserFactory } from '@test/factories/fake-user.factory';
+import { SessionRepositoryProvider } from '@modules/auth/infra/providers/session-repository.provider';
+import { UserRepositoryProvider } from '@modules/account/infra/providers/user-repository.provider';
+import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
+import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 
-describe('SessionRepositoryImpl (integration)', () => {
+describe('SessionRepository (integration)', () => {
   if (!process.env.DATABASE_URL?.includes('inpro_test')) {
     throw new Error('⚠️ Unsafe environment detected for integration tests!');
   }
 
-  let repository: SessionRepository;
+  let repository: ISessionRepository;
   let prisma: PrismaGateway;
-  let userRepository: UserRepository;
+  let userRepository: IUserRepository;
   let user: User;
   let session: Session;
 
@@ -42,12 +44,16 @@ describe('SessionRepositoryImpl (integration)', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PrismaGateway, SessionRepository, UserRepository],
+      providers: [
+        PrismaGateway,
+        SessionRepositoryProvider,
+        UserRepositoryProvider,
+      ],
     }).compile();
 
     prisma = module.get(PrismaGateway);
-    repository = module.get(SessionRepository);
-    userRepository = module.get(UserRepository);
+    repository = module.get(ISessionRepository);
+    userRepository = module.get(IUserRepository);
 
     user = UserFactory.make();
 
@@ -72,6 +78,7 @@ describe('SessionRepositoryImpl (integration)', () => {
 
   it('should save and retrieve session by ID', async () => {
     const found = await repository.findById(session.id.value());
+    console.log(found);
 
     expect(found.isOk()).toBe(true);
     expect(found.unwrap().id.equals(session.id)).toBe(true);

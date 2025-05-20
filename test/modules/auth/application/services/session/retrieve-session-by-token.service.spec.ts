@@ -4,23 +4,23 @@ import { Err, Ok } from '@inpro-labs/core';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { RetrieveSessionByTokenService } from '@modules/auth/application/services/session/retrieve-session-by-token.service';
-import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
 import { TokenPayloadFactory } from '@test/factories/fake-token-payload.factory';
 
 describe('RetrieveSessionByTokenService', () => {
   let service: RetrieveSessionByTokenService;
-  let jwtService: MockProxy<JwtService>;
+  let jwtService: MockProxy<IJwtService>;
   let sessionRepository: MockProxy<ISessionRepository>;
 
   beforeEach(async () => {
-    jwtService = mock<JwtService>();
+    jwtService = mock<IJwtService>();
     sessionRepository = mock<ISessionRepository>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RetrieveSessionByTokenService,
         {
-          provide: JwtService,
+          provide: IJwtService,
           useValue: jwtService,
         },
         {

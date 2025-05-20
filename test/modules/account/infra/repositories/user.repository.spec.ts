@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { UserRepository } from '@modules/account/infra/repositories/user.repository.impl';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Combine, ID } from '@inpro-labs/core';

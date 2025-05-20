@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { JwtProvider } from '../providers/jwt.provider';
 import { JwtModule } from '@nestjs/jwt';
 import { EnvModule } from '@config/env/env.module';
+import { JwtGuard } from './guards/jwt.guard';
+import { JwtProvider } from './providers/jwt.provider';
 
 @Module({
   imports: [JwtModule.register({ global: true }), EnvModule],
-  providers: [JwtProvider],
-  exports: [JwtProvider],
+  providers: [JwtProvider, JwtGuard],
+  exports: [JwtProvider, JwtGuard],
 })
 export class CustomJwtModule {}

@@ -2,13 +2,13 @@ import { Err, Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
-import { HashService } from '@shared/domain/interfaces/hash.service.interface';
+import { IHashService } from '@shared/security/hash/interfaces/hash.service.interface';
 
 @Injectable()
 export class ValidateUserCredentialsService {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly hashService: HashService,
+    private readonly hashService: IHashService,
   ) {}
 
   async execute(password: string, email: string): Promise<Result<User>> {

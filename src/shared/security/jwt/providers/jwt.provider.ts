@@ -1,12 +1,12 @@
-import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { IJwtService } from '../interfaces/jwt.service.interface';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { JwtServiceImpl } from '@shared/infra/services/jwt.service.impl';
 import { EnvService } from '@config/env/env.service';
+import { JwtService } from '../services/jwt.service.impl';
 
 export const JwtProvider = {
-  provide: JwtService,
+  provide: IJwtService,
   useFactory: (envService: EnvService, jwtService: NestJwtService) => {
-    return new JwtServiceImpl(envService, jwtService);
+    return new JwtService(envService, jwtService);
   },
   inject: [EnvService, NestJwtService],
 };

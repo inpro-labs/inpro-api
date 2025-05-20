@@ -4,14 +4,14 @@ import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
-import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
-import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
+import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
+import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
 
 @Injectable()
 export class GetRefreshTokenSessionService {
   constructor(
-    private readonly encryptService: EncryptService,
-    private readonly jwtService: JwtService,
+    private readonly encryptService: IEncryptService,
+    private readonly jwtService: IJwtService,
     private readonly sessionRepository: ISessionRepository,
     private readonly userRepository: IUserRepository,
   ) {}

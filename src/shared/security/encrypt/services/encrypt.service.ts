@@ -1,11 +1,11 @@
 import { Result } from '@inpro-labs/core';
 import * as crypto from 'crypto';
 import { EnvService } from '@config/env/env.service';
-import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
 import { Injectable } from '@nestjs/common';
+import { IEncryptService } from '../interfaces/encrypt.service.interface';
 
 @Injectable()
-export class EncryptServiceImpl implements EncryptService {
+export class EncryptService implements IEncryptService {
   private readonly secret: string;
 
   constructor(private readonly config: EnvService) {

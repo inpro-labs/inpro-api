@@ -6,28 +6,28 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { UserFactory } from '@test/factories/fake-user.factory';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { GetRefreshTokenSessionService } from '@modules/auth/application/services/auth/get-refresh-token-session.service';
-import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
-import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
+import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
 import { TokenPayloadFactory } from '@test/factories/fake-token-payload.factory';
 
 describe('GetRefreshTokenSessionService', () => {
   let service: GetRefreshTokenSessionService;
-  let encryptService: MockProxy<EncryptService>;
+  let encryptService: MockProxy<IEncryptService>;
   let userRepository: MockProxy<IUserRepository>;
   let sessionRepository: MockProxy<ISessionRepository>;
-  let jwtService: MockProxy<JwtService>;
+  let jwtService: MockProxy<IJwtService>;
 
   beforeEach(async () => {
-    encryptService = mock<EncryptService>();
+    encryptService = mock<IEncryptService>();
     userRepository = mock<IUserRepository>();
     sessionRepository = mock<ISessionRepository>();
-    jwtService = mock<JwtService>();
+    jwtService = mock<IJwtService>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GetRefreshTokenSessionService,
         {
-          provide: EncryptService,
+          provide: IEncryptService,
           useValue: encryptService,
         },
         {
@@ -39,7 +39,7 @@ describe('GetRefreshTokenSessionService', () => {
           useValue: sessionRepository,
         },
         {
-          provide: JwtService,
+          provide: IJwtService,
           useValue: jwtService,
         },
       ],

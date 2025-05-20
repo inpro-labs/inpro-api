@@ -1,4 +1,4 @@
-import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserToModelAdapter } from '@modules/account/infra/adapters/user/user-to-model.adapter';

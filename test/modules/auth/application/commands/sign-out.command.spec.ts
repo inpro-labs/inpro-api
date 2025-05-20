@@ -6,16 +6,16 @@ import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories
 import { ApplicationException } from '@inpro-labs/microservices';
 import { Err, Ok } from '@inpro-labs/core';
 import { SessionFactory } from '@test/factories/fake-session.factory';
-import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
 import { ConfigModule } from '@nestjs/config';
-import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.entity';
+import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.value-object';
 import { JwtModule } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 
 describe('SignOutHandler', () => {
   let handler: SignOutHandler;
   let sessionRepository: MockProxy<ISessionRepository>;
-  let jwtService: MockProxy<JwtService>;
+  let jwtService: MockProxy<IJwtService>;
   let validDto: { accessToken: string };
 
   const tokenPayload = TokenPayload.create({
@@ -28,7 +28,7 @@ describe('SignOutHandler', () => {
 
   beforeAll(async () => {
     sessionRepository = mock<ISessionRepository>();
-    jwtService = mock<JwtService>();
+    jwtService = mock<IJwtService>();
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [
@@ -47,7 +47,7 @@ describe('SignOutHandler', () => {
           useValue: sessionRepository,
         },
         {
-          provide: JwtService,
+          provide: IJwtService,
           useValue: jwtService,
         },
       ],

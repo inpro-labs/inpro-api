@@ -2,7 +2,7 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { SessionToModelAdapter } from '../adapters/session/session-to-model.adapter';
 import { SessionToDomainAdapter } from '../adapters/session/session-to-domain.adapter';
 import { Injectable } from '@nestjs/common';

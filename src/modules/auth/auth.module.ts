@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SessionCreatedHandler } from '@modules/auth/application/events/session/session-created.handler';
-import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
-import { HashModule } from '@shared/infra/security/hash/hash.module';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
+import { HashModule } from '@shared/security/hash/hash.module';
 import { ListUserSessionsHandler } from './application/queries/session/list-user-sessions.handler';
 import { RevokeSessionHandler } from './application/commands/session/revoke-session.handler';
 import { CreateSessionController } from './presentation/controllers/sessions/create-session.controller';
@@ -19,15 +19,15 @@ import { RetrieveSessionByTokenService } from './application/services/session/re
 import { RefreshTokenHandler } from './application/commands/auth/refresh-token.handler';
 import { ValidateSessionHandler } from './application/commands/auth/validate-session.handler';
 import { EnvModule } from '@config/env/env.module';
-import { CustomJwtModule } from '@shared/infra/services/jwt.module';
+import { CustomJwtModule } from '@shared/security/jwt/jwt.module';
 import { ValidateSessionController } from './presentation/controllers/auth/validate-session.controller';
 import { RefreshTokenController } from './presentation/controllers/auth/refresh-token.controller';
 import { SignOutController } from './presentation/controllers/auth/sign-out.controller';
 import { SignOutHandler } from './application/commands/auth/sign-out.handler';
 import { UpdateSessionRefreshTokenService } from './application/services/auth/update-session-refresh-token.service';
-import { EncryptModule } from '@shared/infra/security/encrypt/encrypt.module';
+import { EncryptModule } from '@shared/security/encrypt/encrypt.module';
 import { listUserSessionsProvider } from './infra/providers/list-user-sessions.provider';
-import { sessionRepositoryProvider } from './infra/providers/session-repository.provider';
+import { SessionRepositoryProvider } from './infra/providers/session-repository.provider';
 
 @Module({
   imports: [
@@ -48,7 +48,7 @@ import { sessionRepositoryProvider } from './infra/providers/session-repository.
   ],
   providers: [
     listUserSessionsProvider,
-    sessionRepositoryProvider,
+    SessionRepositoryProvider,
 
     // Gateways
     PrismaGateway,

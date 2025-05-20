@@ -1,5 +1,5 @@
 import { Result } from '@inpro-labs/core';
-import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.entity';
+import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.value-object';
 
 type TokenPayloadFactoryParams = {
   sid?: string;

@@ -6,7 +6,7 @@ import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { ID } from '@inpro-labs/core';
 import { CreateSessionOutputDTO } from '@modules/auth/application/dtos/session/create-session-output.dto';
-import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
+import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionHandler
@@ -15,7 +15,7 @@ export class CreateSessionHandler
   constructor(
     private readonly sessionRepository: ISessionRepository,
     private readonly publish: EventPublisher,
-    private readonly encryptService: EncryptService,
+    private readonly encryptService: IEncryptService,
   ) {}
 
   async execute(

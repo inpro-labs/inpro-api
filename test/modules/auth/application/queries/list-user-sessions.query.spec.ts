@@ -2,11 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule } from '@nestjs/cqrs';
 import { Ok, Result } from '@inpro-labs/core';
-import { HashModule } from '@shared/infra/security/hash/hash.module';
+import { HashModule } from '@shared/security/hash/hash.module';
 import { ListUserSessionsHandler } from '@modules/auth/application/queries/session/list-user-sessions.handler';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
-import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
 import { IListUserSessions } from '@modules/auth/application/interfaces/queries/list-user-sessions.query.interface';
 

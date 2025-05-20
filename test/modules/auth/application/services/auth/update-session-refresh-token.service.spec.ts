@@ -3,7 +3,7 @@ import { Ok, Err } from '@inpro-labs/core';
 import { mock, MockProxy } from 'jest-mock-extended';
 
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
-import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
+import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
 import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { UpdateSessionRefreshTokenService } from '@modules/auth/application/services/auth/update-session-refresh-token.service';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
@@ -11,17 +11,17 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 describe('UpdateSessionRefreshTokenService', () => {
   let service: UpdateSessionRefreshTokenService;
   let sessionRepository: MockProxy<ISessionRepository>;
-  let encryptService: MockProxy<EncryptService>;
+  let encryptService: MockProxy<IEncryptService>;
 
   beforeEach(async () => {
     sessionRepository = mock<ISessionRepository>();
-    encryptService = mock<EncryptService>();
+    encryptService = mock<IEncryptService>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UpdateSessionRefreshTokenService,
         { provide: ISessionRepository, useValue: sessionRepository },
-        { provide: EncryptService, useValue: encryptService },
+        { provide: IEncryptService, useValue: encryptService },
       ],
     }).compile();
 

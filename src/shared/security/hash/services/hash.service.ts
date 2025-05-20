@@ -1,8 +1,10 @@
 import { Result } from '@inpro-labs/core';
 import * as bcrypt from 'bcrypt';
-import { HashService } from '@shared/domain/interfaces/hash.service.interface';
+import { IHashService } from '../interfaces/hash.service.interface';
+import { Injectable } from '@nestjs/common';
 
-export class HashServiceImpl implements HashService {
+@Injectable()
+export class HashService implements IHashService {
   async generateHash(payload: string): Promise<Result<string>> {
     try {
       const salt = await bcrypt.genSalt(8);

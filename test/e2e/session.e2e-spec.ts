@@ -9,7 +9,7 @@ import { firstValueFrom } from 'rxjs';
 import { CreateSessionInputDTO } from '@modules/auth/application/dtos/session/create-session-input.dto';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
-import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { RevokeSessionInputDTO } from '@modules/auth/application/dtos/session/revoke-session-input.dto';
 import { SessionViewModel } from '@modules/auth/presentation/view-model/session.view-model';
 import { MicroserviceResponse } from '@inpro-labs/microservices';

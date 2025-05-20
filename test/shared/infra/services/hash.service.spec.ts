@@ -1,4 +1,4 @@
-import { HashServiceImpl } from '@shared/infra/security/hash/services/hash.service';
+import { HashService } from '@shared/security/hash/services/hash.service';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt', () => ({
@@ -7,11 +7,11 @@ jest.mock('bcrypt', () => ({
   compare: jest.fn(),
 }));
 
-describe('HashServiceImpl', () => {
-  let hashService: HashServiceImpl;
+describe('HashService', () => {
+  let hashService: HashService;
 
   beforeEach(() => {
-    hashService = new HashServiceImpl();
+    hashService = new HashService();
     jest.clearAllMocks();
   });
 

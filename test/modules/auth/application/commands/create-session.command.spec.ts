@@ -9,20 +9,20 @@ import { CreateSessionInputDTO } from '@modules/auth/application/dtos/session/cr
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { HashModule } from '@shared/infra/security/hash/hash.module';
+import { HashModule } from '@shared/security/hash/hash.module';
 import { SessionFactory } from '@test/factories/fake-session.factory';
-import { EncryptService } from '@shared/domain/interfaces/encrypt.service.interface';
+import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
 
 describe('CreateSessionHandler', () => {
   let handler: CreateSessionHandler;
   let sessionRepository: MockProxy<ISessionRepository>;
   let eventPublisher: MockProxy<EventPublisher>;
-  let encryptService: MockProxy<EncryptService>;
+  let encryptService: MockProxy<IEncryptService>;
 
   beforeAll(async () => {
     sessionRepository = mock<ISessionRepository>();
     eventPublisher = mock<EventPublisher>();
-    encryptService = mock<EncryptService>();
+    encryptService = mock<IEncryptService>();
 
     eventPublisher.mergeObjectContext.mockImplementation((s) => s);
 
@@ -31,7 +31,7 @@ describe('CreateSessionHandler', () => {
       providers: [
         CreateSessionHandler,
         {
-          provide: EncryptService,
+          provide: IEncryptService,
           useValue: encryptService,
         },
         {

@@ -3,16 +3,16 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { UserFactory } from '@test/factories/fake-user.factory';
 import { GenerateTokensService } from '@modules/auth/application/services/auth/generate-tokens.service';
 import { ConfigModule } from '@nestjs/config';
-import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
+import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
 import { EnvService } from '@config/env/env.service';
 
 describe('GenerateTokensService', () => {
   let service: GenerateTokensService;
-  let jwtService: MockProxy<JwtService>;
+  let jwtService: MockProxy<IJwtService>;
   let envService: MockProxy<EnvService>;
 
   beforeEach(async () => {
-    jwtService = mock<JwtService>();
+    jwtService = mock<IJwtService>();
     envService = mock<EnvService>();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -25,7 +25,7 @@ describe('GenerateTokensService', () => {
       providers: [
         GenerateTokensService,
         {
-          provide: JwtService,
+          provide: IJwtService,
           useValue: jwtService,
         },
         {

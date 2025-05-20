@@ -8,6 +8,9 @@ export const envSchema = z.object({
   JWT_REFRESH_TOKEN_EXPIRATION_TIME: z.string().regex(/^\d+[smhd]$/),
   DATABASE_URL: z.string(),
   REFRESH_TOKEN_HMAC_SECRET: z.string(),
+  MONGO_URI: z.string(),
+  MONGO_USER: z.string(),
+  MONGO_PASSWORD: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;

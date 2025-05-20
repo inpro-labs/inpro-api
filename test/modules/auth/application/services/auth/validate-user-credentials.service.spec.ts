@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
-import { HashService } from '@shared/domain/interfaces/hash.service.interface';
+import { IHashService } from '@shared/security/hash/interfaces/hash.service.interface';
 import { Err, Ok } from '@inpro-labs/core';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { UserFactory } from '@test/factories/fake-user.factory';
@@ -8,18 +8,18 @@ import { ValidateUserCredentialsService } from '@modules/auth/application/servic
 
 describe('ValidateUserCredentialsService', () => {
   let service: ValidateUserCredentialsService;
-  let hashService: MockProxy<HashService>;
+  let hashService: MockProxy<IHashService>;
   let userRepository: MockProxy<IUserRepository>;
 
   beforeEach(async () => {
-    hashService = mock<HashService>();
+    hashService = mock<IHashService>();
     userRepository = mock<IUserRepository>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ValidateUserCredentialsService,
         {
-          provide: HashService,
+          provide: IHashService,
           useValue: hashService,
         },
         {

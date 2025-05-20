@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateUserCommand } from './create-user.command';
-import { HashService } from '@shared/domain/interfaces/hash.service.interface';
+import { IHashService } from '@shared/security/hash/interfaces/hash.service.interface';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
@@ -15,7 +15,7 @@ export class CreateUserHandler
 {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly hashService: HashService,
+    private readonly hashService: IHashService,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<CreateUserOutputDTO> {

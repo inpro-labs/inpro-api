@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { envSchema } from './config/env/env.schema';
 import { EnvModule } from './config/env/env.module';
-import { CustomJwtModule } from '@shared/infra/services/jwt.module';
+import { CustomJwtModule } from '@shared/security/jwt/jwt.module';
 
 @Module({
   imports: [

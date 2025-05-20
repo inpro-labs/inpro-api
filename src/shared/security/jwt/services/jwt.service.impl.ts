@@ -1,34 +1,39 @@
 import { Result } from '@inpro-labs/core';
-import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.entity';
+import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.value-object';
 import {
-  JwtService,
+  IJwtService,
   SignOptions,
   VerifyOptions,
-} from '@shared/domain/interfaces/jwt.service.interface';
+} from '../interfaces/jwt.service.interface';
 import { EnvService } from '@config/env/env.service';
 import { Injectable } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
+import { JwtService as NestJwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class JwtServiceImpl implements JwtService {
+export class JwtService implements IJwtService {
   private readonly secret: string;
 
-  constructor(private readonly config: EnvService) {
+  constructor(
+    private readonly config: EnvService,
+    private readonly jwtService: NestJwtService,
+  ) {
     this.secret = this.config.get('JWT_SECRET');
   }
 
   sign(payload: TokenPayload, options?: SignOptions): string {
-    return jwt.sign(payload.toObject(), options?.secret ?? this.secret, {
+    const data = payload.toObject();
+
+    return this.jwtService.sign(data, {
       expiresIn: options?.expiresIn,
+      secret: options?.secret ?? this.secret,
     });
   }
 
   verify(token: string, options?: VerifyOptions): Result<TokenPayload> {
     try {
-      const decoded = jwt.verify(
-        token,
-        options?.secret ?? this.secret,
-      ) as Record<string, string>;
+      const decoded = this.jwtService.verify<Record<string, string>>(token, {
+        secret: options?.secret ?? this.secret,
+      });
 
       return TokenPayload.create({
         sid: decoded.sid,
