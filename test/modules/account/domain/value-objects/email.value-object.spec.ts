@@ -35,7 +35,7 @@ describe('Email Value Object', () => {
 
     for (const email of invalidEmails) {
       const emailResult = Email.create(email);
-      console.log(email, emailResult.isErr());
+
       expect(emailResult.isErr()).toBe(true);
       expect(emailResult.getErr()?.message).toBe('Invalid email');
     }

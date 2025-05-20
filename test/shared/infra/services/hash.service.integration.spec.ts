@@ -21,8 +21,6 @@ describe('HashServiceImpl', () => {
       // Act
       const hashResult = await hashService.generateHash(password);
 
-      console.log(hashResult.unwrap());
-
       expect(hashResult.isOk()).toBe(true);
 
       const generatedHash = hashResult.unwrap();

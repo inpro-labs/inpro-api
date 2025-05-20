@@ -1,20 +1,51 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { mock, MockProxy } from 'jest-mock-extended';
 import { CqrsModule } from '@nestjs/cqrs';
-import { Result } from '@inpro-labs/core';
+import { Ok, Result } from '@inpro-labs/core';
 import { HashModule } from '@shared/infra/security/hash/hash.module';
 import { ListUserSessionsHandler } from '@modules/auth/application/queries/session/list-user-sessions.handler';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { PrismaGateway } from '@shared/infra/gateways/prisma.gateway';
-import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
 import { IListUserSessions } from '@modules/auth/application/interfaces/queries/list-user-sessions.query.interface';
 
 describe('ListUserSessionsHandler', () => {
   let handler: ListUserSessionsHandler;
   let mockListUserSessions: MockProxy<IListUserSessions>;
-  let prisma: PrismaGateway;
+
+  const userId = 'user-123';
+
+  const mockSessions: SessionModel[] = [
+    {
+      id: 'session-1',
+      userId,
+      device: 'iOS',
+      deviceId: 'device-1',
+      ip: '127.0.0.1',
+      userAgent: 'Test User Agent',
+      refreshTokenHash: 'hash1',
+      revokedAt: null,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastRefreshAt: new Date(),
+    },
+    {
+      id: 'session-2',
+      userId,
+      device: 'Android',
+      deviceId: 'device-2',
+      ip: '192.168.1.1',
+      userAgent: 'Another User Agent',
+      refreshTokenHash: 'hash2',
+      revokedAt: null,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2),
+      createdAt: new Date(Date.now() - 1000 * 60 * 60),
+      updatedAt: new Date(),
+      lastRefreshAt: new Date(Date.now() - 1000 * 60 * 30),
+    },
+  ];
 
   beforeAll(async () => {
     mockListUserSessions = mock<IListUserSessions>();
@@ -32,35 +63,14 @@ describe('ListUserSessionsHandler', () => {
     }).compile();
 
     handler = module.get(ListUserSessionsHandler);
-    prisma = module.get(PrismaGateway);
 
-    const userId = 'user-123';
-    await prisma.user.create({
-      data: {
-        email: 'test@test.com',
-        password: 'password',
-        id: userId,
-      },
-    });
-
-    await prisma.session.create({
-      data: {
-        id: 'session-123',
-        userId,
-        deviceId: 'device-123',
-        refreshTokenHash: 'refresh-token',
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
-        device: Session.deviceTypes[0],
-        ip: '127.0.0.1',
-        userAgent: 'test',
-      },
-    });
-  });
-
-  afterAll(async () => {
-    await prisma.user.deleteMany();
-    await prisma.session.deleteMany();
-    await prisma.$disconnect();
+    mockListUserSessions.perform.mockResolvedValueOnce(
+      Ok({
+        data: mockSessions,
+        total: mockSessions.length,
+        page: 1,
+      }),
+    );
   });
 
   const validDto: ListUserSessionsInputDTO = {
@@ -93,7 +103,7 @@ describe('ListUserSessionsHandler', () => {
     const result = await handler.execute(command);
 
     expect(result.data).toBeInstanceOf(Array);
-    expect(result.data.length).toBe(1);
+    expect(result.data.length).toBe(mockSessions.length);
     expect(mockListUserSessions.perform).toHaveBeenCalledWith(
       new ListUserSessionsQuery(validDto),
     );

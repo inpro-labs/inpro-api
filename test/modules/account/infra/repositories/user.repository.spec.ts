@@ -59,8 +59,6 @@ describe('UserRepositoryImpl (integration)', () => {
   it('should retrieve a user by email', async () => {
     const found = await repository.findByEmail(user.get('email').get('value'));
 
-    console.log('found', found.unwrap().get('email').equals(user.get('email')));
-
     expect(found.isOk()).toBe(true);
     expect(found.unwrap().get('email').equals(user.get('email'))).toBe(true);
   });
