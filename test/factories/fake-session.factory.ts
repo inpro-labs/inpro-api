@@ -12,6 +12,9 @@ type SessionFactoryParams = {
   ip?: string;
   expiresAt?: Date;
   revokedAt?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  lastRefreshAt?: Date;
 };
 
 export class SessionFactory {
@@ -25,6 +28,8 @@ export class SessionFactory {
     ip,
     expiresAt,
     revokedAt,
+    createdAt,
+    updatedAt,
   }: SessionFactoryParams = {}): Result<Session> {
     return Session.create({
       id: ID.create(id ?? 'session-123').unwrap(),
@@ -36,8 +41,8 @@ export class SessionFactory {
       deviceId: deviceId ?? 'device-id',
       userAgent: userAgent ?? 'user-agent',
       ip: ip ?? 'ip',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: createdAt ?? new Date(),
+      updatedAt: updatedAt ?? new Date(),
       expiresAt: expiresAt ?? new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
       revokedAt: revokedAt ?? undefined,
     });

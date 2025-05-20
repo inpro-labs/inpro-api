@@ -3,16 +3,16 @@ import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
-import { SessionToModelAdapter } from '../adapters/session/session-to-model.adapter';
-import { SessionToDomainAdapter } from '../adapters/session/session-to-domain.adapter';
+
 import { Injectable } from '@nestjs/common';
+import { SessionMapper } from '../mappers/session.mapper';
 
 @Injectable()
 export class SessionRepository implements ISessionRepository {
   constructor(private readonly prisma: PrismaGateway) {}
 
   async save(session: Session): Promise<Result<Session>> {
-    const sessionModel = session.toObject(new SessionToModelAdapter());
+    const sessionModel = SessionMapper.fromDomainToModel(session);
 
     try {
       await this.prisma.session.upsert({
@@ -51,7 +51,7 @@ export class SessionRepository implements ISessionRepository {
         );
       }
 
-      const session = new SessionToDomainAdapter().adaptOne(sessionModel);
+      const session = SessionMapper.fromModelToDomain(sessionModel);
 
       return Ok(session);
     } catch (error) {
@@ -75,7 +75,7 @@ export class SessionRepository implements ISessionRepository {
         );
       }
 
-      const session = new SessionToDomainAdapter().adaptOne(sessionModel);
+      const session = SessionMapper.fromModelToDomain(sessionModel);
 
       return Ok(session);
     } catch (error) {
@@ -99,7 +99,7 @@ export class SessionRepository implements ISessionRepository {
         );
       }
 
-      const session = new SessionToDomainAdapter().adaptOne(sessionModel);
+      const session = SessionMapper.fromModelToDomain(sessionModel);
 
       return Ok(session);
     } catch (error) {
@@ -127,7 +127,7 @@ export class SessionRepository implements ISessionRepository {
         );
       }
 
-      const session = new SessionToDomainAdapter().adaptOne(sessionModel);
+      const session = SessionMapper.fromModelToDomain(sessionModel);
 
       return Ok(session);
     } catch (error) {
@@ -152,7 +152,7 @@ export class SessionRepository implements ISessionRepository {
       }
 
       const sessions = sessionModels.map((sessionModel) => {
-        return new SessionToDomainAdapter().adaptOne(sessionModel);
+        return SessionMapper.fromModelToDomain(sessionModel);
       });
 
       return Ok(sessions);
