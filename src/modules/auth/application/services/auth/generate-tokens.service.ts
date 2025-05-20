@@ -2,7 +2,7 @@ import { Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@shared/domain/interfaces/jwt.service.interface';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
-import { TokenPayload } from '@shared/domain/value-objects/token-payload.entity';
+import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.entity';
 import { EnvService } from '@config/env/env.service';
 import { randomUUID } from 'crypto';
 

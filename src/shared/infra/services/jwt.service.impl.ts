@@ -1,38 +1,34 @@
-import { Err, Result } from '@inpro-labs/core';
-import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { TokenPayload } from '@shared/domain/value-objects/token-payload.entity';
+import { Result } from '@inpro-labs/core';
+import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.entity';
 import {
   JwtService,
   SignOptions,
   VerifyOptions,
 } from '@shared/domain/interfaces/jwt.service.interface';
 import { EnvService } from '@config/env/env.service';
+import { Injectable } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 
+@Injectable()
 export class JwtServiceImpl implements JwtService {
-  constructor(
-    private readonly envService: EnvService,
-    private readonly jwtService: NestJwtService,
-  ) {}
+  private readonly secret: string;
+
+  constructor(private readonly config: EnvService) {
+    this.secret = this.config.get('JWT_SECRET');
+  }
 
   sign(payload: TokenPayload, options?: SignOptions): string {
-    return this.jwtService.sign(payload.toObject(), {
-      secret: this.envService.get('JWT_SECRET'),
-      ...options,
+    return jwt.sign(payload.toObject(), options?.secret ?? this.secret, {
+      expiresIn: options?.expiresIn,
     });
   }
 
   verify(token: string, options?: VerifyOptions): Result<TokenPayload> {
     try {
-      const decoded = this.jwtService.verify<{
-        sid: string;
-        sub: string;
-        email: string;
-        deviceId: string;
-        jti: string;
-      }>(token, {
-        secret: this.envService.get('JWT_SECRET'),
-        ...options,
-      });
+      const decoded = jwt.verify(
+        token,
+        options?.secret ?? this.secret,
+      ) as Record<string, string>;
 
       return TokenPayload.create({
         sid: decoded.sid,
@@ -42,9 +38,7 @@ export class JwtServiceImpl implements JwtService {
         jti: decoded.jti,
       });
     } catch (error) {
-      return Err(
-        new Error(error instanceof Error ? error.message : 'Invalid token'),
-      );
+      return Result.err(error as Error);
     }
   }
 }

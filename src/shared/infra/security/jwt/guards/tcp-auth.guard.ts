@@ -7,10 +7,6 @@ import {
   MicroserviceRequest,
 } from '@inpro-labs/microservices';
 
-interface IJwtPayload {
-  sub: string;
-}
-
 @Injectable()
 export class TcpAuthGuard implements CanActivate {
   constructor(
@@ -43,7 +39,8 @@ export class TcpAuthGuard implements CanActivate {
 
     try {
       const cleanedToken = token.replace('Bearer ', '');
-      const payload = this.jwtService.verify<IJwtPayload>(cleanedToken);
+      const payload =
+        this.jwtService.verify<Record<string, string>>(cleanedToken);
 
       request.metadata.userId = payload.sub;
 

@@ -1,28 +1,28 @@
 import { Result } from '@inpro-labs/core';
-import { TokenPayload } from '@shared/domain/value-objects/token-payload.entity';
+import { TokenPayload } from '@modules/auth/domain/value-objects/token-payload.entity';
 
 type TokenPayloadFactoryParams = {
-  deviceId?: string;
-  email?: string;
-  jti?: string;
   sid?: string;
   sub?: string;
+  email?: string;
+  deviceId?: string;
+  jti?: string;
 };
 
 export class TokenPayloadFactory {
   static make({
-    deviceId,
-    email,
-    jti,
-    sid,
-    sub,
+    sid = 'session-123',
+    sub = 'user-123',
+    email = 'test@example.com',
+    deviceId = 'device-123',
+    jti = 'jti-123',
   }: TokenPayloadFactoryParams = {}): Result<TokenPayload> {
     return TokenPayload.create({
-      deviceId: deviceId ?? 'device-id',
-      email: email ?? 'test@test.com',
-      jti: jti ?? 'jti',
-      sid: sid ?? 'sid',
-      sub: sub ?? 'user-id',
+      sid,
+      sub,
+      email,
+      deviceId,
+      jti,
     });
   }
 }

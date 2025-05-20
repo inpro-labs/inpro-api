@@ -1,7 +1,6 @@
 import { HashServiceImpl } from '@shared/infra/security/hash/services/hash.service';
 import * as bcrypt from 'bcrypt';
 
-// Mock for bcrypt (only used in unit tests)
 jest.mock('bcrypt', () => ({
   genSalt: jest.fn(),
   hash: jest.fn(),
