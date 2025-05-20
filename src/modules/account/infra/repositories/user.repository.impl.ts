@@ -1,17 +1,16 @@
 import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
-import { UserToModelAdapter } from '@modules/account/infra/adapters/user/user-to-model.adapter';
 import { Err, Ok, Result } from '@inpro-labs/core';
-import { UserToDomainAdapter } from '@modules/account/infra/factories/user.factory';
 import { Injectable } from '@nestjs/common';
+import { UserMapper } from '../mappers/user.mapper';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaGateway) {}
 
   async save(user: User): Promise<Result<User>> {
-    const userModel = user.toObject(new UserToModelAdapter());
+    const userModel = UserMapper.fromDomainToModel(user);
 
     try {
       await this.prisma.user.upsert({
@@ -36,7 +35,7 @@ export class UserRepository implements IUserRepository {
         return Err(new Error('User not found'));
       }
 
-      const userDomain = new UserToDomainAdapter().adaptOne(user);
+      const userDomain = UserMapper.fromModelToDomain(user);
 
       return Ok(userDomain);
     } catch (error) {
@@ -54,7 +53,7 @@ export class UserRepository implements IUserRepository {
         return Err(new Error('User not found'));
       }
 
-      const userDomain = new UserToDomainAdapter().adaptOne(user);
+      const userDomain = UserMapper.fromModelToDomain(user);
 
       return Ok(userDomain);
     } catch (error) {
