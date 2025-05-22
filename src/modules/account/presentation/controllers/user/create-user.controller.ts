@@ -8,8 +8,8 @@ import {
   MessageResponse,
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
-import { UserToResponseAdapter } from '../../adapters/user-to-response.adapter';
 import { createUserSchema } from '../../schemas/user/create-user.schema';
+import { UserPresenter } from '../../presenters/user.presenter';
 
 @Controller()
 export class CreateUserController {
@@ -24,8 +24,10 @@ export class CreateUserController {
       new CreateUserCommand(payload.data),
     );
 
-    const adapter = new UserToResponseAdapter();
+    const presenter = new UserPresenter();
 
-    return MessageResponse.ok(user.toObject(adapter));
+    const userViewModel = presenter.presentUser(user);
+
+    return MessageResponse.ok(userViewModel);
   }
 }
