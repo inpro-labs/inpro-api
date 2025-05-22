@@ -8,8 +8,8 @@ import {
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
 import { createSessionSchema } from '@modules/auth/presentation/schemas/session/create-session.schema';
-import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
 import { z } from 'zod';
+import { SessionPresenter } from '../../presenters/session.presenter';
 
 @Controller()
 export class CreateSessionController {
@@ -24,7 +24,9 @@ export class CreateSessionController {
       new CreateSessionCommand(payload.data),
     );
 
-    const sessionViewModel = session.toObject(new SessionToResponseAdapter());
+    const presenter = new SessionPresenter();
+
+    const sessionViewModel = presenter.presentSession(session);
 
     return MessageResponse.ok(sessionViewModel);
   }

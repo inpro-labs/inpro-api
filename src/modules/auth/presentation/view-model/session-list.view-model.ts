@@ -1,11 +1,8 @@
-export interface SessionViewModel {
+export interface SessionListViewModel {
   id: string;
   device: string;
-  userAgent: string;
   userId: string;
-  ip: string;
   expiresAt: Date;
-  deviceId: string;
   revokedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;

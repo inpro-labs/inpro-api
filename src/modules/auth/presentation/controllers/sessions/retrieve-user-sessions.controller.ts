@@ -10,6 +10,7 @@ import {
   zodQueryParams,
 } from '@inpro-labs/microservices';
 import { listUserSessionsSchema } from '@modules/auth/presentation/schemas/session/list-user-sessions.schema';
+import { SessionPresenter } from '../../presenters/session.presenter';
 
 @Controller()
 export class RetrieveUserSessionsController {
@@ -20,10 +21,14 @@ export class RetrieveUserSessionsController {
     @Payload(new ZodValidationPipe(zodQueryParams(listUserSessionsSchema)))
     payload: MicroserviceRequest<ListUserSessionsInputDTO>,
   ) {
-    const sessions = await this.queryBus.execute(
+    const paginated = await this.queryBus.execute(
       new ListUserSessionsQuery(payload.data),
     );
 
-    return MessageResponse.ok(sessions);
+    const presenter = new SessionPresenter();
+
+    const sessionViewModel = presenter.presentSessions(paginated);
+
+    return MessageResponse.ok(sessionViewModel);
   }
 }

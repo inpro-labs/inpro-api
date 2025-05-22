@@ -1,10 +1,10 @@
 import { DynamicModule, Module, OnModuleInit, Logger } from '@nestjs/common';
-import { Mongoose } from 'mongoose';
+import { Mongoose, Schema } from 'mongoose';
 import { EnvService } from '@config/env/env.service';
 
 interface SchemaDefinition {
   name: string;
-  schema: any;
+  schema: Schema;
 }
 
 @Module({})

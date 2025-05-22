@@ -9,7 +9,7 @@ import {
   ZodValidationPipe,
 } from '@inpro-labs/microservices';
 import { revokeSessionSchema } from '@modules/auth/presentation/schemas/session/revoke-session.schema';
-import { SessionToResponseAdapter } from '../../adapters/session-to-response.adapter';
+import { SessionPresenter } from '../../presenters/session.presenter';
 
 @Controller()
 export class RevokeSessionController {
@@ -24,6 +24,10 @@ export class RevokeSessionController {
       new RevokeSessionCommand(payload.data),
     );
 
-    return MessageResponse.ok(session.toObject(new SessionToResponseAdapter()));
+    const presenter = new SessionPresenter();
+
+    const sessionViewModel = presenter.presentSession(session);
+
+    return MessageResponse.ok(sessionViewModel);
   }
 }
