@@ -40,7 +40,7 @@ export class GetRefreshTokenSessionService {
 
     const isRefreshTokenValid = this.encryptService.compareHmacDigests(
       refreshTokenDigest.unwrap(),
-      session.get('refreshTokenHash').get('value'),
+      session.get('refreshTokenDigest').get('value'),
     );
 
     if (!isRefreshTokenValid.unwrap()) {

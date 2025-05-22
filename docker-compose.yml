@@ -7,3 +7,10 @@ services:
       POSTGRES_USER: max
       POSTGRES_PASSWORD: max123
       POSTGRES_DB: inpro_dev
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: max
+      MONGO_INITDB_ROOT_PASSWORD: max123

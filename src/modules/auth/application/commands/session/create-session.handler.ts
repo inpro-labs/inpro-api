@@ -3,7 +3,7 @@ import { CreateSessionCommand } from './create-session.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { ID } from '@inpro-labs/core';
 import { CreateSessionOutputDTO } from '@modules/auth/application/dtos/session/create-session-output.dto';
 import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
@@ -37,7 +37,9 @@ export class CreateSessionHandler
     const digest = this.encryptService.generateHmacDigest(
       command.dto.refreshToken,
     );
-    const refreshTokenHash = RefreshTokenHash.create(digest.unwrap()).unwrap();
+    const refreshTokenDigest = RefreshTokenDigest.create(
+      digest.unwrap(),
+    ).unwrap();
 
     const result = Session.create({
       id: command.dto.id ? ID.create(command.dto.id).unwrap() : undefined,
@@ -46,7 +48,7 @@ export class CreateSessionHandler
       userAgent: command.dto.userAgent,
       ip: command.dto.ip,
       userId: ID.create(command.dto.userId).unwrap(),
-      refreshTokenHash,
+      refreshTokenDigest,
       expiresAt:
         command.dto.expiresAt ??
         new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
@@ -64,9 +66,15 @@ export class CreateSessionHandler
 
     const session = result.unwrap();
 
-    await this.sessionRepository.save(session);
+    const sessionSaved = await this.sessionRepository.save(session);
 
-    this.publish.mergeObjectContext(session);
+    if (sessionSaved.isErr()) {
+      throw new ApplicationException(
+        sessionSaved.getErr()!.message,
+        400,
+        'SESSION_SAVING_ERROR',
+      );
+    }
 
     session.commit();
 

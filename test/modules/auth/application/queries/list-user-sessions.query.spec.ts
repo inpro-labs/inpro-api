@@ -18,13 +18,13 @@ describe('ListUserSessionsHandler', () => {
 
   const mockSessions: SessionModel[] = [
     {
-      id: 'session-1',
+      _id: 'session-1',
       userId,
       device: 'iOS',
       deviceId: 'device-1',
       ip: '127.0.0.1',
       userAgent: 'Test User Agent',
-      refreshTokenHash: 'hash1',
+      refreshTokenDigest: 'hash1',
       revokedAt: null,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60),
       createdAt: new Date(),
@@ -32,13 +32,13 @@ describe('ListUserSessionsHandler', () => {
       lastRefreshAt: new Date(),
     },
     {
-      id: 'session-2',
+      _id: 'session-2',
       userId,
       device: 'Android',
       deviceId: 'device-2',
       ip: '192.168.1.1',
       userAgent: 'Another User Agent',
-      refreshTokenHash: 'hash2',
+      refreshTokenDigest: 'hash2',
       revokedAt: null,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 2),
       createdAt: new Date(Date.now() - 1000 * 60 * 60),

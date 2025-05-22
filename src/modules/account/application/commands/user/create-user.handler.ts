@@ -64,7 +64,15 @@ export class CreateUserHandler
 
     const user = userResult.unwrap();
 
-    await this.userRepository.save(user);
+    const userSaved = await this.userRepository.save(user);
+
+    if (userSaved.isErr()) {
+      throw new ApplicationException(
+        'Error saving user',
+        400,
+        'USER_SAVING_ERROR',
+      );
+    }
 
     user.commit();
 

@@ -1,11 +1,11 @@
 export type SessionModel = {
-  id: string;
+  _id: string;
   userId: string;
   device: string;
   deviceId: string;
   ip: string;
   userAgent: string;
-  refreshTokenHash: string;
+  refreshTokenDigest: string;
   revokedAt: Date | null;
   expiresAt: Date;
   createdAt: Date;

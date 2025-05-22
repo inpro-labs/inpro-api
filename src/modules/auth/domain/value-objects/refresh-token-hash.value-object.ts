@@ -4,12 +4,12 @@ interface Props {
   value: string;
 }
 
-export class RefreshTokenHash extends ValueObject<Props> {
+export class RefreshTokenDigest extends ValueObject<Props> {
   private constructor(props: Props) {
     super(props);
   }
 
-  static create(hash: string): Result<RefreshTokenHash> {
-    return Result.ok(new RefreshTokenHash({ value: hash }));
+  static create(hash: string): Result<RefreshTokenDigest> {
+    return Result.ok(new RefreshTokenDigest({ value: hash }));
   }
 }

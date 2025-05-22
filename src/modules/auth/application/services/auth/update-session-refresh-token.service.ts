@@ -2,7 +2,7 @@ import { Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
 
 @Injectable()
@@ -16,11 +16,11 @@ export class UpdateSessionRefreshTokenService {
     const refreshTokenDigest =
       this.encryptService.generateHmacDigest(refreshToken);
 
-    const refreshTokenHash = RefreshTokenHash.create(
+    const newRefreshTokenDigest = RefreshTokenDigest.create(
       refreshTokenDigest.unwrap(),
     ).unwrap();
 
-    session.refresh(refreshTokenHash);
+    session.refresh(newRefreshTokenDigest);
 
     await this.sessionRepository.save(session);
 

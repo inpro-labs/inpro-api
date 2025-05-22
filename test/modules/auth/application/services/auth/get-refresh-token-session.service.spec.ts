@@ -130,7 +130,7 @@ describe('GetRefreshTokenSessionService', () => {
 
       expect(encryptService.compareHmacDigests).toHaveBeenCalledWith(
         hashedToken,
-        session.get('refreshTokenHash').get('value'),
+        session.get('refreshTokenDigest').get('value'),
       );
       expect(sessionRepository.findById).toHaveBeenCalledWith(
         tokenPayload.get('sid'),
@@ -158,7 +158,7 @@ describe('GetRefreshTokenSessionService', () => {
 
       expect(encryptService.compareHmacDigests).toHaveBeenCalledWith(
         hashedToken,
-        validSession.get('refreshTokenHash').get('value'),
+        validSession.get('refreshTokenDigest').get('value'),
       );
       expect(sessionRepository.findById).toHaveBeenCalledWith(
         tokenPayload.get('sid'),

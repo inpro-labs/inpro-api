@@ -14,36 +14,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Session {
-  id               String    @id @default(uuid())
-  userId           String
-  device           String
-  deviceId         String
-  ip               String
-  userAgent        String
-  refreshTokenHash String
-  revokedAt        DateTime?
-  expiresAt        DateTime
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  lastRefreshAt    DateTime?
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([expiresAt])
-  @@index([revokedAt])
-  @@index([refreshTokenHash])
-  @@map("sessions")
-}
-
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
+  id        String   @id @default(uuid())
+  email     String   @unique
   password  String
-  verified  Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  sessions  Session[]
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
   @@map("users")

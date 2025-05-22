@@ -1,5 +1,5 @@
 import { SessionCreatedEvent } from '../events/session-created.event';
-import { RefreshTokenHash } from '../value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '../value-objects/refresh-token-hash.value-object';
 import { SessionRevokedEvent } from '../events/session-revoked.event';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Aggregate, Err, ID, Ok, Result } from '@inpro-labs/core';
@@ -10,7 +10,7 @@ interface CreateProps {
   device: (typeof DEVICE_TYPES.values)[number];
   deviceId: string;
   userAgent: string;
-  refreshTokenHash: RefreshTokenHash;
+  refreshTokenDigest: RefreshTokenDigest;
   ip: string;
   userId: ID;
   expiresAt: Date;
@@ -25,7 +25,7 @@ interface SessionProps {
   device: (typeof DEVICE_TYPES.values)[number];
   deviceId: string;
   userAgent: string;
-  refreshTokenHash: RefreshTokenHash;
+  refreshTokenDigest: RefreshTokenDigest;
   ip: string;
   userId: ID;
   expiresAt: Date;
@@ -42,8 +42,8 @@ export class Session extends Aggregate<SessionProps> {
     device: z.enum(Session.deviceTypes as [string, ...string[]]),
     deviceId: z.string(),
     userAgent: z.string(),
-    refreshTokenHash: z.custom<RefreshTokenHash>(
-      (value) => value instanceof RefreshTokenHash,
+    refreshTokenDigest: z.custom<RefreshTokenDigest>(
+      (value) => value instanceof RefreshTokenDigest,
     ),
     ip: z.string(),
     userId: z.custom<ID>((value) => value instanceof ID),
@@ -92,8 +92,8 @@ export class Session extends Aggregate<SessionProps> {
     return Ok(this);
   }
 
-  public rotateRefreshToken(newHash: RefreshTokenHash) {
-    this.set('refreshTokenHash', newHash);
+  public rotateRefreshToken(newHash: RefreshTokenDigest) {
+    this.set('refreshTokenDigest', newHash);
     this.set('updatedAt', new Date());
   }
 
@@ -105,9 +105,9 @@ export class Session extends Aggregate<SessionProps> {
     return !!this.get('revokedAt');
   }
 
-  public refresh(newHash: RefreshTokenHash) {
+  public refresh(newHash: RefreshTokenDigest) {
     this.set('lastRefreshAt', new Date());
-    this.set('refreshTokenHash', newHash);
+    this.set('refreshTokenDigest', newHash);
     this.set('expiresAt', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30));
     this.set('updatedAt', new Date());
   }

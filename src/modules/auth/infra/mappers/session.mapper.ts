@@ -5,23 +5,23 @@ import { SessionFactory } from '@test/factories/fake-session.factory';
 export class SessionMapper {
   static fromModelToDomain(session: SessionModel): Session {
     const {
-      id,
+      _id,
       device,
       userAgent,
       ip,
       userId,
-      refreshTokenHash,
+      refreshTokenDigest,
       expiresAt,
       deviceId,
     } = session;
 
     return SessionFactory.make({
-      id,
+      id: _id,
       device,
       userAgent,
       ip,
       userId,
-      refreshTokenHash,
+      refreshTokenDigest,
       expiresAt,
       createdAt: session.createdAt,
       revokedAt: session.revokedAt ?? undefined,
@@ -38,7 +38,7 @@ export class SessionMapper {
       userAgent,
       ip,
       userId,
-      refreshTokenHash,
+      refreshTokenDigest,
       expiresAt,
       createdAt,
       revokedAt,
@@ -48,12 +48,12 @@ export class SessionMapper {
     } = item.toObject();
 
     return {
-      id,
+      _id: id,
       device,
       userAgent,
       ip,
       userId: userId,
-      refreshTokenHash: refreshTokenHash.value,
+      refreshTokenDigest: refreshTokenDigest.value,
       expiresAt: expiresAt,
       createdAt: createdAt,
       revokedAt: revokedAt ?? null,

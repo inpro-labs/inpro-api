@@ -1,11 +1,11 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { ID, Result } from '@inpro-labs/core';
 
 type SessionFactoryParams = {
   id?: string;
   userId?: string;
-  refreshTokenHash?: string;
+  refreshTokenDigest?: string;
   device?: string;
   deviceId?: string;
   userAgent?: string;
@@ -21,7 +21,7 @@ export class SessionFactory {
   static make({
     id,
     userId,
-    refreshTokenHash,
+    refreshTokenDigest,
     device,
     deviceId,
     userAgent,
@@ -34,8 +34,8 @@ export class SessionFactory {
     return Session.create({
       id: ID.create(id ?? 'session-123').unwrap(),
       userId: ID.create(userId ?? 'user-123').unwrap(),
-      refreshTokenHash: RefreshTokenHash.create(
-        refreshTokenHash ?? 'refresh-token-hash',
+      refreshTokenDigest: RefreshTokenDigest.create(
+        refreshTokenDigest ?? 'refresh-token-digest',
       ).unwrap(),
       device: device ?? Session.deviceTypes[0],
       deviceId: deviceId ?? 'device-id',

@@ -1,4 +1,4 @@
-import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { Combine, ID } from '@inpro-labs/core';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { DEVICE_TYPES } from '@shared/constants/devices';
@@ -10,16 +10,16 @@ describe('Session Aggregate', () => {
     Combine([
       ID.create('session-id'),
       ID.create('user-id'),
-      RefreshTokenHash.create('hash'),
+      RefreshTokenDigest.create('hash'),
     ]).unwrap();
 
   const makeValidProps = (overrides = {}) => {
-    const [id, userId, refreshTokenHash] = makeValidAttributes();
+    const [id, userId, refreshTokenDigest] = makeValidAttributes();
 
     return {
       id,
       userId,
-      refreshTokenHash,
+      refreshTokenDigest,
       device: DEVICE_TYPES.values[0],
       deviceId: 'test-device-id',
       userAgent: 'TestAgent/1.0',
@@ -41,9 +41,9 @@ describe('Session Aggregate', () => {
 
     expect(session.id.equals(props.id)).toBe(true);
     expect(session.get('userId').equals(props.userId)).toBe(true);
-    expect(session.get('refreshTokenHash').equals(props.refreshTokenHash)).toBe(
-      true,
-    );
+    expect(
+      session.get('refreshTokenDigest').equals(props.refreshTokenDigest),
+    ).toBe(true);
     expect(session.get('device')).toEqual(props.device);
     expect(session.get('deviceId')).toEqual(props.deviceId);
     expect(session.get('userAgent')).toEqual(props.userAgent);
@@ -54,12 +54,12 @@ describe('Session Aggregate', () => {
   });
 
   it('should fail to create a session with invalid device', () => {
-    const [id, userId, refreshTokenHash] = makeValidAttributes();
+    const [id, userId, refreshTokenDigest] = makeValidAttributes();
 
     const result = Session.create({
       id,
       userId,
-      refreshTokenHash,
+      refreshTokenDigest,
       device: 'invalid-device',
       deviceId: 'test-device-id',
       userAgent: 'Agent',

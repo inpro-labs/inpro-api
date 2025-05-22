@@ -121,7 +121,7 @@ describe('Session Microservice (e2e)', () => {
     expect(result).toBeDefined();
     expect(result.userId).toBe(createSessionDto.userId);
     expect(
-      (result as unknown as { refreshTokenHash: string }).refreshTokenHash,
+      (result as unknown as { refreshTokenDigest: string }).refreshTokenDigest,
     ).toBeUndefined();
     expect(result.deviceId).toBe(createSessionDto.deviceId);
   });

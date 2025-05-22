@@ -4,7 +4,7 @@ import { mock, MockProxy } from 'jest-mock-extended';
 
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
-import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { UpdateSessionRefreshTokenService } from '@modules/auth/application/services/auth/update-session-refresh-token.service';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 
@@ -49,7 +49,7 @@ describe('UpdateSessionRefreshTokenService', () => {
         refreshToken,
       );
       expect(session.refresh).toHaveBeenCalledWith(
-        expect.any(RefreshTokenHash),
+        expect.any(RefreshTokenDigest),
       );
       expect(sessionRepository.save).toHaveBeenCalledWith(session);
 

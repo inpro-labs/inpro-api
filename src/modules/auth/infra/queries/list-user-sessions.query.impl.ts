@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
-import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { Paginated } from '@inpro-labs/microservices';
 import { IListUserSessions } from '@modules/auth/application/interfaces/queries/list-user-sessions.query.interface';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
+import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';
 
 @Injectable()
 export class ListUserSessions implements IListUserSessions {
-  constructor(private readonly prismaGateway: PrismaGateway) {}
+  constructor(private readonly mongooseGateway: MongooseGateway) {}
 
   async perform(
     query: ListUserSessionsQuery,
@@ -19,16 +19,12 @@ export class ListUserSessions implements IListUserSessions {
     } = query.dto;
 
     const sessionsResult = await Result.fromPromise(
-      this.prismaGateway.session.findMany({
-        where: {
-          userId,
-        },
-        skip: pagination.skip,
-        take: pagination.take,
-        orderBy: {
-          lastRefreshAt: 'desc',
-        },
-      }),
+      this.mongooseGateway.models.Session.find<SessionModel>({
+        userId,
+      })
+        .sort({ lastRefreshAt: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.take),
     );
 
     if (sessionsResult.isErr()) {
@@ -36,10 +32,8 @@ export class ListUserSessions implements IListUserSessions {
     }
 
     const sessions = sessionsResult.unwrap();
-    const total = await this.prismaGateway.session.count({
-      where: {
-        userId,
-      },
+    const total = await this.mongooseGateway.models.Session.countDocuments({
+      userId,
     });
 
     const paginatedSessions = {

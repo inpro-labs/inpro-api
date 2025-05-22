@@ -28,6 +28,8 @@ import { UpdateSessionRefreshTokenService } from './application/services/auth/up
 import { EncryptModule } from '@shared/security/encrypt/encrypt.module';
 import { listUserSessionsProvider } from './infra/providers/list-user-sessions.provider';
 import { SessionRepositoryProvider } from './infra/providers/session-repository.provider';
+import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';
+import { sessionSchema } from './infra/db/schemas/session.schema';
 
 @Module({
   imports: [
@@ -36,6 +38,10 @@ import { SessionRepositoryProvider } from './infra/providers/session-repository.
     AccountModule,
     CustomJwtModule,
     EnvModule,
+    MongooseGateway.withSchemas({
+      name: 'Session',
+      schema: sessionSchema,
+    }),
   ],
   controllers: [
     CreateSessionController,

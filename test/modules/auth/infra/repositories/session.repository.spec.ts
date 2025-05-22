@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Combine, ID } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
@@ -23,15 +23,15 @@ describe('SessionRepository (integration)', () => {
   let session: Session;
 
   const createValidSession = () => {
-    const [id, refreshTokenHash] = Combine([
+    const [id, refreshTokenDigest] = Combine([
       ID.create('1'),
-      RefreshTokenHash.create('hash'),
+      RefreshTokenDigest.create('hash'),
     ]).unwrap();
 
     return Session.create({
       id,
       userId: user.id,
-      refreshTokenHash,
+      refreshTokenDigest,
       device: DEVICE_TYPES.IOS,
       userAgent: 'agent',
       ip: '127.0.0.1',

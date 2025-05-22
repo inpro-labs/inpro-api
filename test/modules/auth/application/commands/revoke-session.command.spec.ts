@@ -9,7 +9,7 @@ import { RevokeSessionHandler } from '@modules/auth/application/commands/session
 import { RevokeSessionInputDTO } from '@modules/auth/application/dtos/session/revoke-session-input.dto';
 import { RevokeSessionCommand } from '@modules/auth/application/commands/session/revoke-session.command';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { RefreshTokenHash } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 
 describe('RevokeSessionHandler', () => {
   let handler: RevokeSessionHandler;
@@ -52,7 +52,9 @@ describe('RevokeSessionHandler', () => {
       deviceId: 'device-123',
       userAgent: 'test-agent',
       ip: '127.0.0.1',
-      refreshTokenHash: RefreshTokenHash.create('refresh-token-hash').unwrap(),
+      refreshTokenDigest: RefreshTokenDigest.create(
+        'refresh-token-digest',
+      ).unwrap(),
       expiresAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
