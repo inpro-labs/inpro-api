@@ -27,7 +27,7 @@ export class MongooseGateway implements OnModuleInit {
 
   async onModuleInit() {
     await this.mongoose.connect(this.env.get('MONGO_URI'), {
-      dbName: 'ms-auth-db',
+      dbName: this.env.get('MONGO_DATABASE'),
     });
     this.logger.log('Connected to MongoDB');
 

@@ -1,7 +1,7 @@
 {
-  "name": "ms-auth",
+  "name": "inpro-api",
   "version": "0.0.1",
-  "description": "Authentication microservice",
+  "description": "Inpro API",
   "author": "Maxwell Macedo <maxwellmacedo2015@gmail.com>",
   "private": true,
   "license": "MIT",
@@ -31,7 +31,9 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/microservices": "^11.0.12",
     "@nestjs/mongoose": "^11.0.3",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^6.6.0",
     "@prisma/instrumentation": "^6.6.0",
     "amqp-connection-manager": "^4.1.14",
@@ -40,8 +42,10 @@
     "jest-mock-extended": "^4.0.0-beta1",
     "mongoose": "^8.15.0",
     "mqtt": "^5.11.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "zod": "^3.25.23"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -55,6 +59,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
+    "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.2",
     "dotenv-cli": "^8.0.0",
     "eslint": "^9.18.0",

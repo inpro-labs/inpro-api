@@ -9,22 +9,22 @@ import { firstValueFrom } from 'rxjs';
 import { CreateSessionInputDTO } from '@modules/auth/application/dtos/session/create-session-input.dto';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
-import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { RevokeSessionInputDTO } from '@modules/auth/application/dtos/session/revoke-session-input.dto';
-import { SessionViewModel } from '@modules/auth/presentation/view-model/session.view-model';
 import { MicroserviceResponse } from '@inpro-labs/microservices';
 import { SignInOutputDTO } from '@modules/auth/application/dtos/auth/sign-in-output.dto';
 import { ValidateSessionOutputDTO } from '@modules/auth/application/dtos/auth/validate-session-ouput';
 import { RefreshTokenOutputDTO } from '@modules/auth/application/dtos/auth/refresh-token-output.dto';
 import { SignOutInputDTO } from '@modules/auth/application/dtos/auth/sign-out-input.dto';
 import { UserViewModel } from '@modules/account/presentation/view-model/user.view-model';
+import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';
+import { SessionViewModel } from '@modules/auth/presentation/view-model/session.view-model';
 
 type SessionResponse = SessionViewModel;
 
 describe('Session Microservice (e2e)', () => {
   let app: INestMicroservice;
   let client: ClientProxy;
-  let prismaGateway: PrismaGateway;
+  let mongoose: MongooseGateway;
 
   let userId: string;
   let sessionId: string;
@@ -38,7 +38,7 @@ describe('Session Microservice (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    prismaGateway = moduleFixture.get<PrismaGateway>(PrismaGateway);
+    mongoose = moduleFixture.get<MongooseGateway>(MongooseGateway);
 
     app = moduleFixture.createNestMicroservice<MicroserviceOptions>({
       transport: Transport.RMQ,
@@ -90,7 +90,7 @@ describe('Session Microservice (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prismaGateway.session.deleteMany({
+    await mongoose.models.Session.deleteMany({
       where: {
         userId,
       },

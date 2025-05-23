@@ -3,10 +3,9 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { AccountModule } from '@modules/account/account.module';
 import { AuthModule } from '@modules/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 import { envSchema } from './config/env/env.schema';
 import { EnvModule } from './config/env/env.module';
-import { CustomJwtModule } from '@shared/security/jwt/jwt.module';
+import { JwtModule } from '@shared/security/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -16,10 +15,7 @@ import { CustomJwtModule } from '@shared/security/jwt/jwt.module';
     }),
     EnvModule,
     CqrsModule.forRoot(),
-    JwtModule.register({
-      global: true,
-    }),
-    CustomJwtModule,
+    JwtModule,
     AccountModule,
     AuthModule,
   ],

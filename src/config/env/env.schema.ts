@@ -9,6 +9,7 @@ export const envSchema = z.object({
   DATABASE_URL: z.string(),
   REFRESH_TOKEN_HMAC_SECRET: z.string(),
   MONGO_URI: z.string(),
+  MONGO_DATABASE: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;
