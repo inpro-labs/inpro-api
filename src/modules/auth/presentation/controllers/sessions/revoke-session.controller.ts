@@ -4,8 +4,9 @@ import { RevokeSessionCommand } from '@modules/auth/application/commands/session
 import { SessionPresenter } from '../../presenters/session.presenter';
 import { Principal } from '@shared/security/jwt/decorators/principal.decorator';
 import { IPrincipal } from 'src/types/principal';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Sessions')
 @Controller('sessions')
 export class RevokeSessionController {
   constructor(private readonly commandBus: CommandBus) {}
@@ -13,10 +14,7 @@ export class RevokeSessionController {
   @Patch(':id')
   @ApiOperation({ summary: 'Revoke session' })
   @ApiBearerAuth()
-  async revokeSession(
-    @Param('id') id: string,
-    @Principal() principal: IPrincipal,
-  ) {
+  async handler(@Param('id') id: string, @Principal() principal: IPrincipal) {
     const session = await this.commandBus.execute(
       new RevokeSessionCommand({
         sessionId: id,

@@ -24,6 +24,10 @@ import { listUserSessionsProvider } from './infra/providers/list-user-sessions.p
 import { SessionRepositoryProvider } from './infra/providers/session-repository.provider';
 import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';
 import { sessionSchema } from './infra/db/schemas/session.schema';
+import { RefreshTokenController } from './presentation/controllers/auth/refresh-token.controller';
+import { SignOutController } from './presentation/controllers/auth/sign-out.controller';
+import { RetrieveUserSessionsController } from './presentation/controllers/sessions/retrieve-user-sessions.controller';
+import { RevokeSessionController } from './presentation/controllers/sessions/revoke-session.controller';
 
 @Module({
   imports: [
@@ -38,13 +42,11 @@ import { sessionSchema } from './infra/db/schemas/session.schema';
     }),
   ],
   controllers: [
-    // CreateSessionController,
-    // RetrieveUserSessionsController,
-    // RevokeSessionController,
+    RetrieveUserSessionsController,
+    RevokeSessionController,
     SignInController,
-    // ValidateSessionController,
-    // RefreshTokenController,
-    // SignOutController,
+    RefreshTokenController,
+    SignOutController,
   ],
   providers: [
     listUserSessionsProvider,
@@ -71,5 +73,6 @@ import { sessionSchema } from './infra/db/schemas/session.schema';
     ValidateSessionHandler,
     SignOutHandler,
   ],
+  exports: [ValidateSessionHandler],
 })
 export class AuthModule {}

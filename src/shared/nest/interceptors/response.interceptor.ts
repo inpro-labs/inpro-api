@@ -10,7 +10,7 @@ import { Response as ExpressResponse } from 'express';
 
 export interface Response<T> {
   statusCode: number;
-  message: string;
+  success: boolean;
   data: T;
 }
 
@@ -21,12 +21,14 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
     next: CallHandler,
   ): Observable<Response<T>> {
     return next.handle().pipe(
-      map((data: { message: string; result: T }) => ({
-        statusCode: context.switchToHttp().getResponse<ExpressResponse>()
-          .statusCode,
-        message: data.message,
-        data: data.result,
-      })),
+      map((data: T) => {
+        return {
+          statusCode: context.switchToHttp().getResponse<ExpressResponse>()
+            .statusCode,
+          success: true,
+          data: data,
+        };
+      }),
     );
   }
 }

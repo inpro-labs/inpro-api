@@ -47,8 +47,8 @@ export function extendPaginationSchema<
   if (props.options.withPagination) {
     schema = schema.merge(
       z.object({
-        skip: z.number().default(0),
-        take: z.number().max(50).default(10),
+        skip: z.coerce.number().default(0),
+        take: z.coerce.number().max(50).default(10),
       }),
     );
   }

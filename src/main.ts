@@ -7,6 +7,7 @@ import { DocumentBuilder } from '@nestjs/swagger';
 import { HttpExceptionFilter } from '@shared/nest/filters/http-exception.filter';
 import { patchNestjsSwagger } from '@anatine/zod-nestjs';
 import * as cookieParser from 'cookie-parser';
+import { ResponseInterceptor } from '@shared/nest/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,6 +30,9 @@ async function bootstrap() {
       },
       'jwt',
     )
+    .addTag('Auth', 'Authentication and authorization endpoints')
+    .addTag('Sessions', 'Session management endpoints')
+    .addTag('Users', 'User management endpoints')
     .build();
 
   patchNestjsSwagger();
@@ -45,6 +49,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new ResponseInterceptor());
   app.enableShutdownHooks();
 
   app.use(cookieParser());

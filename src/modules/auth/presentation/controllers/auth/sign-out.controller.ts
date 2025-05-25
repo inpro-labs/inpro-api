@@ -2,8 +2,14 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Controller, Post } from '@nestjs/common';
 import { SignOutCommand } from '@modules/auth/application/commands/auth/sign-out.command';
 import { AccessToken } from '@shared/nest/decorators/access-token.decorator';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class SignOutController {
   constructor(private readonly commandBus: CommandBus) {}
@@ -14,7 +20,7 @@ export class SignOutController {
   })
   @ApiResponse({ status: 201, description: 'User session removed' })
   @ApiBearerAuth()
-  async signOut(@AccessToken() accessToken: string) {
+  async handler(@AccessToken() accessToken: string) {
     await this.commandBus.execute(
       new SignOutCommand({
         accessToken,
