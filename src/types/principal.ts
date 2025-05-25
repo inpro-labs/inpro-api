@@ -1,4 +1,4 @@
-export type Principal = {
+export type IPrincipal = {
   userId: string;
   sessionId: string;
   email: string;

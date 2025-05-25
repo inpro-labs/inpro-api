@@ -22,6 +22,8 @@
     "update:sdk": "npm i @inpro-labs/core@latest @inpro-labs/microservices@latest"
   },
   "dependencies": {
+    "@anatine/zod-nestjs": "^2.0.12",
+    "@anatine/zod-openapi": "^2.2.8",
     "@inpro-labs/core": "^1.0.5",
     "@inpro-labs/microservices": "^1.0.5-rc.1",
     "@nestjs/common": "^11.0.1",
@@ -39,9 +41,11 @@
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.7",
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "jest-mock-extended": "^4.0.0-beta1",
     "mongoose": "^8.15.0",
     "mqtt": "^5.11.0",
+    "openapi3-ts": "^4.4.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
@@ -56,6 +60,7 @@
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
     "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",

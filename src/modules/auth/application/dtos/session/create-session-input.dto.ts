@@ -1,8 +1,10 @@
-import { createSessionSchema } from '@modules/auth/presentation/schemas/session/create-session.schema';
-import { z } from 'zod';
-
-export type CreateSessionInputDTO = z.infer<typeof createSessionSchema> & {
+export type CreateSessionInputDTO = {
   expiresAt?: Date;
   refreshToken: string;
   id?: string;
+  userId: string;
+  device: string;
+  deviceId: string;
+  userAgent: string;
+  ip: string;
 };

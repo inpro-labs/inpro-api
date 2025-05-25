@@ -6,7 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { EnvModule } from '@config/env/env.module';
 import { EnvService } from '@config/env/env.service';
-import { AuthModule } from '@modules/auth/auth.module';
+import { JwtProvider } from './providers/jwt.provider';
 
 @Module({
   imports: [
@@ -19,7 +19,6 @@ import { AuthModule } from '@modules/auth/auth.module';
       }),
       inject: [EnvService],
     }),
-    AuthModule,
   ],
   providers: [
     JwtStrategy,
@@ -27,7 +26,8 @@ import { AuthModule } from '@modules/auth/auth.module';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    JwtProvider,
   ],
-  exports: [PassportModule, NestJwtModule],
+  exports: [PassportModule, NestJwtModule, JwtProvider],
 })
 export class JwtModule {}

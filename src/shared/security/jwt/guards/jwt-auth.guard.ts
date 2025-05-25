@@ -2,7 +2,7 @@ import { ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
-import { ApplicationException } from '@shared/exceptions/application.exception';
+import { BusinessException } from '@shared/exceptions/application.exception';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { ErrorCode } from '@shared/errors/error-codes.enum';
 
@@ -33,7 +33,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     if (!user) {
-      throw new ApplicationException(
+      throw new BusinessException(
         info?.message || 'Token not provided',
         ErrorCode.TOKEN_NOT_PROVIDED,
         401,

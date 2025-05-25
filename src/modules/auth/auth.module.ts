@@ -4,9 +4,6 @@ import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { HashModule } from '@shared/security/hash/hash.module';
 import { ListUserSessionsHandler } from './application/queries/session/list-user-sessions.handler';
 import { RevokeSessionHandler } from './application/commands/session/revoke-session.handler';
-import { CreateSessionController } from './presentation/controllers/sessions/create-session.controller';
-import { RetrieveUserSessionsController } from './presentation/controllers/sessions/retrieve-user-sessions.controller';
-import { RevokeSessionController } from './presentation/controllers/sessions/revoke-session.controller';
 import { SessionRevokedHandler } from './application/events/session/session-revoked.handler';
 import { CreateSessionHandler } from './application/commands/session/create-session.handler';
 import { AccountModule } from '@modules/account/account.module';
@@ -19,10 +16,7 @@ import { RetrieveSessionByTokenService } from './application/services/session/re
 import { RefreshTokenHandler } from './application/commands/auth/refresh-token.handler';
 import { ValidateSessionHandler } from './application/commands/auth/validate-session.handler';
 import { EnvModule } from '@config/env/env.module';
-import { CustomJwtModule } from '@shared/security/jwt/jwt.module';
-import { ValidateSessionController } from './presentation/controllers/auth/validate-session.controller';
-import { RefreshTokenController } from './presentation/controllers/auth/refresh-token.controller';
-import { SignOutController } from './presentation/controllers/auth/sign-out.controller';
+import { JwtModule } from '@shared/security/jwt/jwt.module';
 import { SignOutHandler } from './application/commands/auth/sign-out.handler';
 import { UpdateSessionRefreshTokenService } from './application/services/auth/update-session-refresh-token.service';
 import { EncryptModule } from '@shared/security/encrypt/encrypt.module';
@@ -36,7 +30,7 @@ import { sessionSchema } from './infra/db/schemas/session.schema';
     HashModule,
     EncryptModule,
     AccountModule,
-    CustomJwtModule,
+    JwtModule,
     EnvModule,
     MongooseGateway.withSchemas({
       name: 'Session',
@@ -44,13 +38,13 @@ import { sessionSchema } from './infra/db/schemas/session.schema';
     }),
   ],
   controllers: [
-    CreateSessionController,
-    RetrieveUserSessionsController,
-    RevokeSessionController,
+    // CreateSessionController,
+    // RetrieveUserSessionsController,
+    // RevokeSessionController,
     SignInController,
-    ValidateSessionController,
-    RefreshTokenController,
-    SignOutController,
+    // ValidateSessionController,
+    // RefreshTokenController,
+    // SignOutController,
   ],
   providers: [
     listUserSessionsProvider,

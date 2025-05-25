@@ -1,8 +1,10 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { ApplicationErrorResponse } from '@shared/exceptions/application.exception';
+import {
+  BusinessErrorResponse,
+  BusinessException,
+} from '@shared/exceptions/application.exception';
 import { HttpException } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ApplicationException } from '@inpro-labs/microservices';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
@@ -12,9 +14,9 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
     const request = ctx.getRequest<Request>();
 
     const status = exception.getStatus();
-    const res = exception.getResponse() as ApplicationErrorResponse;
+    const res = exception.getResponse() as BusinessErrorResponse;
 
-    if (!(exception instanceof ApplicationException)) {
+    if (!(exception instanceof BusinessException)) {
       return response.status(status).json({
         statusCode: status,
         timestamp: new Date().toISOString(),

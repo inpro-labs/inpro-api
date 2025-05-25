@@ -1,11 +1,11 @@
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SignInCommand } from './sign-in.command';
-import { ApplicationException } from '@inpro-labs/microservices';
 import { ID } from '@inpro-labs/core';
 import { CreateSessionCommand } from '../session/create-session.command';
 import { SignInOutputDTO } from '../../dtos/auth/sign-in-output.dto';
 import { ValidateUserCredentialsService } from '../../services/auth/validate-user-credentials.service';
 import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
+import { BusinessException } from '@shared/exceptions/application.exception';
 
 @CommandHandler(SignInCommand)
 export class SignInHandler
@@ -24,10 +24,10 @@ export class SignInHandler
     );
 
     if (userResult.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'Invalid credentials',
-        401,
         'INVALID_CREDENTIALS',
+        401,
       );
     }
 
@@ -42,10 +42,10 @@ export class SignInHandler
     );
 
     if (tokensResult.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'Failed to generate tokens',
-        500,
         'FAILED_TO_GENERATE_TOKENS',
+        500,
       );
     }
 

@@ -1,10 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { writeFileSync } from 'fs';
+import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { SwaggerModule } from '@nestjs/swagger';
 import { DocumentBuilder } from '@nestjs/swagger';
 import { HttpExceptionFilter } from '@shared/nest/filters/http-exception.filter';
+import { patchNestjsSwagger } from '@anatine/zod-nestjs';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,17 +31,23 @@ async function bootstrap() {
     )
     .build();
 
+  patchNestjsSwagger();
+
   const document = SwaggerModule.createDocument(app, config);
 
-  writeFileSync(
-    join(__dirname, '..', 'docs', 'api.json'),
-    JSON.stringify(document, null, 2),
-  );
+  const docsPath = join(__dirname, '..', 'docs');
+  mkdirSync(docsPath, { recursive: true });
+  writeFileSync(join(docsPath, 'api.json'), JSON.stringify(document, null, 2), {
+    encoding: 'utf-8',
+    flag: 'w',
+  });
 
   SwaggerModule.setup('api', app, document);
 
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableShutdownHooks();
+
+  app.use(cookieParser());
 
   await app.listen(process.env.PORT || 3000);
 }

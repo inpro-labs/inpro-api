@@ -5,8 +5,8 @@ import { Request } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ValidateSessionCommand } from '@modules/auth/application/commands/auth/validate-session.command';
 import { EnvService } from '@config/env/env.service';
-import { ApplicationException } from '@shared/exceptions/application.exception';
-import { Principal } from 'src/types/principal';
+import { BusinessException } from '@shared/exceptions/application.exception';
+import { IPrincipal } from 'src/types/principal';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(
     request: Request,
     payload: Record<string, string>,
-  ): Promise<Principal> {
+  ): Promise<IPrincipal> {
     const token = request.headers.authorization!;
     const [, tokenValue] = token.split(' ');
 
@@ -39,11 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       const { isValid } = validSessionResult;
 
       if (!isValid) {
-        throw new ApplicationException(
-          'Invalid session',
-          'INVALID_SESSION',
-          401,
-        );
+        throw new BusinessException('Invalid session', 'INVALID_SESSION', 401);
       }
 
       return {
@@ -53,7 +49,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         deviceId: payload.deviceId,
       };
     } catch (error) {
-      throw error as ApplicationException;
+      throw error as BusinessException;
     }
   }
 }

@@ -1,34 +1,39 @@
 import { QueryBus } from '@nestjs/cqrs';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Controller } from '@nestjs/common';
-import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
-import {
-  MicroserviceRequest,
-  MessageResponse,
-  ZodValidationPipe,
-  zodQueryParams,
-} from '@inpro-labs/microservices';
-import { listUserSessionsSchema } from '@modules/auth/presentation/schemas/session/list-user-sessions.schema';
 import { SessionPresenter } from '../../presenters/session.presenter';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { IPrincipal } from 'src/types/principal';
+import { Principal } from '@shared/security/jwt/decorators/principal.decorator';
+import { RetrieveUserSessionsQueryDTO } from '../../dtos/session/retrieve-user-sessions.dto';
 
-@Controller()
+@Controller('sessions')
 export class RetrieveUserSessionsController {
   constructor(private readonly queryBus: QueryBus) {}
 
-  @MessagePattern('list_user_sessions')
+  @Get()
+  @ApiOperation({ summary: 'Retrieve user sessions' })
+  @ApiBearerAuth()
   async listUserSessions(
-    @Payload(new ZodValidationPipe(zodQueryParams(listUserSessionsSchema)))
-    payload: MicroserviceRequest<ListUserSessionsInputDTO>,
+    @Principal() principal: IPrincipal,
+    @Query() query: RetrieveUserSessionsQueryDTO,
   ) {
     const paginated = await this.queryBus.execute(
-      new ListUserSessionsQuery(payload.data),
+      new ListUserSessionsQuery({
+        data: {
+          userId: principal.userId,
+        },
+        pagination: {
+          skip: query.skip,
+          take: query.take,
+        },
+      }),
     );
 
     const presenter = new SessionPresenter();
 
     const sessionViewModel = presenter.presentSessions(paginated);
 
-    return MessageResponse.ok(sessionViewModel);
+    return sessionViewModel;
   }
 }
