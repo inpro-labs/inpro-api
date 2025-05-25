@@ -1,0 +1,387 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/sessions/{id}/revoke": {
+      "patch": {
+        "operationId": "SessionController_revokeSession",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Session ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "required": true,
+            "in": "query",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Revoke session response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokeSessionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Revoke a session",
+        "tags": [
+          "Session"
+        ]
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "UserController_createUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "User request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "User response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a new user",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/users/me/sessions": {
+      "get": {
+        "operationId": "UserController_getUserSessions",
+        "parameters": [
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "description": "Number of sessions to take",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "skip",
+            "required": true,
+            "in": "query",
+            "description": "Number of sessions to skip",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get user sessions by ID",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "operationId": "AuthController_signIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Sign in request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Sign in response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignInResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sign in a user",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/sign-out": {
+      "delete": {
+        "operationId": "AuthController_signOut",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "Sign out response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignOutResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sign out a user",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/auth/refresh-token": {
+      "post": {
+        "operationId": "AuthController_refreshToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "Refresh token request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Refresh token response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Refresh token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "InPro API",
+    "description": "Here is the API documentation for InPro",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "RevokeSessionResponseDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateUserRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The email of the user",
+            "example": "test@test.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user",
+            "example": "password"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "CreateUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id of the user",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user",
+            "example": "test@test.com"
+          },
+          "verified": {
+            "type": "boolean",
+            "description": "The verified of the user",
+            "example": true,
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The created at of the user",
+            "example": "2021-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "The updated at of the user",
+            "example": "2021-01-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "verified",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "SignInRequestDto": {
+        "type": "object",
+        "properties": {
+          "device": {
+            "type": "string",
+            "description": "The email of the user",
+            "example": "test@test.com"
+          },
+          "ip": {
+            "type": "string",
+            "description": "The ip of the session",
+            "example": "127.0.0.1"
+          },
+          "userAgent": {
+            "type": "string",
+            "description": "The user agent of the session",
+            "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email of the user",
+            "example": "test@test.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user",
+            "example": "password"
+          }
+        },
+        "required": [
+          "device",
+          "ip",
+          "userAgent",
+          "email",
+          "password"
+        ]
+      },
+      "SignInResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "The JWT access token of the user"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "The refresh token of the user"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "The expires at of the access token",
+            "example": "2021-01-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresAt"
+        ]
+      },
+      "SignOutResponseDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RefreshTokenRequestDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "The refresh token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "RefreshTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "The JWT access token of the user"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "The refresh token of the user"
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "The expires at of the access token",
+            "example": "2021-01-01T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "expiresAt"
+        ]
+      }
+    }
+  }
+}
