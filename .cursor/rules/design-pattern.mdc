@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Always use kebab-case for new files.
+
+
+[design-pattern.mdc](mdc:.cursor/rules/design-pattern.mdc)

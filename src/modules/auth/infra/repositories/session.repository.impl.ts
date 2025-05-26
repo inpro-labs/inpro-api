@@ -4,7 +4,7 @@ import { Err, Ok, Result } from '@inpro-labs/core';
 import { Injectable } from '@nestjs/common';
 import { SessionMapper } from '../mappers/session.mapper';
 import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';
-import { SessionModel } from '../models/session.model';
+import { SessionModel } from '../db/models/session.model';
 
 @Injectable()
 export class SessionRepository implements ISessionRepository {

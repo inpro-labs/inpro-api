@@ -1,5 +1,5 @@
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
-import { SessionModel } from '../models/session.model';
+import { SessionModel } from '../db/models/session.model';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 
 export class SessionMapper {

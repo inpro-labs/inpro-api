@@ -56,9 +56,7 @@ export class User extends Aggregate<Props> {
   }
 
   static isValidProps(props: CreateProps) {
-    if (this.schema.safeParse(props).success) return true;
-
-    return false;
+    return User.schema.safeParse(props).success;
   }
 
   public verify() {

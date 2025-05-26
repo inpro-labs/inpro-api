@@ -1,5 +1,5 @@
 import { QueryParams, Paginated } from '@inpro-labs/microservices';
-import { SessionModel } from '@modules/auth/infra/models/session.model';
+import { SessionModel } from '@modules/auth/infra/db/models/session.model';
 
 export type ListUserSessionsInputDTO = QueryParams<{ userId: string }, true>;
 

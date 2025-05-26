@@ -77,9 +77,7 @@ export class Session extends Aggregate<SessionProps> {
   }
 
   static isValidProps(props: CreateProps) {
-    if (!Session.schema.safeParse(props).success) return false;
-
-    return true;
+    return Session.schema.safeParse(props).success;
   }
 
   public revoke() {
@@ -92,11 +90,6 @@ export class Session extends Aggregate<SessionProps> {
     return Ok(this);
   }
 
-  public rotateRefreshToken(newHash: RefreshTokenDigest) {
-    this.set('refreshTokenDigest', newHash);
-    this.set('updatedAt', new Date());
-  }
-
   get isExpired() {
     return !!this.get('expiresAt') && this.get('expiresAt') < new Date();
   }
@@ -106,9 +99,14 @@ export class Session extends Aggregate<SessionProps> {
   }
 
   public refresh(newHash: RefreshTokenDigest) {
+    if (this.isExpired) return Err(new Error('Session expired'));
+    if (this.isRevoked) return Err(new Error('Session revoked'));
+
     this.set('lastRefreshAt', new Date());
     this.set('refreshTokenDigest', newHash);
     this.set('expiresAt', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30));
     this.set('updatedAt', new Date());
+
+    return Ok(this);
   }
 }

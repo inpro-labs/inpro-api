@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SessionModel } from '@modules/auth/infra/models/session.model';
+import { SessionModel } from '@modules/auth/infra/db/models/session.model';
 import { Err, Ok, Result } from '@inpro-labs/core';
 import { Paginated } from '@inpro-labs/microservices';
 import { IListUserSessions } from '@modules/auth/application/interfaces/queries/list-user-sessions.query.interface';

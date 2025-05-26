@@ -1,5 +1,5 @@
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
-import { UserModel } from '../models/user.model';
+import { UserModel } from '../db/models/user.model';
 import { ID } from '@inpro-labs/core';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
 import { Combine } from '@inpro-labs/core';
