@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ValidateSessionCommand } from './validate-session.command';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { ValidateSessionOutputDTO } from '../../dtos/auth/validate-session-ouput';
 import { RetrieveSessionByTokenService } from '../../services/session/retrieve-session-by-token.service';
+import { ValidateSessionOutputDTO } from '../../ports/in/auth/validate-session.port';
 
 @CommandHandler(ValidateSessionCommand)
 export class ValidateSessionHandler
-  implements ICommandHandler<ValidateSessionCommand>
+  implements ICommandHandler<ValidateSessionCommand, ValidateSessionOutputDTO>
 {
   constructor(
     private readonly retrieveSessionByTokenService: RetrieveSessionByTokenService,

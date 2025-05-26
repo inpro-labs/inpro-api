@@ -7,7 +7,7 @@ import { ListUserSessionsHandler } from '@modules/auth/application/queries/sessi
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { SessionModel } from '@modules/auth/infra/models/session.model';
 import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
-import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
+import { ListUserSessionsInputDTO } from '@modules/auth/application/ports/in/session/list-user-sessions.port';
 import { IListUserSessions } from '@modules/auth/application/interfaces/queries/list-user-sessions.query.interface';
 
 describe('ListUserSessionsHandler', () => {

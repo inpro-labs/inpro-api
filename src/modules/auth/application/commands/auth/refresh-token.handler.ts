@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenCommand } from './refresh-token.command';
-import { RefreshTokenOutputDTO } from '../../dtos/auth/refresh-token-output.dto';
+import { RefreshTokenOutputDTO } from '@modules/auth/application/ports/in/auth/refresh-token.port';
 import { GetRefreshTokenSessionService } from '../../services/auth/get-refresh-token-session.service';
 import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
 import { UpdateSessionRefreshTokenService } from '../../services/auth/update-session-refresh-token.service';

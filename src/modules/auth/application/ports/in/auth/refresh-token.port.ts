@@ -3,3 +3,7 @@ export type RefreshTokenOutputDTO = {
   refreshToken: string;
   expiresAt: Date;
 };
+
+export type RefreshTokenInputDTO = {
+  refreshToken: string;
+};

@@ -2,7 +2,7 @@ import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SignInCommand } from './sign-in.command';
 import { ID } from '@inpro-labs/core';
 import { CreateSessionCommand } from '../session/create-session.command';
-import { SignInOutputDTO } from '../../dtos/auth/sign-in-output.dto';
+import { SignInOutputDTO } from '@modules/auth/application/ports/in/auth/sign-in.port';
 import { ValidateUserCredentialsService } from '../../services/auth/validate-user-credentials.service';
 import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
 import { BusinessException } from '@shared/exceptions/application.exception';

@@ -5,7 +5,7 @@ import { CreateSessionHandler } from '@modules/auth/application/commands/session
 import { CreateSessionCommand } from '@modules/auth/application/commands/session/create-session.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { DEVICE_TYPES } from '@shared/constants/devices';
-import { CreateSessionInputDTO } from '@modules/auth/application/dtos/session/create-session-input.dto';
+import { CreateSessionInputDTO } from '@modules/auth/application/ports/in/session/create-session.port';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Result } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';

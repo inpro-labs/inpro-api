@@ -5,7 +5,7 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { ID } from '@inpro-labs/core';
-import { CreateSessionOutputDTO } from '@modules/auth/application/dtos/session/create-session-output.dto';
+import { CreateSessionOutputDTO } from '@modules/auth/application/ports/in/session/create-session.port';
 import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
 import { BusinessException } from '@shared/exceptions/application.exception';
 
