@@ -4,6 +4,9 @@ globs:
 alwaysApply: true
 ---
 - Always use kebab-case for new files.
+- Classes that extends ValueObject, Entity or Aggregate must have private constructor and static factory method "create",
+a static schema for validate create factory method props and a static method "isValidProps" that checks if given props is valid using the schema
+- Methods and functions must return Result<ReturnTypeSuccess, Error> from "@inpro-labs/core", Use Err(new Error("message")) for error, Ok(returnData) for success. Both comes from "@inpro-labs/core"
 
 
 [design-pattern.mdc](mdc:.cursor/rules/design-pattern.mdc)

@@ -5,6 +5,7 @@ import { EnvService } from '@config/env/env.service';
 interface SchemaDefinition {
   name: string;
   schema: Schema;
+  discriminators?: SchemaDefinition[];
 }
 
 @Module({})
@@ -33,9 +34,14 @@ export class MongooseGateway implements OnModuleInit {
 
     const conn = this.mongoose.connection;
 
-    for (const { name, schema } of MongooseGateway.schemas) {
+    for (const { name, schema, discriminators } of MongooseGateway.schemas) {
       if (!conn.models[name]) {
-        conn.model(name, schema);
+        const model = conn.model(name, schema);
+        if (discriminators) {
+          for (const discriminator of discriminators) {
+            model.discriminator(discriminator.name, discriminator.schema);
+          }
+        }
       }
     }
     this.logger.log(

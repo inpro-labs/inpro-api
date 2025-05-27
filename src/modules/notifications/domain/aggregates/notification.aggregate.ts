@@ -1,51 +1,97 @@
-import { Aggregate, ID } from '@inpro-labs/core';
+import { Aggregate, ID, Result, Err, Ok } from '@inpro-labs/core';
 import z from 'zod';
-import { NotificationType } from '../enums/notification-type.enum';
+import { NotificationChannel } from '../enums/notification-channel.enum';
 import { NotificationStatus } from '../enums/notification-status.enum';
+import { EmailChannelData } from '../value-objects/email-channel-data.value-object';
+import { SmsChannelData } from '../value-objects/sms-channel-data.value-object';
+import { NotificationTemplate } from '../entities/notification-template.entity';
+import { QueueNotificationEvent } from '../events/queue-notification.event';
 
-export interface NotificationProps {
+type BaseNotificationProps = {
   id?: ID;
-  userId?: ID;
-  type: NotificationType;
+  userId: ID;
   status: NotificationStatus;
   attempts: number;
   createdAt: Date;
   updatedAt: Date;
   sentAt?: Date;
   lastError?: string;
+  template: NotificationTemplate;
+  templateData?: Record<string, any>;
+};
+
+interface EmailNotificationProps extends BaseNotificationProps {
+  channel: NotificationChannel.EMAIL;
+  channelData: EmailChannelData;
 }
 
-type AutoProps =
-  | 'createdAt'
-  | 'updatedAt'
-  | 'attempts'
-  | 'id'
-  | 'status'
-  | 'lastError';
+interface SmsNotificationProps extends BaseNotificationProps {
+  channel: NotificationChannel.SMS;
+  channelData: SmsChannelData;
+}
 
-export type CreateNotificationProps = NotificationProps &
+export type NotificationProps = EmailNotificationProps | SmsNotificationProps;
+
+type AutoProps = 'createdAt' | 'updatedAt' | 'attempts' | 'id' | 'lastError';
+
+export type CreateNotificationProps = Omit<NotificationProps, AutoProps> &
   Partial<Pick<NotificationProps, AutoProps>>;
 
-export abstract class Notification<
-  T extends NotificationProps,
-> extends Aggregate<T> {
-  static readonly schema = z.object({
-    userId: z.string().optional(),
-    type: z.nativeEnum(NotificationType),
-    status: z.nativeEnum(NotificationStatus),
-    attempts: z.number().default(0),
-    createdAt: z.date().default(new Date()),
-    updatedAt: z.date().default(new Date()),
-    sentAt: z.date().optional(),
-    lastError: z.string().optional(),
-  });
-  static readonly types = NotificationType;
+const baseSchema = z.object({
+  userId: z.custom<ID>((value) => value instanceof ID),
+  status: z.nativeEnum(NotificationStatus),
+  attempts: z.number().default(0),
+  createdAt: z.date().default(new Date()),
+  updatedAt: z.date().default(new Date()),
+  sentAt: z.date().optional(),
+  lastError: z.string().optional(),
+  template: z.custom<NotificationTemplate>(
+    (value) => value instanceof NotificationTemplate,
+  ),
+  templateData: z.record(z.string(), z.any()).optional(),
+});
 
-  protected constructor(props: T) {
+export class Notification extends Aggregate<NotificationProps> {
+  static readonly schema = z.discriminatedUnion('channel', [
+    baseSchema.extend({
+      channel: z.literal(NotificationChannel.EMAIL),
+      channelData: EmailChannelData.schema,
+    }),
+    baseSchema.extend({
+      channel: z.literal(NotificationChannel.SMS),
+      channelData: SmsChannelData.schema,
+    }),
+  ]);
+  static readonly types = NotificationChannel;
+
+  private constructor(props: NotificationProps) {
     super(props);
   }
 
   static isValidProps(props: CreateNotificationProps) {
     return Notification.schema.safeParse(props).success;
+  }
+
+  static create(props: NotificationProps): Result<Notification, Error> {
+    if (!this.isValidProps(props)) {
+      return Err(new Error('Invalid notification props'));
+    }
+
+    const now = new Date();
+
+    const notification = new Notification({
+      ...props,
+      createdAt: props.createdAt ?? now,
+      updatedAt: props.updatedAt ?? now,
+      status: props.status ?? NotificationStatus.PENDING,
+      attempts: props.attempts ?? 0,
+      templateData: props.templateData ?? {},
+    });
+
+    if (notification.isNew()) {
+      notification.apply(new QueueNotificationEvent(notification));
+    }
+
+    return Ok(notification);
   }
 }
