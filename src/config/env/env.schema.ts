@@ -10,6 +10,8 @@ export const envSchema = z.object({
   REFRESH_TOKEN_HMAC_SECRET: z.string(),
   MONGO_URI: z.string(),
   MONGO_DATABASE: z.string(),
+  REDIS_HOST: z.string().default('localhost'),
+  REDIS_PORT: z.string().default('6379').transform(Number),
 });
 
 export type Env = z.infer<typeof envSchema>;

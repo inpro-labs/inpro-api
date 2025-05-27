@@ -11,9 +11,18 @@ import { SendNotificationController } from './presentation/controllers/send-noti
 import { QueueNotificationEventHandler } from './application/events/queue-notification.event';
 import { INotificationRepository } from './domain/interfaces/repositories/notification.repository';
 import { NotificationRepositoryImpl } from './infra/repositories/notification.repository.impl';
+import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
+import { NotificationQueueService } from './infra/services/notification-queue.service';
+import { INotificationQueue } from './application/ports/out/notification-queue.port';
+import { NotificationProcessor } from './infra/queue/processors/notification.processor';
 
 @Module({
   imports: [
+    BullModule.registerQueue({
+      name: 'notification',
+    }),
     MongooseGateway.withSchemas({
       name: 'Notification',
       schema: notificationSchema,
@@ -38,6 +47,11 @@ import { NotificationRepositoryImpl } from './infra/repositories/notification.re
       provide: INotificationRepository,
       useClass: NotificationRepositoryImpl,
     },
+    {
+      provide: INotificationQueue,
+      useClass: NotificationQueueService,
+    },
+    NotificationProcessor,
   ],
   exports: [],
 })
