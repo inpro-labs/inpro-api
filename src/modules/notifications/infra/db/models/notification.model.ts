@@ -9,7 +9,8 @@ export type NotificationModel = {
   updatedAt: Date;
   sentAt: Date | null;
   lastError: string | null;
-  templateId: string;
+  template: string;
+  templateData: Record<string, any>;
 };
 
 export type EmailNotificationModel = NotificationModel & {

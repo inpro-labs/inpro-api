@@ -47,10 +47,13 @@ export const notificationSchema = new Schema<NotificationModel>(
       type: String,
       default: null,
     },
-    templateId: {
+    template: {
       type: String,
       required: true,
-      ref: 'notification_templates',
+    },
+    templateData: {
+      type: Object,
+      default: {},
     },
   },
   {
@@ -72,19 +75,31 @@ export const notificationModel = model<NotificationModel>(
 );
 
 export const emailNotificationSchema = new Schema<EmailNotificationModel>({
-  to: {
-    type: String,
-    required: true,
-  },
-  subject: {
-    type: String,
+  channelData: {
+    type: new Schema(
+      {
+        to: {
+          type: String,
+          required: true,
+        },
+      },
+      { _id: false },
+    ),
     required: true,
   },
 });
 
 export const smsNotificationSchema = new Schema<SmsNotificationModel>({
-  to: {
-    type: String,
+  channelData: {
+    type: new Schema(
+      {
+        to: {
+          type: String,
+          required: true,
+        },
+      },
+      { _id: false },
+    ),
     required: true,
   },
 });

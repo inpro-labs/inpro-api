@@ -7,6 +7,7 @@ import { EnvModule } from './config/env/env.module';
 import { JwtModule } from '@shared/security/jwt/jwt.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '@shared/security/jwt/guards/jwt-auth.guard';
+import { NotificationModule } from '@modules/notifications/notification.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { JwtAuthGuard } from '@shared/security/jwt/guards/jwt-auth.guard';
     JwtModule,
     // AccountModule,
     AuthModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [

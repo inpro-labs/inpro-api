@@ -6,6 +6,11 @@ import {
   notificationSchema,
   smsNotificationSchema,
 } from './infra/db/schemas/notification.schema';
+import { TemplateManagerService } from './infra/services/template-manager.service';
+import { SendNotificationController } from './presentation/controllers/send-notification.controller';
+import { QueueNotificationEventHandler } from './application/events/queue-notification.event';
+import { INotificationRepository } from './domain/interfaces/repositories/notification.repository';
+import { NotificationRepositoryImpl } from './infra/repositories/notification.repository.impl';
 
 @Module({
   imports: [
@@ -14,17 +19,26 @@ import {
       schema: notificationSchema,
       discriminators: [
         {
-          name: 'EmailNotification',
+          name: 'EMAIL',
           schema: emailNotificationSchema,
         },
         {
-          name: 'SmsNotification',
+          name: 'SMS',
           schema: smsNotificationSchema,
         },
       ],
     }),
   ],
-  providers: [SendNotificationHandler],
+  controllers: [SendNotificationController],
+  providers: [
+    SendNotificationHandler,
+    TemplateManagerService,
+    QueueNotificationEventHandler,
+    {
+      provide: INotificationRepository,
+      useClass: NotificationRepositoryImpl,
+    },
+  ],
   exports: [],
 })
 export class NotificationModule {}

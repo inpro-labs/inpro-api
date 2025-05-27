@@ -1,22 +1,28 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { SendNotificationCommand } from '../send-notification.command';
-import { INotificationSender } from '../../ports/out/notification-sender.port';
 import { SendNotificationOutputDTO } from '../../ports/in/send-notification.port';
 import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
 import { ID, Result } from '@inpro-labs/core';
-import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
 import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 import { NotificationStatus } from '@modules/notifications/domain/enums/notification-status.enum';
 import { BusinessException } from '@shared/exceptions/application.exception';
 import { EmailChannelData } from '@modules/notifications/domain/value-objects/email-channel-data.value-object';
 import { SmsChannelData } from '@modules/notifications/domain/value-objects/sms-channel-data.value-object';
+import { TemplateManagerService } from '@modules/notifications/infra/services/template-manager.service';
+import { NotificationTemplate } from '@modules/notifications/domain/enums/notification-template.enum';
+import { INotificationRepository } from '@modules/notifications/domain/interfaces/repositories/notification.repository';
 
 @Injectable()
+@CommandHandler(SendNotificationCommand)
 export class SendNotificationHandler
-  implements ICommandHandler<SendNotificationCommand>
+  implements ICommandHandler<SendNotificationCommand, SendNotificationOutputDTO>
 {
-  constructor(private readonly notificationService: INotificationSender) {}
+  constructor(
+    private readonly templateManagerService: TemplateManagerService,
+    private readonly notificationRepository: INotificationRepository,
+    private readonly publish: EventPublisher,
+  ) {}
 
   async execute(
     command: SendNotificationCommand,
@@ -32,20 +38,9 @@ export class SendNotificationHandler
       );
     }
 
-    const templateResult = NotificationTemplate.create({
-      name: 'test',
-      description: 'test',
-      channels: [
-        {
-          type: NotificationChannel.EMAIL,
-          metadata: {
-            subject: 'test',
-            body: 'test',
-          },
-          requiredFields: [],
-        },
-      ],
-    });
+    const templateResult = this.templateManagerService.getTemplate(
+      ID.create(templateId).unwrap(),
+    );
 
     if (templateResult.isErr()) {
       throw new BusinessException(
@@ -76,12 +71,12 @@ export class SendNotificationHandler
         channel: NotificationChannel.EMAIL,
         channelData: emailChannelData,
         userId: ID.create(userId).unwrap(),
-        template,
+        template: template.id.value() as NotificationTemplate,
         status: NotificationStatus.PENDING,
         attempts: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
-        templateData: channelData,
+        templateData,
       });
     }
 
@@ -94,19 +89,22 @@ export class SendNotificationHandler
         channel: NotificationChannel.SMS,
         channelData: smsChannelData,
         userId: ID.create(userId).unwrap(),
-        template,
+        template: template.id.value() as NotificationTemplate,
         status: NotificationStatus.PENDING,
         attempts: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        templateData,
       });
     }
 
     if (!notificationResult || notificationResult.isErr()) {
-      throw new Error('Notification not created');
+      throw new Error(notificationResult!.getErr()!.message);
     }
 
     const notification = notificationResult.unwrap();
+
+    await this.notificationRepository.save(notification);
+
+    this.publish.mergeObjectContext(notification);
 
     notification.commit();
 

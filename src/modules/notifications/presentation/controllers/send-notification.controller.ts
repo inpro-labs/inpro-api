@@ -1,0 +1,32 @@
+import { SendNotificationCommand } from '@modules/notifications/application/commands/send-notification.command';
+import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
+import { Controller, Post } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import { Public } from '@shared/security/jwt/decorators/public.decorator';
+
+// TODO: remove this controller
+@Controller('notifications')
+export class SendNotificationController {
+  constructor(private readonly commandBus: CommandBus) {}
+
+  @Public()
+  @Post()
+  async sendNotification() {
+    const result = await this.commandBus.execute(
+      new SendNotificationCommand({
+        channel: NotificationChannel.EMAIL,
+        channelData: {
+          to: 'test@test.com',
+        },
+        templateData: {
+          userName: 'John Doe',
+          email: 'john.doe@example.com',
+        },
+        templateId: 'user-created',
+        userId: '123',
+      }),
+    );
+
+    return result.toObject();
+  }
+}
