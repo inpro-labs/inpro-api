@@ -23,25 +23,24 @@ export type NotificationTemplateChannel =
   | EmailNotificationTemplateChannel
   | SmsNotificationTemplateChannel;
 
-type ChannelToType<T extends NotificationChannel> =
+export type ChannelToType<T extends NotificationChannel> =
   T extends NotificationChannel.EMAIL
     ? EmailNotificationTemplateChannel
     : T extends NotificationChannel.SMS
       ? SmsNotificationTemplateChannel
       : never;
 
-interface NotificationTemplateProps<
-  T extends NotificationChannel = NotificationChannel,
-> {
+interface NotificationTemplateProps {
   id?: ID;
   name: string;
   description: string;
-  channels: ChannelToType<T>[];
+  channels: (
+    | EmailNotificationTemplateChannel
+    | SmsNotificationTemplateChannel
+  )[];
 }
 
-export class NotificationTemplate<
-  T extends NotificationChannel = NotificationChannel,
-> extends Entity<NotificationTemplateProps<T>> {
+export class NotificationTemplate extends Entity<NotificationTemplateProps> {
   static readonly schema = z.object({
     id: z.custom<ID>((value) => value instanceof ID),
     name: z.string(),
@@ -69,19 +68,13 @@ export class NotificationTemplate<
     updatedAt: z.date().default(new Date()),
   });
 
-  private constructor(props: NotificationTemplateProps<T>) {
+  private constructor(props: NotificationTemplateProps) {
     super(props);
   }
 
   static create(
-    props: NotificationTemplateProps<NotificationChannel.EMAIL>,
-  ): Result<NotificationTemplate<NotificationChannel.EMAIL>, Error>;
-  static create(
-    props: NotificationTemplateProps<NotificationChannel.SMS>,
-  ): Result<NotificationTemplate<NotificationChannel.SMS>, Error>;
-  static create<T extends NotificationChannel>(
-    props: NotificationTemplateProps<T>,
-  ): Result<NotificationTemplate<T>, Error> {
+    props: NotificationTemplateProps,
+  ): Result<NotificationTemplate, Error> {
     if (!this.isValidProps(props)) {
       return Result.err(
         new Error(
@@ -190,13 +183,17 @@ export class NotificationTemplate<
         return Err(isValidResult.getErr()!);
       }
 
-      const emailChannel = this.getChannelData(NotificationChannel.EMAIL);
+      const emailChannel = this.props.channels.find(
+        (c) => c.type === NotificationChannel.EMAIL,
+      ) as EmailNotificationTemplateChannel;
 
-      if (emailChannel.isErr()) {
-        return Err(emailChannel.getErr()!);
+      if (!emailChannel) {
+        return Err(new Error('Email channel not found'));
       }
 
-      content = emailChannel.unwrap().metadata.body;
+      content = this.props.channels.find(
+        (c) => c.type === NotificationChannel.EMAIL,
+      )?.metadata.body;
     }
 
     if (channel === NotificationChannel.SMS) {
@@ -206,10 +203,12 @@ export class NotificationTemplate<
         return Err(isValidResult.getErr()!);
       }
 
-      const smsChannel = this.getChannelData(NotificationChannel.SMS);
+      const smsChannel = this.props.channels.find(
+        (c) => c.type === NotificationChannel.SMS,
+      ) as SmsNotificationTemplateChannel;
 
-      if (smsChannel.isErr()) {
-        return Err(smsChannel.getErr()!);
+      if (!smsChannel) {
+        return Err(new Error('SMS channel not found'));
       }
     }
 

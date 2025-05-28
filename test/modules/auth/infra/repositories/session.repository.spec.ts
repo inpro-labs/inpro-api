@@ -5,7 +5,7 @@ import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Combine, ID } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserFactory } from '@test/factories/fake-user.factory';
-import { SessionRepositoryProvider } from '@modules/auth/infra/providers/session-repository.provider';
+import { SessionRepositoryProvider } from '@modules/auth/infra/nest/providers/session-repository.provider';
 import { UserRepositoryProvider } from '@modules/account/infra/providers/user-repository.provider';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';

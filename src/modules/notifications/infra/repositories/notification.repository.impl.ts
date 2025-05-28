@@ -5,6 +5,8 @@ import { Notification } from '@modules/notifications/domain/aggregates/notificat
 import { Err, ID, Ok, Result } from '@inpro-labs/core';
 import { TemplateManagerService } from '../services/template-manager.service';
 import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
+import { NotificationMapper } from '../mappers/notification.mapper';
+import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 
 @Injectable()
 export class NotificationRepositoryImpl implements INotificationRepository {
@@ -13,18 +15,23 @@ export class NotificationRepositoryImpl implements INotificationRepository {
     private readonly templateManagerService: TemplateManagerService,
   ) {}
 
-  async save(notification: Notification): Promise<Result<Notification>> {
-    const { id, template, templateData, ...notificationModel } =
-      notification.toObject();
+  async save(
+    notification: Notification<NotificationChannel>,
+  ): Promise<Result<Notification>> {
+    const notificationModel =
+      NotificationMapper.fromDomainToModel(notification);
 
-    await this.mongoose.models.Notification.create({
-      ...notificationModel,
-      template,
-      templateData,
-      channelData: {
-        to: 'teste',
-      },
-    });
+    const notificationResult = await Result.fromPromise(
+      this.mongoose.models.Notification.findOneAndUpdate(
+        { _id: notificationModel._id },
+        notificationModel,
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+      ),
+    );
+
+    if (notificationResult.isErr() || !notificationResult.unwrap()) {
+      return Err(new Error('Notification not found'));
+    }
 
     return Ok(notification);
   }

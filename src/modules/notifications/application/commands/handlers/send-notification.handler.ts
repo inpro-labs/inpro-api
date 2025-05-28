@@ -74,8 +74,6 @@ export class SendNotificationHandler
         template: template.id.value() as NotificationTemplate,
         status: NotificationStatus.PENDING,
         attempts: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         templateData,
       });
     }
@@ -96,11 +94,11 @@ export class SendNotificationHandler
       });
     }
 
-    if (!notificationResult || notificationResult.isErr()) {
-      throw new Error(notificationResult!.getErr()!.message);
+    if (notificationResult?.isErr()) {
+      throw new Error(notificationResult.getErr()!.message);
     }
 
-    const notification = notificationResult.unwrap();
+    const notification = notificationResult!.unwrap();
 
     await this.notificationRepository.save(notification);
 

@@ -9,13 +9,12 @@ import {
 import { TemplateManagerService } from './infra/services/template-manager.service';
 import { SendNotificationController } from './presentation/controllers/send-notification.controller';
 import { QueueNotificationEventHandler } from './application/events/queue-notification.event';
-import { INotificationRepository } from './domain/interfaces/repositories/notification.repository';
-import { NotificationRepositoryImpl } from './infra/repositories/notification.repository.impl';
 import { BullModule } from '@nestjs/bullmq';
-import { NotificationQueueService } from './infra/services/notification-queue.service';
-import { INotificationQueue } from './application/ports/out/notification-queue.port';
 import { NotificationProcessor } from './infra/queue/processors/notification.processor';
 import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
+import { notificationQueueServiceProvider } from './infra/nest/providers/notification-queue.service.provider';
+import { notificationSenderServiceProvider } from './infra/nest/providers/notification-sender.service.provider';
+import { notificationRepositoryProvider } from './infra/nest/providers/notification.repository.provider';
 
 @Module({
   imports: [
@@ -42,16 +41,13 @@ import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
     SendNotificationHandler,
     TemplateManagerService,
     QueueNotificationEventHandler,
-    {
-      provide: INotificationRepository,
-      useClass: NotificationRepositoryImpl,
-    },
-    {
-      provide: INotificationQueue,
-      useClass: NotificationQueueService,
-    },
     NotificationProcessor,
     MailSenderGateway,
+
+    // Providers
+    notificationRepositoryProvider,
+    notificationQueueServiceProvider,
+    notificationSenderServiceProvider,
   ],
   exports: [],
 })

@@ -1,7 +1,6 @@
 import { INotificationSenderService } from '@modules/notifications/application/ports/out/notification-sender.port';
 import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
 import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
-import { EmailChannelData } from '@modules/notifications/domain/value-objects/email-channel-data.value-object';
 import { Injectable } from '@nestjs/common';
 import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
 import { TemplateManagerService } from './template-manager.service';
@@ -42,11 +41,20 @@ export class NotificationSenderService implements INotificationSenderService {
 
       const emailData = emailDataResult.unwrap();
 
-      await this.mailSenderGateway.sendEmail({
+      const result = await this.mailSenderGateway.sendEmail({
         to: [{ email: channelData.get('to') }],
         subject: emailData.metadata.subject,
-        text: emailData.metadata.body,
+        text: template
+          .renderContent(
+            NotificationChannel.EMAIL,
+            notification.get('templateData')!,
+          )
+          .unwrap(),
       });
+
+      if (result.isErr()) {
+        return Err(result.getErr()!);
+      }
 
       return Ok(undefined);
     }
@@ -55,6 +63,6 @@ export class NotificationSenderService implements INotificationSenderService {
       return Ok(undefined);
     }
 
-    throw new Error('Invalid notification channel');
+    return Err(new Error('Invalid notification channel'));
   }
 }

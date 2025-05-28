@@ -1,6 +1,8 @@
 import { EnvService } from '@config/env/env.service';
-import { Injectable } from '@nestjs/common';
+import { Err, Ok, Result } from '@inpro-labs/core';
+import { Inject, Injectable } from '@nestjs/common';
 import { EmailParams, MailerSend, Recipient, Sender } from 'mailersend';
+import { APIResponse } from 'mailersend/lib/services/request.service';
 
 interface RecipientProps {
   email: string;
@@ -28,12 +30,19 @@ export class MailSenderGateway {
   private readonly mailer: MailerSend;
   private readonly from: Sender;
 
-  constructor(private readonly configService: EnvService) {
+  constructor(@Inject(EnvService) private readonly configService: EnvService) {
     this.mailer = new MailerSend({
       apiKey: this.configService.get('MAILERSEND_API_KEY'),
     });
 
-    this.from = new Sender('noreply@inpro.com', 'Inpro <noreply@inpro.com>');
+    this.from = new Sender(
+      'dev@test-yxj6lj9zz5q4do2r.mlsender.net',
+      'Inpro Test',
+    );
+  }
+
+  private parseError(error: APIResponse): Error {
+    return new Error((error.body as { message: string }).message);
   }
 
   async sendEmail({ to, subject, text, options }: SendEmailParams) {
@@ -54,6 +63,16 @@ export class MailSenderGateway {
       .setSubject(subject)
       .setHtml(text);
 
-    await this.mailer.email.send(emailParams);
+    const result = await Result.fromPromise(
+      this.mailer.email.send(emailParams),
+    );
+
+    if (result.isErr()) {
+      return Err(this.parseError(result.getErr()! as unknown as APIResponse));
+    }
+
+    console.log(result.unwrap().body);
+
+    return Ok(undefined);
   }
 }

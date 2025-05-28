@@ -11,12 +11,12 @@ export class SendNotificationController {
 
   @Public()
   @Post()
-  async sendNotification() {
+  async handler(): Promise<unknown> {
     const result = await this.commandBus.execute(
       new SendNotificationCommand({
         channel: NotificationChannel.EMAIL,
         channelData: {
-          to: 'test@test.com',
+          to: 'sputnikstartup@gmail.com',
         },
         templateData: {
           userName: 'John Doe',

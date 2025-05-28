@@ -30,21 +30,20 @@ interface SmsNotificationProps extends BaseNotificationProps {
   channelData: SmsChannelData;
 }
 
-export type NotificationProps = EmailNotificationProps | SmsNotificationProps;
-
-type ChannelToType<T extends NotificationChannel> =
-  T extends NotificationChannel.EMAIL
-    ? EmailNotificationProps
-    : T extends NotificationChannel.SMS
-      ? SmsNotificationProps
-      : never;
+export type NotificationProps<
+  T extends NotificationChannel = NotificationChannel,
+> = T extends NotificationChannel.EMAIL
+  ? EmailNotificationProps
+  : T extends NotificationChannel.SMS
+    ? SmsNotificationProps
+    : never;
 
 type AutoProps = 'createdAt' | 'updatedAt' | 'attempts' | 'lastError';
 
 export type CreateNotificationProps<
   T extends NotificationChannel = NotificationChannel,
-> = Omit<ChannelToType<T>, AutoProps> &
-  Partial<Pick<ChannelToType<NotificationChannel>, AutoProps>>;
+> = Omit<NotificationProps<T>, AutoProps> &
+  Partial<Pick<NotificationProps<NotificationChannel>, AutoProps>>;
 
 const baseSchema = z.object({
   userId: z.custom<ID>((value) => value instanceof ID),
@@ -60,7 +59,7 @@ const baseSchema = z.object({
 
 export class Notification<
   T extends NotificationChannel = NotificationChannel,
-> extends Aggregate<ChannelToType<T>> {
+> extends Aggregate<NotificationProps<T>> {
   static readonly schema = z.discriminatedUnion('channel', [
     baseSchema.extend({
       channel: z.literal(NotificationChannel.EMAIL),
@@ -77,23 +76,26 @@ export class Notification<
   ]);
   static readonly types = NotificationChannel;
 
-  private constructor(props: ChannelToType<T>) {
+  private constructor(props: NotificationProps<T>) {
     super(props);
   }
 
-  static isValidProps(props: CreateNotificationProps) {
+  static isValidProps(props: CreateNotificationProps): boolean {
     return Notification.schema.safeParse(props).success;
   }
+
   static create(
     props: CreateNotificationProps<NotificationChannel.EMAIL>,
   ): Result<Notification<NotificationChannel.EMAIL>, Error>;
   static create(
     props: CreateNotificationProps<NotificationChannel.SMS>,
   ): Result<Notification<NotificationChannel.SMS>, Error>;
-  static create<T extends NotificationChannel>(
+  static create<T extends NotificationChannel = NotificationChannel>(
     props: CreateNotificationProps<T>,
   ): Result<Notification<T>, Error> {
-    if (!this.isValidProps(props)) {
+    const isValid = this.isValidProps(props);
+
+    if (!isValid) {
       return Err(new Error('Invalid notification props'));
     }
 
@@ -109,7 +111,7 @@ export class Notification<
     };
 
     const notification = new Notification(
-      notificationProps as ChannelToType<T>,
+      notificationProps as NotificationProps<T>,
     );
 
     if (notification.isNew()) {
@@ -120,9 +122,31 @@ export class Notification<
   }
 
   public getChannelData<T extends NotificationChannel>(): Result<
-    ChannelToType<T>['channelData'],
+    NotificationProps<T>['channelData'],
     Error
   > {
-    return Ok(this.props.channelData as ChannelToType<T>['channelData']);
+    return Ok(this.props.channelData as NotificationProps<T>['channelData']);
+  }
+
+  public updateStatus(status: NotificationStatus): void {
+    this.props.status = status;
+    this.props.updatedAt = new Date();
+  }
+
+  public markAsQueued(): void {
+    this.props.status = NotificationStatus.QUEUED;
+    this.props.updatedAt = new Date();
+  }
+
+  public markAsFailed(lastError: string): void {
+    this.props.status = NotificationStatus.FAILED;
+    this.props.updatedAt = new Date();
+    this.props.lastError = lastError;
+  }
+
+  public markAsSent(): void {
+    this.props.status = NotificationStatus.SENT;
+    this.props.updatedAt = new Date();
+    this.props.sentAt = new Date();
   }
 }

@@ -1,9 +1,5 @@
 import { model, Schema } from 'mongoose';
-import {
-  EmailNotificationModel,
-  NotificationModel,
-  SmsNotificationModel,
-} from '../models/notification.model';
+import { NotificationModel } from '../models/notification.model';
 import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 import { NotificationStatus } from '@modules/notifications/domain/enums/notification-status.enum';
 
@@ -74,7 +70,7 @@ export const notificationModel = model<NotificationModel>(
   notificationSchema,
 );
 
-export const emailNotificationSchema = new Schema<EmailNotificationModel>({
+export const emailNotificationSchema = new Schema({
   channelData: {
     type: new Schema(
       {
@@ -89,7 +85,7 @@ export const emailNotificationSchema = new Schema<EmailNotificationModel>({
   },
 });
 
-export const smsNotificationSchema = new Schema<SmsNotificationModel>({
+export const smsNotificationSchema = new Schema({
   channelData: {
     type: new Schema(
       {
