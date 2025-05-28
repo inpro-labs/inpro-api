@@ -11,12 +11,11 @@ import { SendNotificationController } from './presentation/controllers/send-noti
 import { QueueNotificationEventHandler } from './application/events/queue-notification.event';
 import { INotificationRepository } from './domain/interfaces/repositories/notification.repository';
 import { NotificationRepositoryImpl } from './infra/repositories/notification.repository.impl';
-import { ConfigModule } from '@nestjs/config';
-import { ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { NotificationQueueService } from './infra/services/notification-queue.service';
 import { INotificationQueue } from './application/ports/out/notification-queue.port';
 import { NotificationProcessor } from './infra/queue/processors/notification.processor';
+import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
 
 @Module({
   imports: [
@@ -52,6 +51,7 @@ import { NotificationProcessor } from './infra/queue/processors/notification.pro
       useClass: NotificationQueueService,
     },
     NotificationProcessor,
+    MailSenderGateway,
   ],
   exports: [],
 })

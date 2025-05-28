@@ -44,6 +44,7 @@
     "bullmq": "^5.53.0",
     "cookie-parser": "^1.4.7",
     "jest-mock-extended": "^4.0.0-beta1",
+    "mailersend": "^2.6.0",
     "mongoose": "^8.15.0",
     "mqtt": "^5.11.0",
     "openapi3-ts": "^4.4.0",

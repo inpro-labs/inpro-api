@@ -12,6 +12,7 @@ export const envSchema = z.object({
   MONGO_DATABASE: z.string(),
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.string().default('6379').transform(Number),
+  MAILERSEND_API_KEY: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;
