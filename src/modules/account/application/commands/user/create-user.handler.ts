@@ -5,7 +5,7 @@ import { IHashService } from '@shared/security/hash/interfaces/hash.service.inte
 import { ApplicationException } from '@inpro-labs/microservices';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
-import { CreateUserOutputDTO } from '@modules/account/application/dtos/user/create-user-output.dto';
+import { CreateUserOutputDTO } from '@modules/account/application/ports/in/user/create-user.port';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 
 @Injectable()

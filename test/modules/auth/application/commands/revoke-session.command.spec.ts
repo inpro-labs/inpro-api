@@ -6,7 +6,7 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Err, ID, Ok } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { RevokeSessionHandler } from '@modules/auth/application/commands/session/revoke-session.handler';
-import { RevokeSessionInputDTO } from '@modules/auth/application/dtos/session/revoke-session-input.dto';
+import { RevokeSessionInputDTO } from '@modules/auth/application/ports/in/session/revoke-session.port';
 import { RevokeSessionCommand } from '@modules/auth/application/commands/session/revoke-session.command';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';

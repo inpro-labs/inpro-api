@@ -3,7 +3,7 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { CommandBus, CqrsModule } from '@nestjs/cqrs';
 import { SignInHandler } from '@modules/auth/application/commands/auth/sign-in.handler';
 import { SignInCommand } from '@modules/auth/application/commands/auth/sign-in.command';
-import { SignInInputDTO } from '@modules/auth/application/dtos/auth/sign-in-input.dto';
+import { SignInInputDTO } from '@modules/auth/application/ports/in/auth/sign-in.port';
 import { Err, ID, Ok } from '@inpro-labs/core';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { UserFactory } from '@test/factories/fake-user.factory';

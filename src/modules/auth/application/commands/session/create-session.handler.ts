@@ -1,12 +1,13 @@
-import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionCommand } from './create-session.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { ApplicationException } from '@inpro-labs/microservices';
 import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { ID } from '@inpro-labs/core';
-import { CreateSessionOutputDTO } from '@modules/auth/application/dtos/session/create-session-output.dto';
+import { CreateSessionOutputDTO } from '@modules/auth/application/ports/in/session/create-session.port';
 import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
+import { BusinessException } from '@shared/exceptions/application.exception';
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionHandler
@@ -14,7 +15,6 @@ export class CreateSessionHandler
 {
   constructor(
     private readonly sessionRepository: ISessionRepository,
-    private readonly publish: EventPublisher,
     private readonly encryptService: IEncryptService,
   ) {}
 
@@ -57,10 +57,10 @@ export class CreateSessionHandler
     });
 
     if (result.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         result.getErr()!.message,
-        500,
         'INTERNAL_SERVER_ERROR',
+        500,
       );
     }
 
@@ -69,10 +69,10 @@ export class CreateSessionHandler
     const sessionSaved = await this.sessionRepository.save(session);
 
     if (sessionSaved.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         sessionSaved.getErr()!.message,
-        400,
         'SESSION_SAVING_ERROR',
+        400,
       );
     }
 

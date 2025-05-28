@@ -1,7 +1,8 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RevokeSessionCommand } from './revoke-session.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
-import { RevokeSessionOutputDTO } from '@modules/auth/application/dtos/session/revoke-session-output.dto';
+import { RevokeSessionOutputDTO } from '@modules/auth/application/ports/in/session/revoke-session.port';
+import { BusinessException } from '@shared/exceptions/application.exception';
 
 @CommandHandler(RevokeSessionCommand)
 export class RevokeSessionHandler
@@ -24,6 +25,14 @@ export class RevokeSessionHandler
     }
 
     const session = result.unwrap();
+
+    if (session.get('userId').value() !== dto.userId) {
+      throw new BusinessException(
+        'You are not allowed to revoke this session',
+        'SESSION_REVOCATION_NOT_ALLOWED',
+        403,
+      );
+    }
 
     const revokeResult = session.revoke();
 

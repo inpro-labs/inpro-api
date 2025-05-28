@@ -1,28 +1,48 @@
 import { CommandBus } from '@nestjs/cqrs';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Controller } from '@nestjs/common';
-import {
-  MicroserviceRequest,
-  MessageResponse,
-  ZodValidationPipe,
-} from '@inpro-labs/microservices';
+import { Controller, Post, Res } from '@nestjs/common';
 import { RefreshTokenCommand } from '@modules/auth/application/commands/auth/refresh-token.command';
-import { RefreshTokenInputDTO } from '@modules/auth/application/dtos/auth/refresh-token-input.dto';
-import { refreshTokenSchema } from '../../schemas/auth/refresh-token.schema';
+import {
+  ApiConsumes,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Cookie } from '@shared/nest/decorators/cookie.decorator';
+import { RequiredValuePipe } from '@shared/nest/pipes/required-value.pipe';
+import { Response } from 'express';
+import { EnvService } from '@config/env/env.service';
+import { REFRESH_TOKEN_EXPIRATION } from '@shared/constants/refresh-token-expiration';
+import { Public } from '@shared/security/jwt/decorators/public.decorator';
 
-@Controller()
+@ApiTags('Auth')
+@Controller('auth')
 export class RefreshTokenController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly envService: EnvService,
+  ) {}
 
-  @MessagePattern('refresh_token')
-  async refreshToken(
-    @Payload(new ZodValidationPipe(refreshTokenSchema))
-    payload: MicroserviceRequest<RefreshTokenInputDTO>,
+  @Public()
+  @Post('refresh-token')
+  @ApiOperation({ summary: 'Generate new access and refresh tokens' })
+  @ApiConsumes('application/json')
+  @ApiCookieAuth('refreshToken')
+  async handler(
+    @Cookie('refreshToken', RequiredValuePipe) refreshToken: string,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const tokens = await this.commandBus.execute(
-      new RefreshTokenCommand(payload.data.refreshToken),
+    const data = await this.commandBus.execute(
+      new RefreshTokenCommand(refreshToken),
     );
 
-    return MessageResponse.ok(tokens);
+    res.cookie('refreshToken', data.refreshToken, {
+      httpOnly: true,
+      secure: this.envService.isProduction(),
+      maxAge: REFRESH_TOKEN_EXPIRATION,
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    return data;
   }
 }

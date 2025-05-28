@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListUserSessionsQuery } from './list-user-sessions.query';
 import { ApplicationException } from '@inpro-labs/microservices';
-import { ListUserSessionsOutputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-output.dto';
+import { ListUserSessionsOutputDTO } from '@modules/auth/application/ports/in/session/list-user-sessions.port';
 import { IListUserSessions } from '../../interfaces/queries/list-user-sessions.query.interface';
 
 @QueryHandler(ListUserSessionsQuery)

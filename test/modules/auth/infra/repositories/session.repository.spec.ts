@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { Combine, ID } from '@inpro-labs/core';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { UserFactory } from '@test/factories/fake-user.factory';
-import { SessionRepositoryProvider } from '@modules/auth/infra/providers/session-repository.provider';
+import { SessionRepositoryProvider } from '@modules/auth/infra/nest/providers/session-repository.provider';
 import { UserRepositoryProvider } from '@modules/account/infra/providers/user-repository.provider';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';
+import { sessionSchema } from '@modules/auth/infra/db/schemas/session.schema';
+import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 
 describe('SessionRepository (integration)', () => {
   if (!process.env.DATABASE_URL?.includes('inpro_test')) {
@@ -17,7 +19,7 @@ describe('SessionRepository (integration)', () => {
   }
 
   let repository: ISessionRepository;
-  let prisma: PrismaGateway;
+  let mongoose: MongooseGateway;
   let userRepository: IUserRepository;
   let user: User;
   let session: Session;
@@ -44,6 +46,12 @@ describe('SessionRepository (integration)', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        MongooseGateway.withSchemas({
+          name: 'Session',
+          schema: sessionSchema,
+        }),
+      ],
       providers: [
         PrismaGateway,
         SessionRepositoryProvider,
@@ -51,7 +59,7 @@ describe('SessionRepository (integration)', () => {
       ],
     }).compile();
 
-    prisma = module.get(PrismaGateway);
+    mongoose = module.get(MongooseGateway);
     repository = module.get(ISessionRepository);
     userRepository = module.get(IUserRepository);
 
@@ -63,12 +71,12 @@ describe('SessionRepository (integration)', () => {
   });
 
   beforeEach(async () => {
-    await prisma.session.deleteMany();
+    await mongoose.models.Session.deleteMany();
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany();
-    await prisma.$disconnect();
+    await mongoose.models.User.deleteMany();
+    await mongoose.getConnection().close();
   });
 
   beforeEach(async () => {

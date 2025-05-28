@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { SessionModel } from '../../models/session.model';
+import { SessionModel } from '../models/session.model';
 
 export interface SessionDocument extends Document, Omit<SessionModel, '_id'> {}
 

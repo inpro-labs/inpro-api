@@ -1,6 +1,8 @@
 import { Command } from '@nestjs/cqrs';
-import { ValidateSessionInputDTO } from '@modules/auth/application/dtos/auth/validate-session-input';
-import { ValidateSessionOutputDTO } from '@modules/auth/application/dtos/auth/validate-session-ouput';
+import {
+  ValidateSessionInputDTO,
+  ValidateSessionOutputDTO,
+} from '@modules/auth/application/ports/in/auth/validate-session.port';
 
 export class ValidateSessionCommand extends Command<ValidateSessionOutputDTO> {
   constructor(public readonly dto: ValidateSessionInputDTO) {

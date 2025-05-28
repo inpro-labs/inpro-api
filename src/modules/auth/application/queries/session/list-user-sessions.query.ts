@@ -1,7 +1,7 @@
-import { SessionModel } from '@modules/auth/infra/models/session.model';
+import { SessionModel } from '@modules/auth/infra/db/models/session.model';
 import { Query } from '@nestjs/cqrs';
 import { Paginated } from '@inpro-labs/microservices';
-import { ListUserSessionsInputDTO } from '@modules/auth/application/dtos/session/list-user-sessions-input.dto';
+import { ListUserSessionsInputDTO } from '@modules/auth/application/ports/in/session/list-user-sessions.port';
 
 export class ListUserSessionsQuery extends Query<Paginated<SessionModel>> {
   constructor(public readonly dto: ListUserSessionsInputDTO) {
