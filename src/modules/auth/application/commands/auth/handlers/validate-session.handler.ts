@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ValidateSessionCommand } from './validate-session.command';
+import { ValidateSessionCommand } from '../validate-session.command';
 import { BusinessException } from '@shared/exceptions/business.exception';
-import { RetrieveSessionByTokenService } from '../../services/session/retrieve-session-by-token.service';
-import { ValidateSessionOutputDTO } from '../../ports/in/auth/validate-session.port';
+import { RetrieveSessionByTokenService } from '@modules/auth/application/services/session/retrieve-session-by-token.service';
+import { ValidateSessionOutputDTO } from '@modules/auth/application/ports/in/auth/validate-session.port';
 
 @CommandHandler(ValidateSessionCommand)
 export class ValidateSessionHandler

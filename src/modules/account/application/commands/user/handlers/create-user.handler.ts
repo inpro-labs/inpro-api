@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateUserCommand } from './create-user.command';
+import { CreateUserCommand } from '../create-user.command';
 import { IHashService } from '@shared/security/hash/interfaces/hash.service.interface';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';

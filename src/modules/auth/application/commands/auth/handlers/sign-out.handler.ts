@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BusinessException } from '@shared/exceptions/business.exception';
-import { SignOutCommand } from './sign-out.command';
+import { SignOutCommand } from '../sign-out.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
 

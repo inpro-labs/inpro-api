@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BusinessException } from '@shared/exceptions/business.exception';
-import { RefreshTokenCommand } from './refresh-token.command';
+import { RefreshTokenCommand } from '../refresh-token.command';
 import { RefreshTokenOutputDTO } from '@modules/auth/application/ports/in/auth/refresh-token.port';
-import { GetRefreshTokenSessionService } from '../../services/auth/get-refresh-token-session.service';
-import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
-import { UpdateSessionRefreshTokenService } from '../../services/auth/update-session-refresh-token.service';
+import { GetRefreshTokenSessionService } from '@modules/auth/application/services/auth/get-refresh-token-session.service';
+import { GenerateTokensService } from '@modules/auth/application/services/auth/generate-tokens.service';
+import { UpdateSessionRefreshTokenService } from '@modules/auth/application/services/auth/update-session-refresh-token.service';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler

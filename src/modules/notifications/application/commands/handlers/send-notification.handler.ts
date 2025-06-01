@@ -6,7 +6,7 @@ import { Notification } from '@modules/notifications/domain/aggregates/notificat
 import { ID, Result } from '@inpro-labs/core';
 import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 import { NotificationStatus } from '@modules/notifications/domain/enums/notification-status.enum';
-import { BusinessException } from '@shared/exceptions/application.exception';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { EmailChannelData } from '@modules/notifications/domain/value-objects/email-channel-data.value-object';
 import { SmsChannelData } from '@modules/notifications/domain/value-objects/sms-channel-data.value-object';
 import { TemplateManagerService } from '@modules/notifications/infra/services/template-manager.service';
@@ -93,7 +93,11 @@ export class SendNotificationHandler
     }
 
     if (notificationResult?.isErr()) {
-      throw new Error(notificationResult.getErr()!.message);
+      throw new BusinessException(
+        notificationResult.getErr()!.message,
+        'NOTIFICATION_CREATION_ERROR',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const notification = notificationResult!.unwrap();

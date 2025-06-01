@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateSessionCommand } from './create-session.command';
+import { CreateSessionCommand } from '../create-session.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { BusinessException } from '@shared/exceptions/business.exception';
