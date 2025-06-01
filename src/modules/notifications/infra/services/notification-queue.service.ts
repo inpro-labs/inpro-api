@@ -1,11 +1,20 @@
 import { Err, Ok } from '@inpro-labs/core';
+import { IdentifiablePlainify } from '@inpro-labs/core/dist/utils/types';
 import { INotificationQueueService } from '@modules/notifications/application/ports/out/notification-queue.port';
 import { INotificationSenderService } from '@modules/notifications/application/ports/out/notification-sender.port';
-import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
+import {
+  Notification,
+  NotificationProps,
+} from '@modules/notifications/domain/aggregates/notification.aggregate';
 import { INotificationRepository } from '@modules/notifications/domain/interfaces/repositories/notification.repository';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
+
+export type NotificationQueueData = {
+  notification: IdentifiablePlainify<NotificationProps>;
+  templateVariables: Record<string, unknown>;
+};
 
 @Injectable()
 export class NotificationQueueService implements INotificationQueueService {
@@ -15,21 +24,37 @@ export class NotificationQueueService implements INotificationQueueService {
     private readonly notificationSender: INotificationSenderService,
   ) {}
 
-  async queueNotification(notification: Notification) {
+  async queueNotification(
+    notification: Notification,
+    templateVariables: Record<string, unknown>,
+  ) {
     notification.markAsQueued();
 
     await this.notificationRepository.save(notification);
 
-    await this.queue.add('notification', notification.toObject(), {
-      attempts: 3,
-      jobId: notification.id.value(),
-    });
+    await this.queue.add(
+      'notification',
+      {
+        notification: notification.toObject(),
+        templateVariables,
+      },
+      {
+        attempts: 3,
+        jobId: notification.id.value(),
+      },
+    );
 
     return Ok(undefined);
   }
 
-  async processNotification(notification: Notification) {
-    const sendResult = await this.notificationSender.send(notification);
+  async processNotification(
+    notification: Notification,
+    templateVariables: Record<string, unknown>,
+  ) {
+    const sendResult = await this.notificationSender.send(
+      notification,
+      templateVariables,
+    );
 
     if (sendResult.isErr()) {
       notification.markAsFailed(sendResult.getErr()!.message);

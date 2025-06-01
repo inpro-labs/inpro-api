@@ -9,6 +9,7 @@ interface EmailNotificationTemplateChannel {
     body: string;
   };
   requiredFields: string[];
+  sensitiveFields: string[];
 }
 
 interface SmsNotificationTemplateChannel {
@@ -17,6 +18,7 @@ interface SmsNotificationTemplateChannel {
     message: string;
   };
   requiredFields: string[];
+  sensitiveFields: string[];
 }
 
 export type NotificationTemplateChannel =

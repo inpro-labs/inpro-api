@@ -4,7 +4,8 @@ import { NotificationChannel } from '@modules/notifications/domain/enums/notific
 import { Injectable } from '@nestjs/common';
 import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
 import { TemplateManagerService } from './template-manager.service';
-import { Err, ID, Ok, Result } from '@inpro-labs/core';
+import { Err, Ok, Result } from '@inpro-labs/core';
+import * as Mustache from 'mustache';
 
 @Injectable()
 export class NotificationSenderService implements INotificationSenderService {
@@ -13,18 +14,12 @@ export class NotificationSenderService implements INotificationSenderService {
     private readonly templateManagerService: TemplateManagerService,
   ) {}
 
-  async send(notification: Notification): Promise<Result> {
-    const { channel, template: templateName } = notification.toObject();
-
-    const templateResult = this.templateManagerService.getTemplate(
-      ID.create(templateName).unwrap(),
-    );
-
-    if (templateResult.isErr()) {
-      return Err(templateResult.getErr()!);
-    }
-
-    const template = templateResult.unwrap();
+  async send(
+    notification: Notification,
+    templateVariables: Record<string, unknown>,
+  ): Promise<Result> {
+    const { channel } = notification.toObject();
+    const template = notification.get('template');
 
     if (channel === NotificationChannel.EMAIL) {
       const channelData = notification
@@ -43,13 +38,8 @@ export class NotificationSenderService implements INotificationSenderService {
 
       const result = await this.mailSenderGateway.sendEmail({
         to: [{ email: channelData.get('to') }],
-        subject: emailData.metadata.subject,
-        text: template
-          .renderContent(
-            NotificationChannel.EMAIL,
-            notification.get('templateData')!,
-          )
-          .unwrap(),
+        subject: Mustache.render(emailData.metadata.subject, templateVariables),
+        text: Mustache.render(emailData.metadata.body, templateVariables),
       });
 
       if (result.isErr()) {

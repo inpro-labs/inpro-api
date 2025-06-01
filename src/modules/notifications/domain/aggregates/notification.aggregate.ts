@@ -4,8 +4,7 @@ import { NotificationChannel } from '../enums/notification-channel.enum';
 import { NotificationStatus } from '../enums/notification-status.enum';
 import { EmailChannelData } from '../value-objects/email-channel-data.value-object';
 import { SmsChannelData } from '../value-objects/sms-channel-data.value-object';
-import { NotificationTemplate } from '../enums/notification-template.enum';
-import { QueueNotificationEvent } from '../events/queue-notification.event';
+import { NotificationTemplate } from '../entities/notification-template.entity';
 
 type BaseNotificationProps = {
   id?: ID;
@@ -17,6 +16,7 @@ type BaseNotificationProps = {
   sentAt?: Date;
   lastError?: string;
   template: NotificationTemplate;
+  templateVariables: Record<string, unknown>;
 };
 
 interface EmailNotificationProps extends BaseNotificationProps {
@@ -52,7 +52,10 @@ const baseSchema = z.object({
   updatedAt: z.date().default(new Date()),
   sentAt: z.date().optional(),
   lastError: z.string().optional(),
-  template: z.nativeEnum(NotificationTemplate),
+  template: z.custom<NotificationTemplate>(
+    (value) => value instanceof NotificationTemplate,
+  ),
+  templateVariables: z.record(z.any()).optional(),
 });
 
 export class Notification<
@@ -98,6 +101,21 @@ export class Notification<
     }
 
     const now = new Date();
+    const template = props.template;
+    const sensitiveFields = template
+      .getChannelData(props.channel)
+      .unwrap().sensitiveFields;
+
+    const templateVariables = {
+      ...props.templateVariables,
+      ...sensitiveFields.reduce(
+        (acc, field) => {
+          acc[field] = '**redacted**';
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    };
 
     const notificationProps: CreateNotificationProps = {
       ...props,
@@ -105,15 +123,12 @@ export class Notification<
       updatedAt: props.updatedAt ?? now,
       status: props.status ?? NotificationStatus.PENDING,
       attempts: props.attempts ?? 0,
+      templateVariables,
     };
 
     const notification = new Notification(
       notificationProps as NotificationProps<T>,
     );
-
-    if (notification.isNew()) {
-      notification.apply(new QueueNotificationEvent(notification));
-    }
 
     return Ok(notification);
   }

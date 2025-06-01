@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { SendNotificationCommand } from '../send-notification.command';
 import { SendNotificationOutputDTO } from '../../ports/in/send-notification.port';
 import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
@@ -10,8 +10,8 @@ import { BusinessException } from '@shared/exceptions/business.exception';
 import { EmailChannelData } from '@modules/notifications/domain/value-objects/email-channel-data.value-object';
 import { SmsChannelData } from '@modules/notifications/domain/value-objects/sms-channel-data.value-object';
 import { TemplateManagerService } from '@modules/notifications/infra/services/template-manager.service';
-import { NotificationTemplate } from '@modules/notifications/domain/enums/notification-template.enum';
 import { INotificationRepository } from '@modules/notifications/domain/interfaces/repositories/notification.repository';
+import { QueueNotificationEvent } from '@modules/notifications/domain/events/queue-notification.event';
 
 @Injectable()
 @CommandHandler(SendNotificationCommand)
@@ -21,7 +21,7 @@ export class SendNotificationHandler
   constructor(
     private readonly templateManagerService: TemplateManagerService,
     private readonly notificationRepository: INotificationRepository,
-    private readonly publish: EventPublisher,
+    private readonly eventBus: EventBus,
   ) {}
 
   async execute(
@@ -71,9 +71,10 @@ export class SendNotificationHandler
         channel: NotificationChannel.EMAIL,
         channelData: emailChannelData,
         userId: ID.create(userId).unwrap(),
-        template: template.id.value() as NotificationTemplate,
+        template: template,
         status: NotificationStatus.PENDING,
         attempts: 0,
+        templateVariables: templateData,
       });
     }
 
@@ -86,9 +87,10 @@ export class SendNotificationHandler
         channel: NotificationChannel.SMS,
         channelData: smsChannelData,
         userId: ID.create(userId).unwrap(),
-        template: template.id.value() as NotificationTemplate,
+        template: template,
         status: NotificationStatus.PENDING,
         attempts: 0,
+        templateVariables: templateData,
       });
     }
 
@@ -104,9 +106,9 @@ export class SendNotificationHandler
 
     await this.notificationRepository.save(notification);
 
-    this.publish.mergeObjectContext(notification);
-
-    notification.commit();
+    this.eventBus.publish(
+      new QueueNotificationEvent(notification, templateData),
+    );
 
     return notification;
   }

@@ -1,6 +1,6 @@
 import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 import { NotificationStatus } from '@modules/notifications/domain/enums/notification-status.enum';
-import { NotificationTemplate } from '@modules/notifications/domain/enums/notification-template.enum';
+import { NotificationTemplateModel } from './notification-template.model';
 
 export type NotificationModel = {
   _id: string;
@@ -13,6 +13,6 @@ export type NotificationModel = {
   updatedAt: Date;
   sentAt: Date | null;
   lastError: string | null;
-  template: NotificationTemplate;
-  templateData: Record<string, any>;
+  template: NotificationTemplateModel;
+  templateVariables: Record<string, unknown>;
 };

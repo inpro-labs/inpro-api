@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
-import { NotificationProps } from '@modules/notifications/domain/aggregates/notification.aggregate';
 import { Job } from 'bullmq';
-import { IdentifiablePlainify } from '@inpro-labs/core/dist/utils/types';
 import { NotificationFactory } from '../../factories/notification.factory';
 import { INotificationQueueService } from '@modules/notifications/application/ports/out/notification-queue.port';
+import { NotificationQueueData } from '../../services/notification-queue.service';
 
 @Injectable()
 @Processor('notification', {
@@ -17,36 +16,38 @@ export class NotificationProcessor extends WorkerHost {
     super();
   }
 
-  public makeNotificationFromJob(
-    job: Job<IdentifiablePlainify<NotificationProps>, any, string>,
-  ) {
-    const notificationProps = job.data;
+  public makeNotificationFromJob(job: Job<NotificationQueueData, any, string>) {
+    const { notification } = job.data;
 
     return NotificationFactory.make({
-      _id: notificationProps.id,
-      userId: notificationProps.userId,
-      channel: notificationProps.channel,
-      channelData: notificationProps.channelData,
-      status: notificationProps.status,
-      template: notificationProps.template,
-      templateData: notificationProps.templateData ?? {},
+      _id: notification.id,
+      userId: notification.userId,
+      channel: notification.channel,
+      channelData: notification.channelData,
+      status: notification.status,
+      template: {
+        id: (notification.template as unknown as { id: string }).id,
+        name: notification.template.name,
+        description: notification.template.description,
+        channels: notification.template.channels,
+      },
       attempts: job.attemptsMade,
-      createdAt: new Date(notificationProps.createdAt),
-      updatedAt: new Date(notificationProps.updatedAt),
-      sentAt: notificationProps.sentAt
-        ? new Date(notificationProps.sentAt)
-        : null,
-      lastError: job.failedReason ?? notificationProps.lastError ?? null,
+      createdAt: new Date(notification.createdAt),
+      updatedAt: new Date(notification.updatedAt),
+      sentAt: notification.sentAt ? new Date(notification.sentAt) : null,
+      lastError: job.failedReason ?? notification.lastError ?? null,
+      templateVariables: notification.templateVariables,
     }).unwrap();
   }
 
-  async process(
-    job: Job<IdentifiablePlainify<NotificationProps>, any, string>,
-  ): Promise<any> {
+  async process(job: Job<NotificationQueueData, any, string>): Promise<any> {
     const notification = this.makeNotificationFromJob(job);
+    const templateVariables = job.data.templateVariables;
 
-    const result =
-      await this.notificationQueueService.processNotification(notification);
+    const result = await this.notificationQueueService.processNotification(
+      notification,
+      templateVariables,
+    );
 
     if (result.isErr()) {
       throw result.getErr()!;
@@ -54,18 +55,14 @@ export class NotificationProcessor extends WorkerHost {
   }
 
   @OnWorkerEvent('completed')
-  async onCompleted(
-    job: Job<IdentifiablePlainify<NotificationProps>, any, string>,
-  ) {
+  async onCompleted(job: Job<NotificationQueueData, any, string>) {
     const notification = this.makeNotificationFromJob(job);
     console.log('completed', notification.id.value());
     await this.notificationQueueService.onCompleted(notification);
   }
 
   @OnWorkerEvent('failed')
-  async onFailed(
-    job: Job<IdentifiablePlainify<NotificationProps>, any, string>,
-  ) {
+  async onFailed(job: Job<NotificationQueueData, any, string>) {
     const notification = this.makeNotificationFromJob(job);
     console.log('failed', notification.id.value());
     console.log('error', notification.get('lastError'));
