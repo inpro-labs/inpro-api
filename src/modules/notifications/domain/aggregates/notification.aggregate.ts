@@ -17,7 +17,6 @@ type BaseNotificationProps = {
   sentAt?: Date;
   lastError?: string;
   template: NotificationTemplate;
-  templateData?: Record<string, any>;
 };
 
 interface EmailNotificationProps extends BaseNotificationProps {
@@ -54,7 +53,6 @@ const baseSchema = z.object({
   sentAt: z.date().optional(),
   lastError: z.string().optional(),
   template: z.nativeEnum(NotificationTemplate),
-  templateData: z.record(z.string(), z.any()).optional(),
 });
 
 export class Notification<
@@ -107,7 +105,6 @@ export class Notification<
       updatedAt: props.updatedAt ?? now,
       status: props.status ?? NotificationStatus.PENDING,
       attempts: props.attempts ?? 0,
-      templateData: props.templateData ?? {},
     };
 
     const notification = new Notification(

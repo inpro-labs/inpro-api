@@ -74,7 +74,6 @@ export class SendNotificationHandler
         template: template.id.value() as NotificationTemplate,
         status: NotificationStatus.PENDING,
         attempts: 0,
-        templateData,
       });
     }
 
@@ -90,7 +89,6 @@ export class SendNotificationHandler
         template: template.id.value() as NotificationTemplate,
         status: NotificationStatus.PENDING,
         attempts: 0,
-        templateData,
       });
     }
 

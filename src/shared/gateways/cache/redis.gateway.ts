@@ -2,6 +2,7 @@ import { EnvService } from '@config/env/env.service';
 import {
   Inject,
   Injectable,
+  Logger,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ export type RedisClient = Redis;
 @Injectable()
 export class RedisGateway implements OnModuleInit, OnModuleDestroy {
   private readonly redis: Redis;
+  private readonly logger = new Logger(RedisGateway.name);
 
   constructor(@Inject(EnvService) private readonly envService: EnvService) {
     this.redis = new Redis({
@@ -21,7 +23,14 @@ export class RedisGateway implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit() {
-    await this.redis.connect();
+    await this.redis.connect((error) => {
+      if (error) {
+        this.logger.error(error);
+        throw error;
+      }
+    });
+
+    this.logger.log('Redis connected');
   }
 
   onModuleDestroy() {

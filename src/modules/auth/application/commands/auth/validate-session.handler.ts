@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ValidateSessionCommand } from './validate-session.command';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { RetrieveSessionByTokenService } from '../../services/session/retrieve-session-by-token.service';
 import { ValidateSessionOutputDTO } from '../../ports/in/auth/validate-session.port';
 
@@ -20,10 +20,10 @@ export class ValidateSessionHandler
     );
 
     if (sessionResult.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         sessionResult.getErr()!.message,
-        401,
         'INVALID_TOKEN',
+        401,
       );
     }
 

@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListUserSessionsQuery } from './list-user-sessions.query';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { ListUserSessionsOutputDTO } from '@modules/auth/application/ports/in/session/list-user-sessions.port';
 import { IListUserSessions } from '../../interfaces/queries/list-user-sessions.query.interface';
 
@@ -16,10 +16,10 @@ export class ListUserSessionsHandler
     const sessions = await this.listUserSessions.perform(query);
 
     if (sessions.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'Error retrieving user sessions',
-        500,
         'RETRIEVE_SESSIONS_ERROR',
+        500,
       );
     }
 
