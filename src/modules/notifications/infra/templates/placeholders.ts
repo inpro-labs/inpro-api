@@ -17,6 +17,11 @@ export const allowedPlaceholders: TemplatePlaceholderDefinition[] = [
     name: 'user.id',
     description: 'The id of the user',
   },
+  {
+    sensitivity: PlaceholderSensitivity.SECURE,
+    name: 'token',
+    description: 'Generic token placeholder',
+  },
 ];
 
 export const pickPlaceholders = (...names: string[]) => {

@@ -4,7 +4,7 @@ import { Placeholder } from '../value-objects/placeholder.value-object';
 import { JSONSchema7, validate } from 'json-schema';
 import z from 'zod';
 
-interface EmailNotificationTemplateChannel {
+export interface EmailNotificationTemplateChannel {
   type: NotificationChannel.EMAIL;
   metadata: {
     subject: string;
@@ -14,7 +14,7 @@ interface EmailNotificationTemplateChannel {
   placeholders: Placeholder[];
 }
 
-interface SmsNotificationTemplateChannel {
+export interface SmsNotificationTemplateChannel {
   type: NotificationChannel.SMS;
   metadata: {
     message: string;

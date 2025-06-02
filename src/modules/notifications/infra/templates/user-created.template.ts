@@ -2,10 +2,10 @@ import { join } from 'path';
 import { readFileSync } from 'fs';
 import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 import { NotificationTemplate } from '@modules/notifications/domain/enums/notification-template.enum';
-import { NotificationTemplateFactory } from '../factories/notification-template.factory';
 import { pickPlaceholders } from './placeholders';
+import { TemplateDefinition } from '../services/template-manager.service';
 
-export const userCreatedTemplate = NotificationTemplateFactory.make({
+export const userCreatedTemplate: TemplateDefinition = {
   id: NotificationTemplate.USER_CREATED,
   name: 'User Created',
   description: 'User created template',
@@ -22,18 +22,30 @@ export const userCreatedTemplate = NotificationTemplateFactory.make({
       },
       schema: {
         type: 'object',
+        required: ['user', 'token'],
         properties: {
           user: {
             type: 'object',
-            properties: {
-              name: { type: 'string' },
-              email: { type: 'string' },
-            },
             required: ['name', 'email'],
+            properties: {
+              name: {
+                type: 'string',
+              },
+              email: {
+                type: 'string',
+                format: 'email',
+              },
+            },
+            additionalProperties: false,
+          },
+          token: {
+            type: 'string',
+            minLength: 1,
           },
         },
+        additionalProperties: false,
       },
-      placeholders: pickPlaceholders('user.name', 'user.email'),
+      placeholders: pickPlaceholders('user.name', 'user.email', 'token'),
     },
   ],
-}).unwrap();
+};

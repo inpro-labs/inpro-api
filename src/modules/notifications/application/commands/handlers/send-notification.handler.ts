@@ -12,6 +12,7 @@ import { SmsChannelData } from '@modules/notifications/domain/value-objects/sms-
 import { TemplateManagerService } from '@modules/notifications/infra/services/template-manager.service';
 import { INotificationRepository } from '@modules/notifications/domain/interfaces/repositories/notification.repository';
 import { QueueNotificationEvent } from '@modules/notifications/domain/events/queue-notification.event';
+import { PlaceholderSensitivity } from '@modules/notifications/domain/enums/placeholder-sensitivity.enum';
 
 @Injectable()
 @CommandHandler(SendNotificationCommand)
@@ -38,9 +39,7 @@ export class SendNotificationHandler
       );
     }
 
-    const templateResult = this.templateManagerService.getTemplate(
-      ID.create(templateId).unwrap(),
-    );
+    const templateResult = this.templateManagerService.getTemplate(templateId);
 
     if (templateResult.isErr()) {
       throw new BusinessException(
@@ -61,19 +60,25 @@ export class SendNotificationHandler
     }
 
     let notificationResult: Result<Notification, Error> | undefined;
-    const sensitiveFields = template
-      .getChannel(channel)
-      .unwrap().sensitiveFields;
 
     const redactedTemplateVariables = {
       ...templateVariables,
-      ...sensitiveFields.reduce(
-        (acc, field) => {
-          acc[field] = '**redacted**';
-          return acc;
-        },
-        {} as Record<string, string>,
-      ),
+      ...template
+        .getChannel(channel)
+        .unwrap()
+        .placeholders.reduce(
+          (acc, field) => {
+            const isSecure =
+              field.get('sensitivity') === PlaceholderSensitivity.SECURE;
+
+            if (isSecure) {
+              acc[field.get('name')] = '**redacted**';
+            }
+
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
     };
 
     console.log(redactedTemplateVariables);

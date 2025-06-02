@@ -18,6 +18,13 @@ type EmailNotificationTemplateChannelModel = {
   placeholders: TemplatePlaceholderModel[];
 };
 
+type GenericNotificationTemplateChannelModel = {
+  type: NotificationChannel;
+  metadata: Record<string, unknown>;
+  schema: JSONSchema7;
+  placeholders: TemplatePlaceholderModel[];
+};
+
 type SmsNotificationTemplateChannelModel = {
   type: NotificationChannel.SMS;
   metadata: {
@@ -27,12 +34,15 @@ type SmsNotificationTemplateChannelModel = {
   placeholders: TemplatePlaceholderModel[];
 };
 
+type NotificationTemplateChannelModel =
+  | EmailNotificationTemplateChannelModel
+  | SmsNotificationTemplateChannelModel
+  | GenericNotificationTemplateChannelModel;
+
 export type NotificationTemplateModel = {
   id: string;
   name: string;
   description: string;
-  channels: (
-    | EmailNotificationTemplateChannelModel
-    | SmsNotificationTemplateChannelModel
-  )[];
+  tags: string[];
+  channels: NotificationTemplateChannelModel[];
 };
