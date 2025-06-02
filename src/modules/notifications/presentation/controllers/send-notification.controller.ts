@@ -18,9 +18,10 @@ export class SendNotificationController {
         channelData: {
           to: 'sputnikstartup@gmail.com',
         },
-        templateData: {
+        templateVariables: {
           userName: 'John Doe',
           email: 'john.doe@example.com',
+          sensitiveData: 'sensitive data',
         },
         templateId: 'user-created',
         userId: '123',

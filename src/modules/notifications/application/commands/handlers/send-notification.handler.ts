@@ -27,7 +27,7 @@ export class SendNotificationHandler
   async execute(
     command: SendNotificationCommand,
   ): Promise<SendNotificationOutputDTO> {
-    const { userId, templateId, templateData, channel, channelData } =
+    const { userId, templateId, templateVariables, channel, channelData } =
       command.dto;
 
     if (!Object.values(NotificationChannel).includes(channel)) {
@@ -61,6 +61,22 @@ export class SendNotificationHandler
     }
 
     let notificationResult: Result<Notification, Error> | undefined;
+    const sensitiveFields = template
+      .getChannelData(channel)
+      .unwrap().sensitiveFields;
+
+    const redactedTemplateVariables = {
+      ...templateVariables,
+      ...sensitiveFields.reduce(
+        (acc, field) => {
+          acc[field] = '**redacted**';
+          return acc;
+        },
+        {} as Record<string, string>,
+      ),
+    };
+
+    console.log(redactedTemplateVariables);
 
     if (channel === NotificationChannel.EMAIL) {
       const emailChannelData = EmailChannelData.create({
@@ -71,10 +87,10 @@ export class SendNotificationHandler
         channel: NotificationChannel.EMAIL,
         channelData: emailChannelData,
         userId: ID.create(userId).unwrap(),
-        template: template,
+        template,
         status: NotificationStatus.PENDING,
         attempts: 0,
-        templateVariables: templateData,
+        templateVariables: redactedTemplateVariables,
       });
     }
 
@@ -87,10 +103,10 @@ export class SendNotificationHandler
         channel: NotificationChannel.SMS,
         channelData: smsChannelData,
         userId: ID.create(userId).unwrap(),
-        template: template,
+        template,
         status: NotificationStatus.PENDING,
         attempts: 0,
-        templateVariables: templateData,
+        templateVariables: redactedTemplateVariables,
       });
     }
 
@@ -107,7 +123,7 @@ export class SendNotificationHandler
     await this.notificationRepository.save(notification);
 
     this.eventBus.publish(
-      new QueueNotificationEvent(notification, templateData),
+      new QueueNotificationEvent(notification, templateVariables),
     );
 
     return notification;

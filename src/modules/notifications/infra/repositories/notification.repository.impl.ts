@@ -29,6 +29,8 @@ export class NotificationRepositoryImpl implements INotificationRepository {
       ),
     );
 
+    console.log(notificationResult.unwrap());
+
     if (notificationResult.isErr() || !notificationResult.unwrap()) {
       return Err(new Error('Notification not found'));
     }

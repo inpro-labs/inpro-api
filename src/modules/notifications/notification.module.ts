@@ -8,7 +8,7 @@ import {
 } from './infra/db/schemas/notification.schema';
 import { TemplateManagerService } from './infra/services/template-manager.service';
 import { SendNotificationController } from './presentation/controllers/send-notification.controller';
-import { QueueNotificationEventHandler } from './application/events/queue-notification.event';
+import { QueueNotificationEventHandler } from './application/events/handlers/queue-notification.handler';
 import { BullModule } from '@nestjs/bullmq';
 import { NotificationProcessor } from './infra/queue/processors/notification.processor';
 import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';

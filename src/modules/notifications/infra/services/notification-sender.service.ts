@@ -21,6 +21,12 @@ export class NotificationSenderService implements INotificationSenderService {
     const { channel } = notification.toObject();
     const template = notification.get('template');
 
+    const templateExists = this.templateManagerService.getTemplate(template.id);
+
+    if (templateExists.isErr()) {
+      return Err(templateExists.getErr()!);
+    }
+
     if (channel === NotificationChannel.EMAIL) {
       const channelData = notification
         .getChannelData<NotificationChannel.EMAIL>()

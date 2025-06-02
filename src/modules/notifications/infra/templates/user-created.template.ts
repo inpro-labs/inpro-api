@@ -18,7 +18,8 @@ export const userCreatedTemplate = NotificationTemplateFactory.make({
           'utf8',
         ),
       },
-      requiredFields: ['userName', 'email'],
+      requiredFields: ['userName', 'email', 'sensitiveData'],
+      sensitiveFields: ['sensitiveData'],
     },
   ],
 }).unwrap();

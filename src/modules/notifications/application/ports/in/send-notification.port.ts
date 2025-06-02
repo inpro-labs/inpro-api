@@ -4,7 +4,7 @@ import { NotificationChannel } from '@modules/notifications/domain/enums/notific
 export type SendNotificationInputDTO = {
   userId: string;
   templateId: string;
-  templateData: Record<string, any>;
+  templateVariables: Record<string, any>;
   channel: NotificationChannel;
   channelData: Record<string, any>;
 };

@@ -101,21 +101,6 @@ export class Notification<
     }
 
     const now = new Date();
-    const template = props.template;
-    const sensitiveFields = template
-      .getChannelData(props.channel)
-      .unwrap().sensitiveFields;
-
-    const templateVariables = {
-      ...props.templateVariables,
-      ...sensitiveFields.reduce(
-        (acc, field) => {
-          acc[field] = '**redacted**';
-          return acc;
-        },
-        {} as Record<string, string>,
-      ),
-    };
 
     const notificationProps: CreateNotificationProps = {
       ...props,
@@ -123,7 +108,6 @@ export class Notification<
       updatedAt: props.updatedAt ?? now,
       status: props.status ?? NotificationStatus.PENDING,
       attempts: props.attempts ?? 0,
-      templateVariables,
     };
 
     const notification = new Notification(

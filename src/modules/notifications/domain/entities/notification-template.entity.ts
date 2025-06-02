@@ -25,7 +25,7 @@ export type NotificationTemplateChannel =
   | EmailNotificationTemplateChannel
   | SmsNotificationTemplateChannel;
 
-export type ChannelToType<T extends NotificationChannel> =
+export type ChannelToType<T extends NotificationChannel = NotificationChannel> =
   T extends NotificationChannel.EMAIL
     ? EmailNotificationTemplateChannel
     : T extends NotificationChannel.SMS

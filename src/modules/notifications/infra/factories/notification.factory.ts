@@ -22,10 +22,10 @@ export class NotificationFactory {
     };
 
     const template = NotificationTemplate.create({
-      id: ID.create(data.template.id).unwrap(),
-      name: data.template.name,
-      description: data.template.description,
-      channels: data.template.channels,
+      id: ID.create(data.template!.id).unwrap(),
+      name: data.template!.name,
+      description: data.template!.description,
+      channels: data.template!.channels,
     });
 
     switch (data.channel) {

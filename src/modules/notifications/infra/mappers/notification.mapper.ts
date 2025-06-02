@@ -11,7 +11,7 @@ export class NotificationMapper {
       channelData,
       status,
       template,
-      templateData,
+      templateVariables,
       attempts,
       createdAt,
       updatedAt,
@@ -26,7 +26,7 @@ export class NotificationMapper {
       channelData,
       status,
       template,
-      templateData,
+      templateVariables,
       attempts,
       createdAt,
       updatedAt,
@@ -41,8 +41,7 @@ export class NotificationMapper {
       channel,
       channelData,
       status,
-      template,
-      templateData,
+      templateVariables,
       attempts,
       createdAt,
       updatedAt,
@@ -50,6 +49,12 @@ export class NotificationMapper {
       userId,
       lastError,
     } = item.toObject();
+    const template = {
+      id: item.get('template').id.value(),
+      name: item.get('template').get('name'),
+      description: item.get('template').get('description'),
+      channels: item.get('template').get('channels'),
+    };
 
     return {
       _id: id,
@@ -57,9 +62,9 @@ export class NotificationMapper {
       channel,
       channelData,
       status,
-      template,
-      templateData: templateData ?? {},
+      templateVariables: templateVariables ?? {},
       attempts,
+      template,
       createdAt,
       updatedAt,
       sentAt: sentAt ?? null,
