@@ -1,4 +1,12 @@
 import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
+import { PlaceholderSensitivity } from '@modules/notifications/domain/enums/placeholder-sensitivity.enum';
+import { JSONSchema7 } from 'json-schema';
+
+type TemplatePlaceholderModel = {
+  name: string;
+  description?: string;
+  sensitivity: PlaceholderSensitivity;
+};
 
 type EmailNotificationTemplateChannelModel = {
   type: NotificationChannel.EMAIL;
@@ -6,8 +14,8 @@ type EmailNotificationTemplateChannelModel = {
     subject: string;
     body: string;
   };
-  requiredFields: string[];
-  sensitiveFields: string[];
+  schema: JSONSchema7;
+  placeholders: TemplatePlaceholderModel[];
 };
 
 type SmsNotificationTemplateChannelModel = {
@@ -15,8 +23,8 @@ type SmsNotificationTemplateChannelModel = {
   metadata: {
     message: string;
   };
-  requiredFields: string[];
-  sensitiveFields: string[];
+  schema: JSONSchema7;
+  placeholders: TemplatePlaceholderModel[];
 };
 
 export type NotificationTemplateModel = {

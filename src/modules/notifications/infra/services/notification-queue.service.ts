@@ -30,8 +30,6 @@ export class NotificationQueueService implements INotificationQueueService {
   ) {
     notification.markAsQueued();
 
-    console.log('entroui no queue');
-
     await this.notificationRepository.save(notification);
 
     await this.queue.add(
@@ -53,8 +51,6 @@ export class NotificationQueueService implements INotificationQueueService {
     notification: Notification,
     templateVariables: Record<string, unknown>,
   ) {
-    console.log('entroui no processNotification');
-
     const sendResult = await this.notificationSender.send(
       notification,
       templateVariables,

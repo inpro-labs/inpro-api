@@ -8,10 +8,12 @@ import { INotificationQueueService } from '@modules/notifications/application/po
 export class QueueNotificationEventHandler
   implements IEventHandler<QueueNotificationEvent>
 {
-  constructor(private readonly notificationQueue: INotificationQueueService) {}
+  constructor(
+    private readonly notificationQueueService: INotificationQueueService,
+  ) {}
 
   async handle(event: QueueNotificationEvent) {
-    await this.notificationQueue.queueNotification(
+    await this.notificationQueueService.queueNotification(
       event.notification,
       event.templateVariables,
     );

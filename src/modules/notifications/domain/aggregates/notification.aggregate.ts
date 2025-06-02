@@ -134,10 +134,10 @@ export class Notification<
     this.props.updatedAt = new Date();
   }
 
-  public markAsFailed(lastError: string): void {
+  public markAsFailed(error: string): void {
     this.props.status = NotificationStatus.FAILED;
     this.props.updatedAt = new Date();
-    this.props.lastError = lastError;
+    this.props.lastError = error;
   }
 
   public markAsSent(): void {

@@ -38,9 +38,7 @@ export class NotificationRepositoryImpl implements INotificationRepository {
     return Ok(notification);
   }
 
-  async getNotificationTemplate(
-    template: string,
-  ): Promise<Result<NotificationTemplate>> {
+  getNotificationTemplate(template: string): Result<NotificationTemplate> {
     const templateResult = this.templateManagerService.getTemplate(
       ID.create(template).unwrap(),
     );

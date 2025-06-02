@@ -3,19 +3,28 @@ import { Injectable } from '@nestjs/common';
 import { userCreatedTemplate } from '../templates/user-created.template';
 import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
 import { Err, ID, Ok, Result } from '@inpro-labs/core';
+import { JSONSchema7 } from 'json-schema';
+import { PlaceholderSensitivity } from '@modules/notifications/domain/enums/placeholder-sensitivity.enum';
 
-export type NotificationTemplateDefinition = {
+export type TemplatePlaceholderDefinition = {
+  name: string;
+  description?: string;
+  sensitivity: PlaceholderSensitivity;
+};
+
+export type TemplateChannelDefinition = {
+  type: NotificationChannel;
+  schema: JSONSchema7;
+  metadata: Record<string, unknown>;
+  placeholders: TemplatePlaceholderDefinition[];
+};
+
+export type TemplateDefinition = {
   id: string;
   name: string;
   description: string;
-  channels: {
-    type: NotificationChannel;
-    metadata: {
-      subject: string;
-      body: string;
-    };
-    requiredFields: string[];
-  }[];
+  tags: string[];
+  channels: TemplateChannelDefinition[];
 };
 
 @Injectable()

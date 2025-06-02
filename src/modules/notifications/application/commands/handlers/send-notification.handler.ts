@@ -62,7 +62,7 @@ export class SendNotificationHandler
 
     let notificationResult: Result<Notification, Error> | undefined;
     const sensitiveFields = template
-      .getChannelData(channel)
+      .getChannel(channel)
       .unwrap().sensitiveFields;
 
     const redactedTemplateVariables = {

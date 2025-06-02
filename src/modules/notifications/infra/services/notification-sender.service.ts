@@ -32,9 +32,7 @@ export class NotificationSenderService implements INotificationSenderService {
         .getChannelData<NotificationChannel.EMAIL>()
         .unwrap();
 
-      const emailDataResult = template.getChannelData(
-        NotificationChannel.EMAIL,
-      );
+      const emailDataResult = template.getChannel(NotificationChannel.EMAIL);
 
       if (emailDataResult.isErr()) {
         return Err(emailDataResult.getErr()!);

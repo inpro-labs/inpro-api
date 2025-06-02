@@ -1,5 +1,7 @@
 import { Entity, Err, ID, Ok, Result } from '@inpro-labs/core';
 import { NotificationChannel } from '../enums/notification-channel.enum';
+import { Placeholder } from '../value-objects/placeholder.value-object';
+import { JSONSchema7, validate } from 'json-schema';
 import z from 'zod';
 
 interface EmailNotificationTemplateChannel {
@@ -8,8 +10,8 @@ interface EmailNotificationTemplateChannel {
     subject: string;
     body: string;
   };
-  requiredFields: string[];
-  sensitiveFields: string[];
+  schema: JSONSchema7;
+  placeholders: Placeholder[];
 }
 
 interface SmsNotificationTemplateChannel {
@@ -17,29 +19,19 @@ interface SmsNotificationTemplateChannel {
   metadata: {
     message: string;
   };
-  requiredFields: string[];
-  sensitiveFields: string[];
+  schema: JSONSchema7;
+  placeholders: Placeholder[];
 }
 
 export type NotificationTemplateChannel =
   | EmailNotificationTemplateChannel
   | SmsNotificationTemplateChannel;
 
-export type ChannelToType<T extends NotificationChannel = NotificationChannel> =
-  T extends NotificationChannel.EMAIL
-    ? EmailNotificationTemplateChannel
-    : T extends NotificationChannel.SMS
-      ? SmsNotificationTemplateChannel
-      : never;
-
 interface NotificationTemplateProps {
   id?: ID;
   name: string;
   description: string;
-  channels: (
-    | EmailNotificationTemplateChannel
-    | SmsNotificationTemplateChannel
-  )[];
+  channels: NotificationTemplateChannel[];
 }
 
 export class NotificationTemplate extends Entity<NotificationTemplateProps> {
@@ -101,12 +93,19 @@ export class NotificationTemplate extends Entity<NotificationTemplateProps> {
     return this.props.channels.some((channel) => channel.type === c);
   }
 
-  public getChannelData<T extends NotificationChannel>(
-    channel: T,
-  ): Result<ChannelToType<T>, Error> {
-    const channelData = this.props.channels.find((c) => c.type === channel) as
-      | ChannelToType<T>
-      | undefined;
+  public getChannel(
+    channel: NotificationChannel.EMAIL,
+  ): Result<EmailNotificationTemplateChannel, Error>;
+  public getChannel(
+    channel: NotificationChannel.SMS,
+  ): Result<SmsNotificationTemplateChannel, Error>;
+  public getChannel(
+    channel: NotificationChannel,
+  ): Result<NotificationTemplateChannel, Error>;
+  public getChannel(
+    channel: NotificationChannel,
+  ): Result<NotificationTemplateChannel, Error> {
+    const channelData = this.props.channels.find((c) => c.type === channel);
 
     if (!channelData) {
       return Err(new Error('Channel not found'));
@@ -115,109 +114,22 @@ export class NotificationTemplate extends Entity<NotificationTemplateProps> {
     return Ok(channelData);
   }
 
-  private replaceVariables(
-    template: string,
-    data: Record<string, unknown>,
-  ): string {
-    return template.replace(/\{\{([^}]+)\}\}/g, (match, path: string) => {
-      const cleanPath = path.trim();
-
-      const keys = cleanPath.split('.');
-
-      let value = data;
-      for (const key of keys) {
-        if (value && typeof value === 'object' && key in value) {
-          value = value[key] as Record<string, unknown>;
-        } else {
-          return match;
-        }
-      }
-
-      return value != null
-        ? typeof value === 'object'
-          ? JSON.stringify(value)
-          : String(value)
-        : match;
-    });
-  }
-
   public validateData(
     channel: NotificationChannel,
     inputData: Record<string, unknown>,
   ): Result<void, Error> {
-    const channelData = this.props.channels.find(
-      (c) => c.type === channel,
-    ) as NotificationTemplateChannel;
+    const channelData = this.getChannel(channel).unwrap();
 
     if (!channelData) {
       return Err(new Error('Channel not found'));
     }
 
-    const missingFields = channelData.requiredFields.filter(
-      (field) => !inputData[field],
-    );
+    const isValid = validate(channelData.schema, inputData);
 
-    if (missingFields.length > 0) {
-      return Err(
-        new Error(
-          `Missing required fields for ${channel} channel: ${missingFields.join(', ')}`,
-        ),
-      );
+    if (!isValid) {
+      return Err(new Error(`Invalid data for ${channel} channel`));
     }
 
     return Ok(undefined);
-  }
-
-  public renderContent(
-    channel: NotificationChannel,
-    data: Record<string, unknown>,
-  ): Result<string, Error> {
-    let content: string | undefined;
-
-    if (Object.keys(data).length === 0) {
-      return Err(new Error('No data provided'));
-    }
-
-    if (channel === NotificationChannel.EMAIL) {
-      const isValidResult = this.validateData(channel, data);
-
-      if (isValidResult.isErr()) {
-        return Err(isValidResult.getErr()!);
-      }
-
-      const emailChannel = this.props.channels.find(
-        (c) => c.type === NotificationChannel.EMAIL,
-      ) as EmailNotificationTemplateChannel;
-
-      if (!emailChannel) {
-        return Err(new Error('Email channel not found'));
-      }
-
-      content = this.props.channels.find(
-        (c) => c.type === NotificationChannel.EMAIL,
-      )?.metadata.body;
-    }
-
-    if (channel === NotificationChannel.SMS) {
-      const isValidResult = this.validateData(channel, data);
-
-      if (isValidResult.isErr()) {
-        return Err(isValidResult.getErr()!);
-      }
-
-      const smsChannel = this.props.channels.find(
-        (c) => c.type === NotificationChannel.SMS,
-      ) as SmsNotificationTemplateChannel;
-
-      if (!smsChannel) {
-        return Err(new Error('SMS channel not found'));
-      }
-    }
-
-    if (!content) {
-      return Err(new Error('Invalid channel'));
-    }
-
-    return Ok(this.replaceVariables(content, data));
   }
 }
