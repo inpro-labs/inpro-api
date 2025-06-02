@@ -12,7 +12,7 @@ import type {
 
 export class NotificationTemplateFactory {
   static make(data: NotificationTemplateModel): Result<NotificationTemplate> {
-    const { id, name, description, channels: modelChannels } = data;
+    const { id, name, description, channels: modelChannels, tags } = data;
 
     const domainChannels: NotificationTemplateChannel[] = [];
 
@@ -73,6 +73,7 @@ export class NotificationTemplateFactory {
       id: ID.create(id).unwrap(),
       name,
       description,
+      tags,
       channels: domainChannels,
     });
   }

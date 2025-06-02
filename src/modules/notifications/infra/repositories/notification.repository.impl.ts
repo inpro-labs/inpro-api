@@ -6,7 +6,6 @@ import { Err, Ok, Result } from '@inpro-labs/core';
 import { TemplateManagerService } from '../services/template-manager.service';
 import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
 import { NotificationMapper } from '../mappers/notification.mapper';
-import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 
 @Injectable()
 export class NotificationRepositoryImpl implements INotificationRepository {
@@ -15,9 +14,7 @@ export class NotificationRepositoryImpl implements INotificationRepository {
     private readonly templateManagerService: TemplateManagerService,
   ) {}
 
-  async save(
-    notification: Notification<NotificationChannel>,
-  ): Promise<Result<Notification>> {
+  async save(notification: Notification): Promise<Result<Notification>> {
     const notificationModel =
       NotificationMapper.fromDomainToModel(notification);
 
@@ -28,8 +25,6 @@ export class NotificationRepositoryImpl implements INotificationRepository {
         { upsert: true, new: true, setDefaultsOnInsert: true },
       ),
     );
-
-    console.log(notificationResult.unwrap());
 
     if (notificationResult.isErr() || !notificationResult.unwrap()) {
       return Err(new Error('Notification not found'));

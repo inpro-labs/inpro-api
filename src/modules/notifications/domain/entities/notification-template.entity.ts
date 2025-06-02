@@ -31,6 +31,7 @@ interface NotificationTemplateProps {
   id?: ID;
   name: string;
   description: string;
+  tags: string[];
   channels: NotificationTemplateChannel[];
 }
 
@@ -39,6 +40,7 @@ export class NotificationTemplate extends Entity<NotificationTemplateProps> {
     id: z.custom<ID>((value) => value instanceof ID),
     name: z.string(),
     description: z.string(),
+    tags: z.array(z.string()),
     channels: z.array(
       z.discriminatedUnion('type', [
         z.object({
@@ -47,14 +49,19 @@ export class NotificationTemplate extends Entity<NotificationTemplateProps> {
             subject: z.string(),
             body: z.string(),
           }),
-          requiredFields: z.array(z.string()),
+          placeholders: z.array(
+            z.custom<Placeholder[]>((value) => value instanceof Placeholder),
+          ),
         }),
         z.object({
           type: z.literal(NotificationChannel.SMS),
           metadata: z.object({
             message: z.string(),
           }),
-          requiredFields: z.array(z.string()),
+          schema: z.record(z.string(), z.any()),
+          placeholders: z.array(
+            z.custom<Placeholder[]>((value) => value instanceof Placeholder),
+          ),
         }),
       ]),
     ),
@@ -124,10 +131,12 @@ export class NotificationTemplate extends Entity<NotificationTemplateProps> {
       return Err(new Error('Channel not found'));
     }
 
-    const isValid = validate(channelData.schema, inputData);
+    const result = validate(inputData, channelData.schema);
 
-    if (!isValid) {
-      return Err(new Error(`Invalid data for ${channel} channel`));
+    if (!result.valid) {
+      return Err(
+        new Error(`Invalid variables: ${JSON.stringify(result.errors)}`),
+      );
     }
 
     return Ok(undefined);

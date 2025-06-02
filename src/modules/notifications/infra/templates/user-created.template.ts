@@ -14,7 +14,7 @@ export const userCreatedTemplate: TemplateDefinition = {
     {
       type: NotificationChannel.EMAIL,
       metadata: {
-        subject: 'User Created',
+        subject: 'Hello {{user.name}}',
         body: readFileSync(
           join(__dirname, 'sources', 'mail', 'user-created.html'),
           'utf8',

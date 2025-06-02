@@ -41,6 +41,12 @@ export class NotificationQueueService implements INotificationQueueService {
       {
         attempts: 3,
         jobId: notification.id.value(),
+        removeOnComplete: true,
+        removeOnFail: true,
+        backoff: {
+          type: 'exponential',
+          delay: 10000,
+        },
       },
     );
 

@@ -6,6 +6,7 @@ import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
 import { TemplateManagerService } from './template-manager.service';
 import { Err, Ok, Result } from '@inpro-labs/core';
 import * as Mustache from 'mustache';
+import { EmailChannelData } from '@modules/notifications/domain/value-objects/email-channel-data.value-object';
 
 @Injectable()
 export class NotificationSenderService implements INotificationSenderService {
@@ -31,8 +32,8 @@ export class NotificationSenderService implements INotificationSenderService {
 
     if (channel === NotificationChannel.EMAIL) {
       const channelData = notification
-        .getChannelData<NotificationChannel.EMAIL>()
-        .unwrap();
+        .getChannelData()
+        .unwrap() as EmailChannelData;
 
       const emailDataResult = template.getChannel(NotificationChannel.EMAIL);
 

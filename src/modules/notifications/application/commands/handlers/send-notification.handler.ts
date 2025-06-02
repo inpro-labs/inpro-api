@@ -81,8 +81,6 @@ export class SendNotificationHandler
         ),
     };
 
-    console.log(redactedTemplateVariables);
-
     if (channel === NotificationChannel.EMAIL) {
       const emailChannelData = EmailChannelData.create({
         to: channelData.to as string,
@@ -124,6 +122,17 @@ export class SendNotificationHandler
     }
 
     const notification = notificationResult!.unwrap();
+    const isVariablesValid = notification
+      .get('template')
+      .validateData(channel, templateVariables);
+
+    if (isVariablesValid.isErr()) {
+      throw new BusinessException(
+        isVariablesValid.getErr()!.message,
+        'INVALID_TEMPLATE_VARIABLES',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     await this.notificationRepository.save(notification);
 

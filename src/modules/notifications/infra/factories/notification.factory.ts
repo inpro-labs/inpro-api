@@ -8,7 +8,7 @@ import { NotificationTemplate } from '@modules/notifications/domain/entities/not
 
 export class NotificationFactory {
   static make(
-    data: NotificationModel,
+    data: Omit<NotificationModel, 'templateId'>,
     template: NotificationTemplate,
   ): Result<Notification> {
     const { _id } = data;

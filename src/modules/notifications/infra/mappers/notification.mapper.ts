@@ -1,16 +1,19 @@
 import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
 import { NotificationModel } from '../db/models/notification.model';
 import { NotificationFactory } from '../factories/notification.factory';
+import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
 
 export class NotificationMapper {
-  static fromModelToDomain(notification: NotificationModel): Notification {
+  static fromModelToDomain(
+    notification: NotificationModel,
+    template: NotificationTemplate,
+  ): Notification {
     const {
       _id,
       userId,
       channel,
       channelData,
       status,
-      template,
       templateVariables,
       attempts,
       createdAt,
@@ -19,20 +22,22 @@ export class NotificationMapper {
       lastError,
     } = notification;
 
-    return NotificationFactory.make({
-      _id,
-      userId,
-      channel,
-      channelData,
-      status,
+    return NotificationFactory.make(
+      {
+        _id,
+        userId,
+        channel,
+        channelData,
+        status,
+        templateVariables,
+        attempts,
+        createdAt,
+        updatedAt,
+        sentAt,
+        lastError,
+      },
       template,
-      templateVariables,
-      attempts,
-      createdAt,
-      updatedAt,
-      sentAt,
-      lastError,
-    }).unwrap();
+    ).unwrap();
   }
 
   static fromDomainToModel(item: Notification): NotificationModel {
@@ -64,7 +69,7 @@ export class NotificationMapper {
       status,
       templateVariables: templateVariables ?? {},
       attempts,
-      template,
+      templateId: template.id,
       createdAt,
       updatedAt,
       sentAt: sentAt ?? null,

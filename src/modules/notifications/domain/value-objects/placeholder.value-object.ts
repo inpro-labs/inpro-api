@@ -20,6 +20,7 @@ export class Placeholder extends ValueObject<PlaceholderProps> {
   }
 
   static isValidProps(props: unknown): props is PlaceholderProps {
+    console.log(Placeholder.schema.safeParse(props).error);
     return Placeholder.schema.safeParse(props).success;
   }
 
