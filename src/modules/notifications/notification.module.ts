@@ -15,6 +15,7 @@ import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
 import { notificationQueueServiceProvider } from './infra/nest/providers/notification-queue.service.provider';
 import { notificationSenderServiceProvider } from './infra/nest/providers/notification-sender.service.provider';
 import { notificationRepositoryProvider } from './infra/nest/providers/notification.repository.provider';
+import { CreateNotificationService } from './application/services/create-notification.service';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { notificationRepositoryProvider } from './infra/nest/providers/notificat
   controllers: [SendNotificationController],
   providers: [
     SendNotificationHandler,
+    CreateNotificationService,
     TemplateManagerService,
     QueueNotificationEventHandler,
     NotificationProcessor,
