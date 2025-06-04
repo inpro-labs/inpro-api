@@ -24,11 +24,11 @@ export class CreateUserHandler
     } = command;
     const emailResult = Email.create(emailInput);
 
-    const email = emailResult.unwrap();
-
     if (emailResult.isErr()) {
       throw new ApplicationException('Invalid email', 400, 'INVALID_EMAIL');
     }
+
+    const email = emailResult.unwrap();
 
     const userExists = await this.userRepository.findByEmail(
       email.get('value'),
@@ -41,16 +41,13 @@ export class CreateUserHandler
         'USER_ALREADY_EXISTS',
       );
     }
-    if (emailResult.isErr()) {
-      throw new ApplicationException('Invalid email', 400, 'INVALID_EMAIL');
-    }
 
     const passwordHash = (
       await this.hashService.generateHash(password)
     ).unwrap();
 
     const userResult = User.create({
-      email: emailResult.unwrap(),
+      email,
       password: passwordHash,
     });
 
