@@ -19,13 +19,13 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json --detectOpenHandles",
     "db:test:reset": "dotenv -e .env.test -- prisma db push --force-reset --schema=prisma/schema.prisma",
-    "update:sdk": "npm i @inpro-labs/core@latest @inpro-labs/microservices@latest"
+    "update:sdk": "pnpm i @inpro-labs/core@latest @inpro-labs/microservices@latest"
   },
   "dependencies": {
     "@anatine/zod-nestjs": "^2.0.12",
     "@anatine/zod-openapi": "^2.2.8",
-    "@inpro-labs/core": "^1.0.5",
-    "@inpro-labs/microservices": "^1.0.5-rc.1",
+    "@inpro-labs/core": "^1.0.7",
+    "@inpro-labs/microservices": "1.0.5-rc.1",
     "@nestjs/bullmq": "^11.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
