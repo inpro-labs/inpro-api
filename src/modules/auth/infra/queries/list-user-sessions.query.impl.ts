@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SessionModel } from '@modules/auth/infra/db/models/session.model';
 import { Err, Ok, Result } from '@inpro-labs/core';
-import { Paginated } from '@inpro-labs/microservices';
+import { Paginated } from '@shared/utils/query-params';
 import { IListUserSessions } from '@modules/auth/application/interfaces/queries/list-user-sessions.query.interface';
 import { ListUserSessionsQuery } from '@modules/auth/application/queries/session/list-user-sessions.query';
 import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';

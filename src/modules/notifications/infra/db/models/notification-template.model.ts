@@ -2,7 +2,7 @@ import { NotificationChannel } from '@modules/notifications/domain/enums/notific
 import { PlaceholderSensitivity } from '@modules/notifications/domain/enums/placeholder-sensitivity.enum';
 import { JSONSchema7 } from 'json-schema';
 
-type TemplatePlaceholderModel = {
+export type TemplatePlaceholderModel = {
   name: string;
   description?: string;
   sensitivity: PlaceholderSensitivity;
@@ -34,7 +34,7 @@ type SmsNotificationTemplateChannelModel = {
   placeholders: TemplatePlaceholderModel[];
 };
 
-type NotificationTemplateChannelModel =
+export type NotificationTemplateChannelModel =
   | EmailNotificationTemplateChannelModel
   | SmsNotificationTemplateChannelModel
   | GenericNotificationTemplateChannelModel;

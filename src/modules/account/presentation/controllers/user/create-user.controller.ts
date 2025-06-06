@@ -1,7 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '@modules/account/application/commands/user/create-user.command';
-import { MessageResponse } from '@inpro-labs/microservices';
 import { UserPresenter } from '../../presenters/user.presenter';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateUserDTO } from '../../dtos/user/create-user.dto';
@@ -21,6 +20,6 @@ export class CreateUserController {
 
     const userViewModel = presenter.presentUser(user);
 
-    return MessageResponse.ok(userViewModel);
+    return userViewModel;
   }
 }

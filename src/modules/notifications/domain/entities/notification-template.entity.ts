@@ -23,9 +23,12 @@ export interface SmsNotificationTemplateChannel {
   placeholders: Placeholder[];
 }
 
-export type NotificationTemplateChannel =
-  | EmailNotificationTemplateChannel
-  | SmsNotificationTemplateChannel;
+export type NotificationTemplateChannel = {
+  type: NotificationChannel;
+  metadata: Record<string, unknown>;
+  schema: JSONSchema7;
+  placeholders: Placeholder[];
+};
 
 interface NotificationTemplateProps {
   id?: ID;

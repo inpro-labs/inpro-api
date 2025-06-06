@@ -122,6 +122,7 @@ export class SendNotificationHandler
     }
 
     const notification = notificationResult!.unwrap();
+
     const isVariablesValid = notification
       .get('template')
       .validateData(channel, templateVariables);

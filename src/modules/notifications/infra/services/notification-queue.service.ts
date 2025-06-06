@@ -1,5 +1,5 @@
 import { Err, Ok } from '@inpro-labs/core';
-import { IdentifiablePlainify } from '@inpro-labs/core/dist/utils/types';
+import { PlainAggregate } from '@inpro-labs/core/dist/utils/deep-plain';
 import { INotificationQueueService } from '@modules/notifications/application/ports/out/notification-queue.port';
 import { INotificationSenderService } from '@modules/notifications/application/ports/out/notification-sender.port';
 import {
@@ -12,7 +12,7 @@ import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 
 export type NotificationQueueData = {
-  notification: IdentifiablePlainify<NotificationProps>;
+  notification: PlainAggregate<NotificationProps>;
   templateVariables: Record<string, unknown>;
 };
 

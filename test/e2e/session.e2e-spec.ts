@@ -10,7 +10,6 @@ import { CreateSessionInputDTO } from '@modules/auth/application/ports/in/sessio
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { ListUserSessionsInputDTO } from '@modules/auth/application/ports/in/session/list-user-sessions.port';
 import { RevokeSessionInputDTO } from '@modules/auth/application/ports/in/session/revoke-session.port';
-import { MicroserviceResponse } from '@inpro-labs/microservices';
 import { SignInOutputDTO } from '@modules/auth/application/ports/in/auth/sign-in.port';
 import { ValidateSessionOutputDTO } from '@modules/auth/application/ports/in/auth/validate-session.port';
 import { RefreshTokenOutputDTO } from '@modules/auth/application/ports/in/auth/refresh-token.port';

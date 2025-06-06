@@ -24,17 +24,8 @@ export class NotificationProcessor extends WorkerHost {
   ): Result<Notification, Error> {
     const { notification } = job.data;
 
-    console.log(notification.template.channels[0].placeholders);
-
     const templateResult = NotificationTemplateFactory.make({
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      id: notification.template.id,
-      name: notification.template.name,
-      description: notification.template.description,
-      channels: notification.template.channels,
-      tags: notification.template.tags,
+      ...notification.template,
     });
 
     if (templateResult.isErr()) {

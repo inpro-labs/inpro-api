@@ -3,7 +3,7 @@ import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { SessionViewModel } from '../view-model/session.view-model';
 import { SessionListViewModel } from '../view-model/session-list.view-model';
 import { SessionModel } from '@modules/auth/infra/db/models/session.model';
-import { Paginated } from '@inpro-labs/microservices';
+import { Paginated } from '@shared/utils/query-params';
 
 export class SessionPresenter {
   presentSession(session: Session): SessionViewModel {

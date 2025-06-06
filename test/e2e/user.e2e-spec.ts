@@ -7,7 +7,6 @@ import { MicroserviceOptions } from '@nestjs/microservices';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
-import { MicroserviceResponse } from '@inpro-labs/microservices';
 
 interface UserViewModel {
   id: string;

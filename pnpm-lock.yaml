@@ -15,11 +15,8 @@ importers:
         specifier: ^2.2.8
         version: 2.2.8(openapi3-ts@4.4.0)(zod@3.25.23)
       '@inpro-labs/core':
-        specifier: ^1.0.7
-        version: 1.0.7(@nestjs/cqrs@11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(zod@3.25.23)
-      '@inpro-labs/microservices':
-        specifier: 1.0.5-rc.1
-        version: 1.0.5-rc.1(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(@nestjs/cqrs@11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(amqp-connection-manager@4.1.14(amqplib@0.10.8))(amqplib@0.10.8)(ioredis@5.6.1)(mqtt@5.13.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)(zod@3.25.23)
+        specifier: 1.0.2
+        version: 1.0.2(@nestjs/cqrs@11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(zod@3.25.23)
       '@nestjs/bullmq':
         specifier: ^11.0.2
         version: 11.0.2(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(bullmq@5.53.0)
@@ -488,14 +485,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@inpro-labs/core@1.0.7':
-    resolution: {integrity: sha512-lprp5+PRxPsuu8BrXnzVrIGfYbh6Q/INKx7aCsRbBG3LJ8FVTCCZO1pOZhKG7cjUlQNo9IMCerxPExiVbfJlzw==, tarball: https://npm.pkg.github.com/download/@inpro-labs/core/1.0.7/b49fae18df66d9f18f0acc2f0df9237ba7b25f17}
-    peerDependencies:
-      '@nestjs/cqrs': ^11.0.3
-      zod: ^3.24.2
-
-  '@inpro-labs/microservices@1.0.5-rc.1':
-    resolution: {integrity: sha512-FcMIkBkCwr8NwovdUKUi+9Ktj1X0ezRO+T7K/HFu1lCw2k/4gEyOWz+k1YOxFs6a/QV2vydpS1e8lhJ8shiftw==, tarball: https://npm.pkg.github.com/download/@inpro-labs/microservices/1.0.5-rc.1/f586e4b68be6a705015358df24d8f1e0f29bfd74}
+  '@inpro-labs/core@1.0.2':
+    resolution: {integrity: sha512-of00m48NUSN1eh31w6z2uFoqNz6uA5FPaQYt5Z/gk3YMXuCk+Qv49Ks+pvP1iUsyeL2IWJxxEow2opZ7MRyZ1Q==, tarball: https://npm.pkg.github.com/download/@inpro-labs/core/1.0.2/d6ff16662f87052da27636d912d71cdf12ee5cd4}
     peerDependencies:
       '@nestjs/cqrs': ^11.0.3
       zod: ^3.24.2
@@ -1354,12 +1345,6 @@ packages:
 
   '@types/jsonwebtoken@9.0.7':
     resolution: {integrity: sha512-ugo316mmTYBl2g81zDFnZ7cfxlut3o+/EQdaP7J8QN2kY6lJ22hmQYCK5EHcJHbrW+dkCGSCPgbG8JtYj6qSrg==}
-
-  '@types/lodash.isequal@4.5.8':
-    resolution: {integrity: sha512-uput6pg4E/tj2LGxCZo9+y27JNyB2OZuuI/T5F+ylVDYuqICLG2/ktjxx0v6GvVntAf8TvEzeQLcV0ffRirXuA==}
-
-  '@types/lodash@4.17.17':
-    resolution: {integrity: sha512-RRVJ+J3J+WmyOTqnz3PiBLA501eKwXl2noseKOrNo/6+XEHjTAxO4xHvxQB6QuNm+s4WRbn6rSiap8+EA+ykFQ==}
 
   '@types/methods@1.1.4':
     resolution: {integrity: sha512-ymXWVrDiCxTBE3+RIrrP533E70eA+9qu7zdWoHuOmGujkYtzf4HQF96b8nwHLqhuf4ykX61IGRIB38CC6/sImQ==}
@@ -3030,10 +3015,6 @@ packages:
   lodash.isboolean@3.0.3:
     resolution: {integrity: sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg==}
 
-  lodash.isequal@4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
-    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
-
   lodash.isinteger@4.0.4:
     resolution: {integrity: sha512-DBwtEWN2caHQ9/imiNeEA5ys1JoRtRfY3d7V9wkqtbycnAmTvRRmbHKDV4a0EYc678/dia0jrte4tjYwVBaZUA==}
 
@@ -4659,34 +4640,11 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@inpro-labs/core@1.0.7(@nestjs/cqrs@11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(zod@3.25.23)':
+  '@inpro-labs/core@1.0.2(@nestjs/cqrs@11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(zod@3.25.23)':
     dependencies:
       '@nestjs/cqrs': 11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@types/node': 22.15.21
       zod: 3.25.23
-
-  '@inpro-labs/microservices@1.0.5-rc.1(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(@nestjs/cqrs@11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(amqp-connection-manager@4.1.14(amqplib@0.10.8))(amqplib@0.10.8)(ioredis@5.6.1)(mqtt@5.13.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)(zod@3.25.23)':
-    dependencies:
-      '@inpro-labs/core': 1.0.7(@nestjs/cqrs@11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(zod@3.25.23)
-      '@nestjs/cqrs': 11.0.3(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/microservices': 11.1.1(@nestjs/common@11.1.1(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.1)(amqp-connection-manager@4.1.14(amqplib@0.10.8))(amqplib@0.10.8)(ioredis@5.6.1)(mqtt@5.13.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@types/lodash.isequal': 4.5.8
-      lodash.isequal: 4.5.0
-      zod: 3.25.23
-    transitivePeerDependencies:
-      - '@grpc/grpc-js'
-      - '@nestjs/common'
-      - '@nestjs/core'
-      - '@nestjs/websockets'
-      - amqp-connection-manager
-      - amqplib
-      - cache-manager
-      - ioredis
-      - kafkajs
-      - mqtt
-      - nats
-      - reflect-metadata
-      - rxjs
 
   '@inquirer/checkbox@4.1.6(@types/node@22.15.21)':
     dependencies:
@@ -5595,12 +5553,6 @@ snapshots:
   '@types/jsonwebtoken@9.0.7':
     dependencies:
       '@types/node': 22.15.21
-
-  '@types/lodash.isequal@4.5.8':
-    dependencies:
-      '@types/lodash': 4.17.17
-
-  '@types/lodash@4.17.17': {}
 
   '@types/methods@1.1.4': {}
 
@@ -7606,8 +7558,6 @@ snapshots:
   lodash.isarguments@3.1.0: {}
 
   lodash.isboolean@3.0.3: {}
-
-  lodash.isequal@4.5.0: {}
 
   lodash.isinteger@4.0.4: {}
 

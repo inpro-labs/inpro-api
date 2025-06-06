@@ -35,10 +35,7 @@ export class MailSenderGateway {
       apiKey: this.configService.get('MAILERSEND_API_KEY'),
     });
 
-    this.from = new Sender(
-      'dev@test-yxj6lj9zz5q4do2r.mlsender.net',
-      'Inpro Test',
-    );
+    this.from = new Sender('maxwell.silva@moondev.com.br', 'Inpro Test');
   }
 
   private parseError(error: APIResponse): Error {
@@ -70,8 +67,6 @@ export class MailSenderGateway {
     if (result.isErr()) {
       return Err(this.parseError(result.getErr()! as unknown as APIResponse));
     }
-
-    console.log(result.unwrap().body);
 
     return Ok(undefined);
   }
