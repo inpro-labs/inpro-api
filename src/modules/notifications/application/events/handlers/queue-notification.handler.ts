@@ -14,7 +14,7 @@ export class QueueNotificationEventHandler
 
   async handle(event: QueueNotificationEvent) {
     await this.notificationQueueService.queueNotification(
-      event.notification,
+      event.notification.toObject(),
       event.templateVariables,
     );
   }

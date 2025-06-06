@@ -38,14 +38,10 @@ export const userCreatedTemplate: TemplateDefinition = {
             },
             additionalProperties: false,
           },
-          token: {
-            type: 'string',
-            minLength: 1,
-          },
         },
         additionalProperties: false,
       },
-      placeholders: pickPlaceholders('user.name', 'user.email', 'token'),
+      placeholders: pickPlaceholders('user.name', 'user.email'),
     },
   ],
 };

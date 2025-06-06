@@ -1,12 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { NotificationFactory } from '../../factories/notification.factory';
 import { INotificationQueueService } from '@modules/notifications/application/ports/out/notification-queue.port';
 import { NotificationQueueData } from '../../services/notification-queue.service';
-import { NotificationTemplateFactory } from '../../factories/notification-template.factory';
-import { Err, Result } from '@inpro-labs/core';
-import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
 
 @Injectable()
 @Processor('notification', {
@@ -19,82 +15,41 @@ export class NotificationProcessor extends WorkerHost {
     super();
   }
 
-  public makeNotificationFromJob(
-    job: Job<NotificationQueueData, any, string>,
-  ): Result<Notification, Error> {
-    const { notification } = job.data;
-
-    const templateResult = NotificationTemplateFactory.make({
-      ...notification.template,
-    });
-
-    if (templateResult.isErr()) {
-      return Err(templateResult.getErr()!);
-    }
-
-    const template = templateResult.unwrap();
-
-    return NotificationFactory.make(
-      {
-        _id: notification.id,
-        userId: notification.userId,
-        channel: notification.channel,
-        channelData: notification.channelData,
-        status: notification.status,
-        attempts: job.attemptsMade,
-        createdAt: new Date(notification.createdAt),
-        updatedAt: new Date(notification.updatedAt),
-        sentAt: notification.sentAt ? new Date(notification.sentAt) : null,
-        lastError: job.failedReason ?? notification.lastError ?? null,
-        templateVariables: notification.templateVariables,
-      },
-      template,
-    );
-  }
-
   async process(job: Job<NotificationQueueData, any, string>): Promise<any> {
-    const notification = this.makeNotificationFromJob(job);
-    const templateVariables = job.data.templateVariables;
+    const { notification, templateVariables } = job.data;
 
-    if (notification.isErr()) {
-      throw notification.getErr()!;
-    }
+    console.log('processing', notification.id);
 
     const result = await this.notificationQueueService.processNotification(
-      notification.unwrap(),
+      notification,
       templateVariables,
+      job.attemptsMade,
+      job.failedReason,
     );
 
     if (result.isErr()) {
+      console.log('processing-error', result.getErr()!.message);
       throw result.getErr()!;
     }
+
+    console.log('processing-success', notification.id);
   }
 
   @OnWorkerEvent('completed')
   async onCompleted(job: Job<NotificationQueueData, any, string>) {
-    const notification = this.makeNotificationFromJob(job);
+    const { notification } = job.data;
 
-    if (notification.isErr()) {
-      console.log('failed', notification.getErr()!.message);
-      return;
-    }
+    console.log('completed', notification.id);
 
-    console.log('completed', notification.unwrap().id.value());
-    await this.notificationQueueService.onCompleted(notification.unwrap());
+    await this.notificationQueueService.onCompleted(notification);
   }
 
   @OnWorkerEvent('failed')
   async onFailed(job: Job<NotificationQueueData, any, string>) {
-    const notification = this.makeNotificationFromJob(job);
+    const { notification } = job.data;
 
-    if (notification.isErr()) {
-      console.log('failed', notification.getErr()!.message);
-      return;
-    }
+    console.log('failed', notification.id);
 
-    console.log('failed', notification.unwrap().id.value());
-    console.log('error', notification.unwrap().get('lastError'));
-
-    await this.notificationQueueService.onFailed(notification.unwrap());
+    await this.notificationQueueService.onFailed(notification);
   }
 }

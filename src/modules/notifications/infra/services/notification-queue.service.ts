@@ -2,17 +2,17 @@ import { Err, Ok } from '@inpro-labs/core';
 import { PlainAggregate } from '@inpro-labs/core/dist/utils/deep-plain';
 import { INotificationQueueService } from '@modules/notifications/application/ports/out/notification-queue.port';
 import { INotificationSenderService } from '@modules/notifications/application/ports/out/notification-sender.port';
-import {
-  Notification,
-  NotificationProps,
-} from '@modules/notifications/domain/aggregates/notification.aggregate';
+import { NotificationProps } from '@modules/notifications/domain/aggregates/notification.aggregate';
 import { INotificationRepository } from '@modules/notifications/domain/interfaces/repositories/notification.repository';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { NotificationFactory } from '../factories/notification.factory';
+import { NotificationTemplateFactory } from '../factories/notification-template.factory';
+import { DateAsString } from '@shared/utils/types';
 
 export type NotificationQueueData = {
-  notification: PlainAggregate<NotificationProps>;
+  notification: DateAsString<PlainAggregate<NotificationProps>>;
   templateVariables: Record<string, unknown>;
 };
 
@@ -24,10 +24,51 @@ export class NotificationQueueService implements INotificationQueueService {
     private readonly notificationSender: INotificationSenderService,
   ) {}
 
+  private makeNotification(
+    notificationData:
+      | DateAsString<PlainAggregate<NotificationProps>>
+      | PlainAggregate<NotificationProps>,
+  ) {
+    const template = NotificationTemplateFactory.make(
+      notificationData.template,
+    );
+
+    if (template.isErr()) {
+      return Err(template.getErr()!);
+    }
+
+    const notificationResult = NotificationFactory.make(
+      {
+        ...notificationData,
+        _id: notificationData.id,
+        sentAt: notificationData.sentAt ?? null,
+        lastError: notificationData.lastError ?? null,
+        attempts: notificationData.attempts ?? 0,
+        createdAt: new Date(notificationData.createdAt),
+        updatedAt: new Date(notificationData.updatedAt),
+      },
+      template.unwrap(),
+    );
+
+    if (notificationResult.isErr()) {
+      return Err(notificationResult.getErr()!);
+    }
+
+    return notificationResult;
+  }
+
   async queueNotification(
-    notification: Notification,
+    notificationData: PlainAggregate<NotificationProps>,
     templateVariables: Record<string, unknown>,
   ) {
+    const notificationResult = this.makeNotification(notificationData);
+
+    if (notificationResult.isErr()) {
+      return Err(notificationResult.getErr()!);
+    }
+
+    const notification = notificationResult.unwrap();
+
     notification.markAsQueued();
 
     await this.notificationRepository.save(notification);
@@ -54,9 +95,23 @@ export class NotificationQueueService implements INotificationQueueService {
   }
 
   async processNotification(
-    notification: Notification,
+    notificationData: DateAsString<PlainAggregate<NotificationProps>>,
     templateVariables: Record<string, unknown>,
+    attempts: number,
+    failedReason?: string,
   ) {
+    const notificationResult = this.makeNotification({
+      ...notificationData,
+      lastError: failedReason,
+      attempts,
+    });
+
+    if (notificationResult.isErr()) {
+      return Err(notificationResult.getErr()!);
+    }
+
+    const notification = notificationResult.unwrap();
+
     const sendResult = await this.notificationSender.send(
       notification,
       templateVariables,
@@ -75,14 +130,34 @@ export class NotificationQueueService implements INotificationQueueService {
     return Ok(undefined);
   }
 
-  async onFailed(notification: Notification) {
-    notification.markAsFailed(notification.get('lastError')!);
+  async onFailed(
+    notificationData: DateAsString<PlainAggregate<NotificationProps>>,
+  ) {
+    const notificationResult = this.makeNotification(notificationData);
+
+    if (notificationResult.isErr()) {
+      return Err(notificationResult.getErr()!);
+    }
+
+    const notification = notificationResult.unwrap();
+
+    notification.markAsFailed(notificationData.lastError!);
     await this.notificationRepository.save(notification);
 
     return Ok(undefined);
   }
 
-  async onCompleted(notification: Notification) {
+  async onCompleted(
+    notificationData: DateAsString<PlainAggregate<NotificationProps>>,
+  ) {
+    const notificationResult = this.makeNotification(notificationData);
+
+    if (notificationResult.isErr()) {
+      return Err(notificationResult.getErr()!);
+    }
+
+    const notification = notificationResult.unwrap();
+
     notification.markAsSent();
     await this.notificationRepository.save(notification);
 
