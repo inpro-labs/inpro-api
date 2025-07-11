@@ -30,6 +30,6 @@ export class SendNotificationController {
       }),
     );
 
-    return result.toObject();
+    return result.unwrap().toObject();
   }
 }

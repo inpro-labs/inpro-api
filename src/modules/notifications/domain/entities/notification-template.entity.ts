@@ -3,6 +3,7 @@ import { NotificationChannel } from '../enums/notification-channel.enum';
 import { Placeholder } from '../value-objects/placeholder.value-object';
 import { JSONSchema7, validate } from 'json-schema';
 import z from 'zod';
+import { PlaceholderSensitivity } from '../enums/placeholder-sensitivity.enum';
 
 export interface EmailNotificationTemplateChannel {
   type: NotificationChannel.EMAIL;
@@ -143,5 +144,19 @@ export class NotificationTemplate extends Entity<NotificationTemplateProps> {
     }
 
     return Ok(undefined);
+  }
+
+  public redactData(channel: NotificationChannel): Record<string, unknown> {
+    const channelData = this.getChannel(channel).unwrap();
+
+    return channelData.placeholders.reduce(
+      (acc, placeholder) => {
+        if (placeholder.get('sensitivity') === PlaceholderSensitivity.SECURE) {
+          acc[placeholder.get('name')] = '**redacted**';
+        }
+        return acc;
+      },
+      {} as Record<string, unknown>,
+    );
   }
 }
