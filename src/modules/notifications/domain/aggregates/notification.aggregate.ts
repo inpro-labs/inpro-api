@@ -6,6 +6,7 @@ import { EmailChannelData } from '../value-objects/email-channel-data.value-obje
 import { SmsChannelData } from '../value-objects/sms-channel-data.value-object';
 import { NotificationTemplate } from '../entities/notification-template.entity';
 import { NotificationVariables } from '../value-objects/notification-variables.value-object';
+import { Channel } from '../value-objects/channel.value-object';
 
 type BaseNotificationProps = {
   id?: ID;
@@ -18,19 +19,10 @@ type BaseNotificationProps = {
   lastError?: string;
   template: NotificationTemplate;
   templateVariables: NotificationVariables;
+  channel: Channel;
 };
 
-interface EmailNotificationProps extends BaseNotificationProps {
-  channel: NotificationChannel.EMAIL;
-  channelData: EmailChannelData;
-}
-
-interface SmsNotificationProps extends BaseNotificationProps {
-  channel: NotificationChannel.SMS;
-  channelData: SmsChannelData;
-}
-
-export type NotificationProps = EmailNotificationProps | SmsNotificationProps;
+export type NotificationProps = BaseNotificationProps;
 
 type AutoProps = 'createdAt' | 'updatedAt' | 'attempts' | 'lastError';
 
@@ -98,17 +90,6 @@ export class Notification extends Aggregate<NotificationProps> {
     );
 
     return Ok(notification);
-  }
-
-  public getChannelData(): Result<EmailChannelData | SmsChannelData, Error> {
-    if (this.props.channel === NotificationChannel.SMS) {
-      return Ok(this.props.channelData);
-    }
-    if (this.props.channel === NotificationChannel.EMAIL) {
-      return Ok(this.props.channelData);
-    }
-
-    return Err(new Error('Invalid channel'));
   }
 
   private setStatus(status: NotificationStatus, error?: string) {

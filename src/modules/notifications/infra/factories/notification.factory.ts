@@ -6,6 +6,7 @@ import { EmailChannelData } from '@modules/notifications/domain/value-objects/em
 import { SmsChannelData } from '@modules/notifications/domain/value-objects/sms-channel-data.value-object';
 import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
 import { NotificationVariables } from '@modules/notifications/domain/value-objects/notification-variables.value-object';
+import { Channel } from '@modules/notifications/domain/value-objects/channel.value-object';
 
 export class NotificationFactory {
   static make(
@@ -31,18 +32,22 @@ export class NotificationFactory {
       case NotificationChannel.EMAIL:
         return Notification.create({
           ...commonProps,
-          channel: NotificationChannel.EMAIL,
-          channelData: EmailChannelData.create({
-            to: data.channelData.to as string,
+          channel: Channel.create({
+            type: NotificationChannel.EMAIL,
+            data: EmailChannelData.create({
+              to: data.channelData.to as string,
+            }).unwrap(),
           }).unwrap(),
           template: template,
         });
       case NotificationChannel.SMS:
         return Notification.create({
           ...commonProps,
-          channel: NotificationChannel.SMS,
-          channelData: SmsChannelData.create({
-            phone: data.channelData.phone as string,
+          channel: Channel.create({
+            type: NotificationChannel.SMS,
+            data: SmsChannelData.create({
+              phone: data.channelData.phone as string,
+            }).unwrap(),
           }).unwrap(),
           template: template,
         });
