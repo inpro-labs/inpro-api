@@ -5,6 +5,7 @@ import { NotificationChannel } from '@modules/notifications/domain/enums/notific
 import { EmailChannelData } from '@modules/notifications/domain/value-objects/email-channel-data.value-object';
 import { SmsChannelData } from '@modules/notifications/domain/value-objects/sms-channel-data.value-object';
 import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
+import { NotificationVariables } from '@modules/notifications/domain/value-objects/notification-variables.value-object';
 
 export class NotificationFactory {
   static make(
@@ -21,6 +22,9 @@ export class NotificationFactory {
       updatedAt: data.updatedAt,
       attempts: data.attempts,
       lastError: data.lastError ?? undefined,
+      templateVariables: NotificationVariables.create(
+        data.templateVariables,
+      ).unwrap(),
     };
 
     switch (data.channel) {
@@ -31,7 +35,6 @@ export class NotificationFactory {
           channelData: EmailChannelData.create({
             to: data.channelData.to as string,
           }).unwrap(),
-          templateVariables: data.templateVariables,
           template: template,
         });
       case NotificationChannel.SMS:
@@ -41,7 +44,6 @@ export class NotificationFactory {
           channelData: SmsChannelData.create({
             phone: data.channelData.phone as string,
           }).unwrap(),
-          templateVariables: data.templateVariables,
           template: template,
         });
       default:

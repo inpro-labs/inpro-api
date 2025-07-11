@@ -5,6 +5,7 @@ import { NotificationStatus } from '../enums/notification-status.enum';
 import { EmailChannelData } from '../value-objects/email-channel-data.value-object';
 import { SmsChannelData } from '../value-objects/sms-channel-data.value-object';
 import { NotificationTemplate } from '../entities/notification-template.entity';
+import { NotificationVariables } from '../value-objects/notification-variables.value-object';
 
 type BaseNotificationProps = {
   id?: ID;
@@ -16,7 +17,7 @@ type BaseNotificationProps = {
   sentAt?: Date;
   lastError?: string;
   template: NotificationTemplate;
-  templateVariables: Record<string, unknown>;
+  templateVariables: NotificationVariables;
 };
 
 interface EmailNotificationProps extends BaseNotificationProps {
@@ -29,15 +30,7 @@ interface SmsNotificationProps extends BaseNotificationProps {
   channelData: SmsChannelData;
 }
 
-interface GenericNotificationProps extends BaseNotificationProps {
-  channel: NotificationChannel;
-  channelData: Record<string, unknown>;
-}
-
-export type NotificationProps =
-  | EmailNotificationProps
-  | SmsNotificationProps
-  | GenericNotificationProps;
+export type NotificationProps = EmailNotificationProps | SmsNotificationProps;
 
 type AutoProps = 'createdAt' | 'updatedAt' | 'attempts' | 'lastError';
 
@@ -109,34 +102,29 @@ export class Notification extends Aggregate<NotificationProps> {
 
   public getChannelData(): Result<EmailChannelData | SmsChannelData, Error> {
     if (this.props.channel === NotificationChannel.SMS) {
-      return Ok(this.props.channelData as SmsChannelData);
+      return Ok(this.props.channelData);
     }
     if (this.props.channel === NotificationChannel.EMAIL) {
-      return Ok(this.props.channelData as EmailChannelData);
+      return Ok(this.props.channelData);
     }
 
     return Err(new Error('Invalid channel'));
   }
 
-  public updateStatus(status: NotificationStatus): void {
+  private setStatus(status: NotificationStatus, error?: string) {
     this.props.status = status;
     this.props.updatedAt = new Date();
+    if (error) this.props.lastError = error;
+    if (status === NotificationStatus.SENT) this.props.sentAt = new Date();
   }
 
-  public markAsQueued(): void {
-    this.props.status = NotificationStatus.QUEUED;
-    this.props.updatedAt = new Date();
+  public markAsQueued() {
+    this.setStatus(NotificationStatus.QUEUED);
   }
-
-  public markAsFailed(error: string): void {
-    this.props.status = NotificationStatus.FAILED;
-    this.props.updatedAt = new Date();
-    this.props.lastError = error;
+  public markAsFailed(err: string) {
+    this.setStatus(NotificationStatus.FAILED, err);
   }
-
-  public markAsSent(): void {
-    this.props.status = NotificationStatus.SENT;
-    this.props.updatedAt = new Date();
-    this.props.sentAt = new Date();
+  public markAsSent() {
+    this.setStatus(NotificationStatus.SENT);
   }
 }
