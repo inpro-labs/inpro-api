@@ -1,23 +1,23 @@
 import { INotificationSenderService } from '@modules/notifications/application/ports/out/notification-sender.port';
 import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
-import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
-import { Injectable } from '@nestjs/common';
-import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
-import { TemplateManagerService } from './template-manager.service';
-import { Err, Ok, Result } from '@inpro-labs/core';
-import * as Mustache from 'mustache';
+import { Inject, Injectable } from '@nestjs/common';
+import { TemplateManagerService } from '@modules/notifications/infra/services/template-manager.service';
+import { Err, Result } from '@inpro-labs/core';
+import { NotificationSenderStrategy } from '@modules/notifications/domain/services/notification-sender-strategy.service';
+import { NOTIFICATION_STRATEGIES } from '../nest/providers/notification-strategies.provider';
 
 @Injectable()
 export class NotificationSenderService implements INotificationSenderService {
   constructor(
-    private readonly mailSenderGateway: MailSenderGateway,
     private readonly templateManagerService: TemplateManagerService,
+    @Inject(NOTIFICATION_STRATEGIES)
+    private readonly notificationStrategies: NotificationSenderStrategy[],
   ) {}
 
   async send(
     notification: Notification,
     templateVariables: Record<string, unknown>,
-  ): Promise<Result> {
+  ): Promise<Result<void, Error>> {
     const { channel } = notification.toObject();
     const template = notification.get('template');
 
@@ -29,34 +29,14 @@ export class NotificationSenderService implements INotificationSenderService {
       return Err(templateExists.getErr()!);
     }
 
-    if (channel.type === NotificationChannel.EMAIL) {
-      const channelData = channel.data;
+    const strategy = this.notificationStrategies.find((strategy) =>
+      strategy.supports(channel.type),
+    );
 
-      const emailDataResult = template.getChannel(NotificationChannel.EMAIL);
-
-      if (emailDataResult.isErr()) {
-        return Err(emailDataResult.getErr()!);
-      }
-
-      const emailData = emailDataResult.unwrap();
-
-      const result = await this.mailSenderGateway.sendEmail({
-        to: [{ email: channelData.to }],
-        subject: Mustache.render(emailData.metadata.subject, templateVariables),
-        text: Mustache.render(emailData.metadata.body, templateVariables),
-      });
-
-      if (result.isErr()) {
-        return Err(result.getErr()!);
-      }
-
-      return Ok(undefined);
+    if (!strategy) {
+      return Err(new Error('No strategy found for channel'));
     }
 
-    if (channel.type === NotificationChannel.SMS) {
-      return Ok(undefined);
-    }
-
-    return Err(new Error('Invalid notification channel'));
+    return strategy.send(notification, templateVariables);
   }
 }

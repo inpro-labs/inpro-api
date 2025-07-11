@@ -16,6 +16,7 @@ import { notificationQueueServiceProvider } from './infra/nest/providers/notific
 import { notificationSenderServiceProvider } from './infra/nest/providers/notification-sender.service.provider';
 import { notificationRepositoryProvider } from './infra/nest/providers/notification.repository.provider';
 import { ValidateNotificationTemplateService } from './application/services/validate-notification-template.service';
+import { notificationStrategiesProvider } from './infra/nest/providers/notification-strategies.provider';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { ValidateNotificationTemplateService } from './application/services/vali
     notificationRepositoryProvider,
     notificationQueueServiceProvider,
     notificationSenderServiceProvider,
+    notificationStrategiesProvider,
 
     // Services
     ValidateNotificationTemplateService,
