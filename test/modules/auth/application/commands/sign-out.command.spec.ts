@@ -3,7 +3,7 @@ import { mock, MockProxy } from 'jest-mock-extended';
 import { SignOutHandler } from '@modules/auth/application/commands/auth/sign-out.handler';
 import { SignOutCommand } from '@modules/auth/application/commands/auth/sign-out.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { Err, Ok } from '@inpro-labs/core';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
@@ -89,7 +89,7 @@ describe('SignOutHandler', () => {
     );
   });
 
-  it('should throw ApplicationException if session is not found', async () => {
+  it('should throw BusinessException if session is not found', async () => {
     sessionRepository.findById.mockResolvedValue(
       Err(new Error('Session not found')),
     );
@@ -97,7 +97,7 @@ describe('SignOutHandler', () => {
     const command = new SignOutCommand(validDto);
 
     await expect(handler.execute(command)).rejects.toThrow(
-      new ApplicationException('Session not found', 404, 'SESSION_NOT_FOUND'),
+      new BusinessException('Session not found', 'SESSION_NOT_FOUND', 404),
     );
 
     expect(sessionRepository.findById).toHaveBeenCalledWith(
@@ -105,7 +105,7 @@ describe('SignOutHandler', () => {
     );
   });
 
-  it('should throw ApplicationException if user does not own the session', async () => {
+  it('should throw BusinessException if user does not own the session', async () => {
     const wrongIdTokenPayload = TokenPayload.create({
       sid: sessionMock.id.value(),
       sub: 'another-user',
@@ -125,10 +125,10 @@ describe('SignOutHandler', () => {
     });
 
     await expect(handler.execute(command)).rejects.toThrow(
-      new ApplicationException(
+      new BusinessException(
         'User does not own this session',
-        403,
         'USER_DOES_NOT_OWN_SESSION',
+        403,
       ),
     );
 

@@ -1,11 +1,11 @@
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { SignInCommand } from './sign-in.command';
+import { SignInCommand } from '../sign-in.command';
 import { ID } from '@inpro-labs/core';
-import { CreateSessionCommand } from '../session/create-session.command';
+import { CreateSessionCommand } from '@modules/auth/application/commands/session/create-session.command';
 import { SignInOutputDTO } from '@modules/auth/application/ports/in/auth/sign-in.port';
-import { ValidateUserCredentialsService } from '../../services/auth/validate-user-credentials.service';
-import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
-import { BusinessException } from '@shared/exceptions/application.exception';
+import { ValidateUserCredentialsService } from '@modules/auth/application/services/auth/validate-user-credentials.service';
+import { GenerateTokensService } from '@modules/auth/application/services/auth/generate-tokens.service';
+import { BusinessException } from '@shared/exceptions/business.exception';
 
 @CommandHandler(SignInCommand)
 export class SignInHandler

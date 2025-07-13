@@ -1,5 +1,5 @@
 import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
-import { BusinessException } from '@shared/exceptions/application.exception';
+import { BusinessException } from '@shared/exceptions/business.exception';
 
 @Injectable()
 export class RequiredValuePipe implements PipeTransform<string> {

@@ -1,17 +1,14 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { SendNotificationCommand } from '../send-notification.command';
 import { SendNotificationOutputDTO } from '../../ports/in/send-notification.port';
-import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
-import { ID, Result } from '@inpro-labs/core';
-import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
+import { Err, ID, Ok } from '@inpro-labs/core';
 import { NotificationStatus } from '@modules/notifications/domain/enums/notification-status.enum';
-import { BusinessException } from '@shared/exceptions/application.exception';
-import { EmailChannelData } from '@modules/notifications/domain/value-objects/email-channel-data.value-object';
-import { SmsChannelData } from '@modules/notifications/domain/value-objects/sms-channel-data.value-object';
-import { TemplateManagerService } from '@modules/notifications/infra/services/template-manager.service';
-import { NotificationTemplate } from '@modules/notifications/domain/enums/notification-template.enum';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { INotificationRepository } from '@modules/notifications/domain/interfaces/repositories/notification.repository';
+import { QueueNotificationEvent } from '@modules/notifications/domain/events/queue-notification.event';
+import { NotificationFactory } from '@modules/notifications/infra/factories/notification.factory';
+import { ValidateNotificationTemplateService } from '../../services/validate-notification-template.service';
 
 @Injectable()
 @CommandHandler(SendNotificationCommand)
@@ -19,93 +16,65 @@ export class SendNotificationHandler
   implements ICommandHandler<SendNotificationCommand, SendNotificationOutputDTO>
 {
   constructor(
-    private readonly templateManagerService: TemplateManagerService,
     private readonly notificationRepository: INotificationRepository,
-    private readonly publish: EventPublisher,
+    private readonly eventBus: EventBus,
+    private readonly validateNotificationTemplateService: ValidateNotificationTemplateService,
   ) {}
 
   async execute(
     command: SendNotificationCommand,
   ): Promise<SendNotificationOutputDTO> {
-    const { userId, templateId, templateData, channel, channelData } =
+    const { userId, templateId, templateVariables, channel, channelData } =
       command.dto;
 
-    if (!Object.values(NotificationChannel).includes(channel)) {
-      throw new BusinessException(
-        `Invalid channel: ${channel}`,
-        'INVALID_NOTIFICATION_CHANNEL',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const templateResult = this.templateManagerService.getTemplate(
-      ID.create(templateId).unwrap(),
+    const templateResult = this.validateNotificationTemplateService.execute(
+      templateId,
+      channel,
+      templateVariables,
     );
 
     if (templateResult.isErr()) {
-      throw new BusinessException(
-        'Template not found',
-        'NOTIFICATION_TEMPLATE_NOT_FOUND',
-        HttpStatus.NOT_FOUND,
-      );
+      return Err(templateResult.getErr()!);
     }
 
     const template = templateResult.unwrap();
+    const redactedTemplateVariables = template.redactData(channel);
+    const notificationId = ID.create().unwrap();
+    const notificationResult = NotificationFactory.make(
+      {
+        _id: notificationId.value(),
+        userId,
+        templateVariables: redactedTemplateVariables,
+        channel,
+        channelData,
+        attempts: 0,
+        status: NotificationStatus.PENDING,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastError: null,
+        sentAt: null,
+      },
+      template,
+    );
 
-    if (!template.isChannelAvailable(channel)) {
-      throw new BusinessException(
-        `Channel-${channel} not available for template ${template.get('name')}`,
-        'NOTIFICATION_CHANNEL_NOT_AVAILABLE',
-        HttpStatus.BAD_REQUEST,
+    if (notificationResult?.isErr()) {
+      return Err(
+        new BusinessException(
+          notificationResult.getErr()!.message,
+          'NOTIFICATION_CREATION_ERROR',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
     }
 
-    let notificationResult: Result<Notification, Error> | undefined;
-
-    if (channel === NotificationChannel.EMAIL) {
-      const emailChannelData = EmailChannelData.create({
-        to: channelData.to as string,
-      }).unwrap();
-
-      notificationResult = Notification.create({
-        channel: NotificationChannel.EMAIL,
-        channelData: emailChannelData,
-        userId: ID.create(userId).unwrap(),
-        template: template.id.value() as NotificationTemplate,
-        status: NotificationStatus.PENDING,
-        attempts: 0,
-        templateData,
-      });
-    }
-
-    if (channel === NotificationChannel.SMS) {
-      const smsChannelData = SmsChannelData.create({
-        phone: channelData.phone as string,
-      }).unwrap();
-
-      notificationResult = Notification.create({
-        channel: NotificationChannel.SMS,
-        channelData: smsChannelData,
-        userId: ID.create(userId).unwrap(),
-        template: template.id.value() as NotificationTemplate,
-        status: NotificationStatus.PENDING,
-        attempts: 0,
-        templateData,
-      });
-    }
-
-    if (notificationResult?.isErr()) {
-      throw new Error(notificationResult.getErr()!.message);
-    }
-
-    const notification = notificationResult!.unwrap();
+    const notification = notificationResult.unwrap();
 
     await this.notificationRepository.save(notification);
 
-    this.publish.mergeObjectContext(notification);
+    this.eventBus.publish(
+      new QueueNotificationEvent(notification, templateVariables),
+    );
 
-    notification.commit();
-
-    return notification;
+    return Ok(notification);
   }
 }

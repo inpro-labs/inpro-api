@@ -43,11 +43,11 @@ export const notificationSchema = new Schema<NotificationModel>(
       type: String,
       default: null,
     },
-    template: {
+    templateId: {
       type: String,
       required: true,
     },
-    templateData: {
+    templateVariables: {
       type: Object,
       default: {},
     },

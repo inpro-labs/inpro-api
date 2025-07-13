@@ -2,11 +2,10 @@ import { INotificationRepository } from '@modules/notifications/domain/interface
 import { Injectable } from '@nestjs/common';
 import { MongooseGateway } from '@shared/gateways/db/mongoose.gateway';
 import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
-import { Err, ID, Ok, Result } from '@inpro-labs/core';
+import { Err, Ok, Result } from '@inpro-labs/core';
 import { TemplateManagerService } from '../services/template-manager.service';
 import { NotificationTemplate } from '@modules/notifications/domain/entities/notification-template.entity';
 import { NotificationMapper } from '../mappers/notification.mapper';
-import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
 
 @Injectable()
 export class NotificationRepositoryImpl implements INotificationRepository {
@@ -15,9 +14,7 @@ export class NotificationRepositoryImpl implements INotificationRepository {
     private readonly templateManagerService: TemplateManagerService,
   ) {}
 
-  async save(
-    notification: Notification<NotificationChannel>,
-  ): Promise<Result<Notification>> {
+  async save(notification: Notification): Promise<Result<Notification>> {
     const notificationModel =
       NotificationMapper.fromDomainToModel(notification);
 
@@ -36,12 +33,8 @@ export class NotificationRepositoryImpl implements INotificationRepository {
     return Ok(notification);
   }
 
-  async getNotificationTemplate(
-    template: string,
-  ): Promise<Result<NotificationTemplate>> {
-    const templateResult = this.templateManagerService.getTemplate(
-      ID.create(template).unwrap(),
-    );
+  getNotificationTemplate(template: string): Result<NotificationTemplate> {
+    const templateResult = this.templateManagerService.getTemplate(template);
 
     if (templateResult.isErr()) {
       return Err(templateResult.getErr()!);

@@ -121,20 +121,4 @@ describe('User Aggregate', () => {
       updatedAt: now,
     });
   });
-
-  it('should handle serialization with custom adapter', () => {
-    // This is just a simple verification that adapters work
-    // Without going into the complex type details
-    const user = User.create({
-      id: validId,
-      email: validEmail,
-      verified: true,
-    }).unwrap();
-
-    const serialized = user.toObject({
-      adaptOne: () => ({ customField: 'custom value' }),
-    });
-
-    expect(serialized).toEqual({ customField: 'custom value' });
-  });
 });

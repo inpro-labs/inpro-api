@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ApplicationException } from '@inpro-labs/microservices';
-import { RefreshTokenCommand } from './refresh-token.command';
+import { BusinessException } from '@shared/exceptions/business.exception';
+import { RefreshTokenCommand } from '../refresh-token.command';
 import { RefreshTokenOutputDTO } from '@modules/auth/application/ports/in/auth/refresh-token.port';
-import { GetRefreshTokenSessionService } from '../../services/auth/get-refresh-token-session.service';
-import { GenerateTokensService } from '../../services/auth/generate-tokens.service';
-import { UpdateSessionRefreshTokenService } from '../../services/auth/update-session-refresh-token.service';
+import { GetRefreshTokenSessionService } from '@modules/auth/application/services/auth/get-refresh-token-session.service';
+import { GenerateTokensService } from '@modules/auth/application/services/auth/generate-tokens.service';
+import { UpdateSessionRefreshTokenService } from '@modules/auth/application/services/auth/update-session-refresh-token.service';
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler
@@ -22,10 +22,10 @@ export class RefreshTokenHandler
     );
 
     if (result.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         result.getErr()!.message,
-        401,
         'INVALID_REFRESH_TOKEN',
+        401,
       );
     }
 
@@ -38,10 +38,10 @@ export class RefreshTokenHandler
     );
 
     if (tokensResult.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'Failed to generate tokens',
-        500,
         'FAILED_TO_GENERATE_TOKENS',
+        500,
       );
     }
 

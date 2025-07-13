@@ -1,5 +1,5 @@
 import { IUserRepository } from './domain/interfaces/repositories/user.repository.interface';
-import { CreateUserHandler } from './application/commands/user/create-user.handler';
+import { CreateUserHandler } from './application/commands/user/handlers/create-user.handler';
 import { PrismaGateway } from '@shared/gateways/db/prisma.gateway';
 import { HashModule } from '@shared/security/hash/hash.module';
 import { CreateUserController } from './presentation/controllers/user/create-user.controller';

@@ -4,8 +4,9 @@ import { NotificationChannel } from '../enums/notification-channel.enum';
 import { NotificationStatus } from '../enums/notification-status.enum';
 import { EmailChannelData } from '../value-objects/email-channel-data.value-object';
 import { SmsChannelData } from '../value-objects/sms-channel-data.value-object';
-import { NotificationTemplate } from '../enums/notification-template.enum';
-import { QueueNotificationEvent } from '../events/queue-notification.event';
+import { NotificationTemplate } from '../entities/notification-template.entity';
+import { NotificationVariables } from '../value-objects/notification-variables.value-object';
+import { Channel } from '../value-objects/channel.value-object';
 
 type BaseNotificationProps = {
   id?: ID;
@@ -17,33 +18,16 @@ type BaseNotificationProps = {
   sentAt?: Date;
   lastError?: string;
   template: NotificationTemplate;
-  templateData?: Record<string, any>;
+  templateVariables: NotificationVariables;
+  channel: Channel;
 };
 
-interface EmailNotificationProps extends BaseNotificationProps {
-  channel: NotificationChannel.EMAIL;
-  channelData: EmailChannelData;
-}
-
-interface SmsNotificationProps extends BaseNotificationProps {
-  channel: NotificationChannel.SMS;
-  channelData: SmsChannelData;
-}
-
-export type NotificationProps<
-  T extends NotificationChannel = NotificationChannel,
-> = T extends NotificationChannel.EMAIL
-  ? EmailNotificationProps
-  : T extends NotificationChannel.SMS
-    ? SmsNotificationProps
-    : never;
+export type NotificationProps = BaseNotificationProps;
 
 type AutoProps = 'createdAt' | 'updatedAt' | 'attempts' | 'lastError';
 
-export type CreateNotificationProps<
-  T extends NotificationChannel = NotificationChannel,
-> = Omit<NotificationProps<T>, AutoProps> &
-  Partial<Pick<NotificationProps<NotificationChannel>, AutoProps>>;
+export type CreateNotificationProps = Omit<NotificationProps, AutoProps> &
+  Partial<Pick<NotificationProps, AutoProps>>;
 
 const baseSchema = z.object({
   userId: z.custom<ID>((value) => value instanceof ID),
@@ -53,13 +37,13 @@ const baseSchema = z.object({
   updatedAt: z.date().default(new Date()),
   sentAt: z.date().optional(),
   lastError: z.string().optional(),
-  template: z.nativeEnum(NotificationTemplate),
-  templateData: z.record(z.string(), z.any()).optional(),
+  template: z.custom<NotificationTemplate>(
+    (value) => value instanceof NotificationTemplate,
+  ),
+  templateVariables: z.record(z.any()).optional(),
 });
 
-export class Notification<
-  T extends NotificationChannel = NotificationChannel,
-> extends Aggregate<NotificationProps<T>> {
+export class Notification extends Aggregate<NotificationProps> {
   static readonly schema = z.discriminatedUnion('channel', [
     baseSchema.extend({
       channel: z.literal(NotificationChannel.EMAIL),
@@ -76,7 +60,7 @@ export class Notification<
   ]);
   static readonly types = NotificationChannel;
 
-  private constructor(props: NotificationProps<T>) {
+  private constructor(props: NotificationProps) {
     super(props);
   }
 
@@ -84,15 +68,7 @@ export class Notification<
     return Notification.schema.safeParse(props).success;
   }
 
-  static create(
-    props: CreateNotificationProps<NotificationChannel.EMAIL>,
-  ): Result<Notification<NotificationChannel.EMAIL>, Error>;
-  static create(
-    props: CreateNotificationProps<NotificationChannel.SMS>,
-  ): Result<Notification<NotificationChannel.SMS>, Error>;
-  static create<T extends NotificationChannel = NotificationChannel>(
-    props: CreateNotificationProps<T>,
-  ): Result<Notification<T>, Error> {
+  static create(props: CreateNotificationProps): Result<Notification, Error> {
     const isValid = this.isValidProps(props);
 
     if (!isValid) {
@@ -107,46 +83,29 @@ export class Notification<
       updatedAt: props.updatedAt ?? now,
       status: props.status ?? NotificationStatus.PENDING,
       attempts: props.attempts ?? 0,
-      templateData: props.templateData ?? {},
     };
 
     const notification = new Notification(
-      notificationProps as NotificationProps<T>,
+      notificationProps as NotificationProps,
     );
-
-    if (notification.isNew()) {
-      notification.apply(new QueueNotificationEvent(notification));
-    }
 
     return Ok(notification);
   }
 
-  public getChannelData<T extends NotificationChannel>(): Result<
-    NotificationProps<T>['channelData'],
-    Error
-  > {
-    return Ok(this.props.channelData as NotificationProps<T>['channelData']);
-  }
-
-  public updateStatus(status: NotificationStatus): void {
+  private setStatus(status: NotificationStatus, error?: string) {
     this.props.status = status;
     this.props.updatedAt = new Date();
+    if (error) this.props.lastError = error;
+    if (status === NotificationStatus.SENT) this.props.sentAt = new Date();
   }
 
-  public markAsQueued(): void {
-    this.props.status = NotificationStatus.QUEUED;
-    this.props.updatedAt = new Date();
+  public markAsQueued() {
+    this.setStatus(NotificationStatus.QUEUED);
   }
-
-  public markAsFailed(lastError: string): void {
-    this.props.status = NotificationStatus.FAILED;
-    this.props.updatedAt = new Date();
-    this.props.lastError = lastError;
+  public markAsFailed(err: string) {
+    this.setStatus(NotificationStatus.FAILED, err);
   }
-
-  public markAsSent(): void {
-    this.props.status = NotificationStatus.SENT;
-    this.props.updatedAt = new Date();
-    this.props.sentAt = new Date();
+  public markAsSent() {
+    this.setStatus(NotificationStatus.SENT);
   }
 }

@@ -5,7 +5,7 @@ import { Request } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ValidateSessionCommand } from '@modules/auth/application/commands/auth/validate-session.command';
 import { EnvService } from '@config/env/env.service';
-import { BusinessException } from '@shared/exceptions/application.exception';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { IPrincipal } from 'src/types/principal';
 
 @Injectable()

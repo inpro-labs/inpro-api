@@ -6,6 +6,6 @@ export abstract class INotificationRepository {
   abstract save(notification: Notification): Promise<Result<Notification>>;
   abstract getNotificationTemplate(
     template: string,
-  ): Promise<Result<NotificationTemplate>>;
+  ): Result<NotificationTemplate>;
   // abstract findById(id: string): Promise<Notification | null>;
 }

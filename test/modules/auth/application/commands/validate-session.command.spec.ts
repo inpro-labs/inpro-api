@@ -4,7 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ValidateSessionHandler } from '@modules/auth/application/commands/auth/validate-session.handler';
 import { ValidateSessionCommand } from '@modules/auth/application/commands/auth/validate-session.command';
 import { Err, Ok } from '@inpro-labs/core';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { RetrieveSessionByTokenService } from '@modules/auth/application/services/session/retrieve-session-by-token.service';
 
@@ -60,7 +60,7 @@ describe('ValidateSessionHandler', () => {
     );
   });
 
-  it('should throw ApplicationException when token is invalid', async () => {
+  it('should throw BusinessException when token is invalid', async () => {
     const error = new Error('Invalid token');
     retrieveSessionByTokenService.execute.mockResolvedValue(Err(error));
 
@@ -69,7 +69,7 @@ describe('ValidateSessionHandler', () => {
     });
 
     await expect(handler.execute(command)).rejects.toThrow(
-      new ApplicationException(error.message, 401, 'INVALID_TOKEN'),
+      new BusinessException(error.message, 'INVALID_TOKEN', 401),
     );
   });
 });

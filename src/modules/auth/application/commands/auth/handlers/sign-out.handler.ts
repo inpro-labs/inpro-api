@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ApplicationException } from '@inpro-labs/microservices';
-import { SignOutCommand } from './sign-out.command';
+import { BusinessException } from '@shared/exceptions/business.exception';
+import { SignOutCommand } from '../sign-out.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { IJwtService } from '@shared/security/jwt/interfaces/jwt.service.interface';
 
@@ -15,7 +15,7 @@ export class SignOutHandler implements ICommandHandler<SignOutCommand> {
     const tokenPayloadResult = this.jwtService.verify(command.dto.accessToken);
 
     if (tokenPayloadResult.isErr()) {
-      throw new ApplicationException('Invalid token', 401, 'INVALID_TOKEN');
+      throw new BusinessException('Invalid token', 'INVALID_TOKEN', 401);
     }
 
     const tokenPayload = tokenPayloadResult.unwrap();
@@ -25,20 +25,20 @@ export class SignOutHandler implements ICommandHandler<SignOutCommand> {
     );
 
     if (sessionResult.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'Session not found',
-        404,
         'SESSION_NOT_FOUND',
+        404,
       );
     }
 
     const session = sessionResult.unwrap();
 
     if (session.get('userId').value() !== tokenPayload.get('sub')) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'User does not own this session',
-        403,
         'USER_DOES_NOT_OWN_SESSION',
+        403,
       );
     }
 

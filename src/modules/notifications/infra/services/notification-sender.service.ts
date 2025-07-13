@@ -1,68 +1,42 @@
 import { INotificationSenderService } from '@modules/notifications/application/ports/out/notification-sender.port';
 import { Notification } from '@modules/notifications/domain/aggregates/notification.aggregate';
-import { NotificationChannel } from '@modules/notifications/domain/enums/notification-channel.enum';
-import { Injectable } from '@nestjs/common';
-import { MailSenderGateway } from '@shared/gateways/mail/mail-sender.gateway';
-import { TemplateManagerService } from './template-manager.service';
-import { Err, ID, Ok, Result } from '@inpro-labs/core';
+import { Inject, Injectable } from '@nestjs/common';
+import { TemplateManagerService } from '@modules/notifications/infra/services/template-manager.service';
+import { Err, Result } from '@inpro-labs/core';
+import { NotificationSenderStrategy } from '@modules/notifications/domain/services/notification-sender-strategy.service';
+import { NOTIFICATION_STRATEGIES } from '../nest/providers/notification-strategies.provider';
 
 @Injectable()
 export class NotificationSenderService implements INotificationSenderService {
   constructor(
-    private readonly mailSenderGateway: MailSenderGateway,
     private readonly templateManagerService: TemplateManagerService,
+    @Inject(NOTIFICATION_STRATEGIES)
+    private readonly notificationStrategies: NotificationSenderStrategy[],
   ) {}
 
-  async send(notification: Notification): Promise<Result> {
-    const { channel, template: templateName } = notification.toObject();
+  async send(
+    notification: Notification,
+    templateVariables: Record<string, unknown>,
+  ): Promise<Result<void, Error>> {
+    const { channel } = notification.toObject();
+    const template = notification.get('template');
 
-    const templateResult = this.templateManagerService.getTemplate(
-      ID.create(templateName).unwrap(),
+    const templateExists = this.templateManagerService.getTemplate(
+      template.id.value(),
     );
 
-    if (templateResult.isErr()) {
-      return Err(templateResult.getErr()!);
+    if (templateExists.isErr()) {
+      return Err(templateExists.getErr()!);
     }
 
-    const template = templateResult.unwrap();
+    const strategy = this.notificationStrategies.find((strategy) =>
+      strategy.supports(channel.type),
+    );
 
-    if (channel === NotificationChannel.EMAIL) {
-      const channelData = notification
-        .getChannelData<NotificationChannel.EMAIL>()
-        .unwrap();
-
-      const emailDataResult = template.getChannelData(
-        NotificationChannel.EMAIL,
-      );
-
-      if (emailDataResult.isErr()) {
-        return Err(emailDataResult.getErr()!);
-      }
-
-      const emailData = emailDataResult.unwrap();
-
-      const result = await this.mailSenderGateway.sendEmail({
-        to: [{ email: channelData.get('to') }],
-        subject: emailData.metadata.subject,
-        text: template
-          .renderContent(
-            NotificationChannel.EMAIL,
-            notification.get('templateData')!,
-          )
-          .unwrap(),
-      });
-
-      if (result.isErr()) {
-        return Err(result.getErr()!);
-      }
-
-      return Ok(undefined);
+    if (!strategy) {
+      return Err(new Error('No strategy found for channel'));
     }
 
-    if (channel === NotificationChannel.SMS) {
-      return Ok(undefined);
-    }
-
-    return Err(new Error('Invalid notification channel'));
+    return strategy.send(notification, templateVariables);
   }
 }

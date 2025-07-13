@@ -85,18 +85,15 @@ describe('ListUserSessionsHandler', () => {
 
   it('should list user sessions', async () => {
     jest.spyOn(mockListUserSessions, 'perform').mockResolvedValueOnce(
-      new Result(
-        {
-          data: [
-            {
-              id: 'session-123',
-            } as unknown as SessionModel,
-          ],
-          total: 1,
-          page: 1,
-        },
-        null,
-      ),
+      Result.ok({
+        data: [
+          {
+            id: 'session-123',
+          } as unknown as SessionModel,
+        ],
+        total: 1,
+        page: 1,
+      }),
     );
 
     const command = new ListUserSessionsQuery(validDto);

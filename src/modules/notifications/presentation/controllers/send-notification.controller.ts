@@ -18,15 +18,18 @@ export class SendNotificationController {
         channelData: {
           to: 'sputnikstartup@gmail.com',
         },
-        templateData: {
-          userName: 'John Doe',
-          email: 'john.doe@example.com',
+        templateVariables: {
+          user: {
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+          },
+          token: '123456',
         },
         templateId: 'user-created',
         userId: '123',
       }),
     );
 
-    return result.toObject();
+    return result.unwrap().toObject();
   }
 }

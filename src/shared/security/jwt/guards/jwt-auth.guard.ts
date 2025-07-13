@@ -2,7 +2,7 @@ import { ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
-import { BusinessException } from '@shared/exceptions/application.exception';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { ErrorCode } from '@shared/errors/error-codes.enum';
 

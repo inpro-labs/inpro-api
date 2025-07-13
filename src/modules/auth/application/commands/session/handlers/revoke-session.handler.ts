@@ -1,8 +1,8 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
-import { RevokeSessionCommand } from './revoke-session.command';
+import { RevokeSessionCommand } from '../revoke-session.command';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { RevokeSessionOutputDTO } from '@modules/auth/application/ports/in/session/revoke-session.port';
-import { BusinessException } from '@shared/exceptions/application.exception';
+import { BusinessException } from '@shared/exceptions/business.exception';
 
 @CommandHandler(RevokeSessionCommand)
 export class RevokeSessionHandler

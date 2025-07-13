@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import {
   BusinessErrorResponse,
   BusinessException,
-} from '@shared/exceptions/application.exception';
+} from '@shared/exceptions/business.exception';
 import { HttpException } from '@nestjs/common';
 import { Request, Response } from 'express';
 

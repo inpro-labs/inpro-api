@@ -2,7 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
 import { IHashService } from '@shared/security/hash/interfaces/hash.service.interface';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Ok, Err } from '@inpro-labs/core';
@@ -72,7 +72,7 @@ describe('CreateUserHandler', () => {
     });
 
     await expect(handler.execute(command)).rejects.toThrowError(
-      new ApplicationException('Invalid email', 400, 'INVALID_EMAIL'),
+      new BusinessException('Invalid email', 'INVALID_EMAIL', 400),
     );
   });
 
@@ -86,11 +86,7 @@ describe('CreateUserHandler', () => {
     const command = new CreateUserCommand({ email, password });
 
     await expect(handler.execute(command)).rejects.toThrowError(
-      new ApplicationException(
-        'User already exists',
-        400,
-        'USER_ALREADY_EXISTS',
-      ),
+      new BusinessException('User already exists', 'USER_ALREADY_EXISTS', 400),
     );
   });
 

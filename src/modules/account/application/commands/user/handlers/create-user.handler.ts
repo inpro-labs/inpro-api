@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateUserCommand } from './create-user.command';
+import { CreateUserCommand } from '../create-user.command';
 import { IHashService } from '@shared/security/hash/interfaces/hash.service.interface';
-import { ApplicationException } from '@inpro-labs/microservices';
 import { User } from '@modules/account/domain/aggregates/user.aggregate';
 import { Email } from '@modules/account/domain/value-objects/email.value-object';
 import { CreateUserOutputDTO } from '@modules/account/application/ports/in/user/create-user.port';
 import { IUserRepository } from '@modules/account/domain/interfaces/repositories/user.repository.interface';
+import { BusinessException } from '@shared/exceptions/business.exception';
 
 @Injectable()
 @CommandHandler(CreateUserCommand)
@@ -25,7 +25,7 @@ export class CreateUserHandler
     const emailResult = Email.create(emailInput);
 
     if (emailResult.isErr()) {
-      throw new ApplicationException('Invalid email', 400, 'INVALID_EMAIL');
+      throw new BusinessException('Invalid email', 'INVALID_EMAIL', 400);
     }
 
     const email = emailResult.unwrap();
@@ -35,10 +35,10 @@ export class CreateUserHandler
     );
 
     if (userExists.isOk()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'User already exists',
-        400,
         'USER_ALREADY_EXISTS',
+        400,
       );
     }
 
@@ -52,10 +52,10 @@ export class CreateUserHandler
     });
 
     if (userResult.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'Error creating user',
-        400,
         'USER_CREATION_ERROR',
+        400,
       );
     }
 
@@ -64,10 +64,10 @@ export class CreateUserHandler
     const userSaved = await this.userRepository.save(user);
 
     if (userSaved.isErr()) {
-      throw new ApplicationException(
+      throw new BusinessException(
         'Error saving user',
-        400,
         'USER_SAVING_ERROR',
+        400,
       );
     }
 

@@ -4,7 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { RefreshTokenHandler } from '@modules/auth/application/commands/auth/refresh-token.handler';
 import { RefreshTokenCommand } from '@modules/auth/application/commands/auth/refresh-token.command';
 import { Err, Ok } from '@inpro-labs/core';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { UserFactory } from '@test/factories/fake-user.factory';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { GetRefreshTokenSessionService } from '@modules/auth/application/services/auth/get-refresh-token-session.service';
@@ -80,7 +80,7 @@ describe('RefreshTokenHandler', () => {
     );
   });
 
-  it('should throw ApplicationException when refresh token is invalid', async () => {
+  it('should throw BusinessException when refresh token is invalid', async () => {
     getRefreshTokenSessionService.execute.mockResolvedValue(
       Err(new Error('Invalid refresh token')),
     );
@@ -88,15 +88,15 @@ describe('RefreshTokenHandler', () => {
     const command = new RefreshTokenCommand('invalid-token');
 
     await expect(handler.execute(command)).rejects.toThrow(
-      new ApplicationException(
+      new BusinessException(
         'Invalid refresh token',
-        401,
         'INVALID_CREDENTIALS',
+        401,
       ),
     );
   });
 
-  it('should throw ApplicationException when token generation fails', async () => {
+  it('should throw BusinessException when token generation fails', async () => {
     const user = UserFactory.make('user-123');
     const session = SessionFactory.make({ id: 'session-123' }).unwrap();
 
@@ -111,10 +111,10 @@ describe('RefreshTokenHandler', () => {
     const command = new RefreshTokenCommand(refreshToken);
 
     await expect(handler.execute(command)).rejects.toThrow(
-      new ApplicationException(
+      new BusinessException(
         'Failed to generate tokens',
-        500,
         'FAILED_TO_GENERATE_TOKENS',
+        500,
       ),
     );
   });

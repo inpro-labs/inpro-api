@@ -104,7 +104,6 @@ export class Session extends Aggregate<SessionProps> {
 
     this.set('lastRefreshAt', new Date());
     this.set('refreshTokenDigest', newHash);
-    this.set('expiresAt', new Date(Date.now() + 1000 * 60 * 60 * 24 * 30));
     this.set('updatedAt', new Date());
 
     return Ok(this);

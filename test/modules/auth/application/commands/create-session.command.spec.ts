@@ -8,7 +8,7 @@ import { DEVICE_TYPES } from '@shared/constants/devices';
 import { CreateSessionInputDTO } from '@modules/auth/application/ports/in/session/create-session.port';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Result } from '@inpro-labs/core';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { HashModule } from '@shared/security/hash/hash.module';
 import { SessionFactory } from '@test/factories/fake-session.factory';
 import { IEncryptService } from '@shared/security/encrypt/interfaces/encrypt.service.interface';
@@ -58,7 +58,7 @@ describe('CreateSessionHandler', () => {
 
     sessionRepository.findActiveSession.mockRejectedValue(
       Result.err(
-        new ApplicationException('Session not found', 404, 'SESSION_NOT_FOUND'),
+        new BusinessException('Session not found', 'SESSION_NOT_FOUND', 404),
       ),
     );
   });
@@ -78,10 +78,10 @@ describe('CreateSessionHandler', () => {
       .mockReturnValueOnce(
         Promise.resolve(
           Result.err(
-            new ApplicationException(
+            new BusinessException(
               'Session not found',
-              404,
               'SESSION_NOT_FOUND',
+              404,
             ),
           ),
         ),
@@ -98,7 +98,7 @@ describe('CreateSessionHandler', () => {
     expect(eventPublisher.mergeObjectContext).toHaveBeenCalledWith(session);
   });
 
-  it('should throw ApplicationException when session creation fails', async () => {
+  it('should throw BusinessException when session creation fails', async () => {
     const session = SessionFactory.make();
 
     jest
@@ -110,12 +110,10 @@ describe('CreateSessionHandler', () => {
       device: 'invalid-device',
     });
 
-    await expect(handler.execute(command)).rejects.toThrow(
-      ApplicationException,
-    );
+    await expect(handler.execute(command)).rejects.toThrow(BusinessException);
   });
 
-  it('should throw ApplicationException when session already exists', async () => {
+  it('should throw BusinessException when session already exists', async () => {
     jest
       .spyOn(sessionRepository, 'findActiveSession')
       .mockReturnValueOnce(
@@ -128,8 +126,6 @@ describe('CreateSessionHandler', () => {
 
     const command = new CreateSessionCommand(validDto);
 
-    await expect(handler.execute(command)).rejects.toThrow(
-      ApplicationException,
-    );
+    await expect(handler.execute(command)).rejects.toThrow(BusinessException);
   });
 });

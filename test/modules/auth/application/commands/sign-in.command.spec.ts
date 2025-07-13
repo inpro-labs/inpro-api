@@ -5,7 +5,7 @@ import { SignInHandler } from '@modules/auth/application/commands/auth/sign-in.h
 import { SignInCommand } from '@modules/auth/application/commands/auth/sign-in.command';
 import { SignInInputDTO } from '@modules/auth/application/ports/in/auth/sign-in.port';
 import { Err, ID, Ok } from '@inpro-labs/core';
-import { ApplicationException } from '@inpro-labs/microservices';
+import { BusinessException } from '@shared/exceptions/business.exception';
 import { UserFactory } from '@test/factories/fake-user.factory';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { ValidateUserCredentialsService } from '@modules/auth/application/services/auth/validate-user-credentials.service';
@@ -93,7 +93,7 @@ describe('SignInHandler', () => {
     expect(commandBus.execute).toHaveBeenCalledTimes(1);
   });
 
-  it('should throw ApplicationException when credentials are invalid', async () => {
+  it('should throw BusinessException when credentials are invalid', async () => {
     validateUserCredentialsService.execute.mockResolvedValue(
       Err(new Error('Invalid credentials')),
     );
@@ -101,15 +101,11 @@ describe('SignInHandler', () => {
     const command = new SignInCommand(validDto);
 
     await expect(handler.execute(command)).rejects.toThrow(
-      new ApplicationException(
-        'Invalid credentials',
-        401,
-        'INVALID_CREDENTIALS',
-      ),
+      new BusinessException('Invalid credentials', 'INVALID_CREDENTIALS', 401),
     );
   });
 
-  it('should throw ApplicationException when token generation fails', async () => {
+  it('should throw BusinessException when token generation fails', async () => {
     const user = UserFactory.make('user-123');
     validateUserCredentialsService.execute.mockResolvedValue(Ok(user));
 
@@ -120,10 +116,10 @@ describe('SignInHandler', () => {
     const command = new SignInCommand(validDto);
 
     await expect(handler.execute(command)).rejects.toThrow(
-      new ApplicationException(
+      new BusinessException(
         'Failed to generate tokens',
-        500,
         'FAILED_TO_GENERATE_TOKENS',
+        500,
       ),
     );
   });

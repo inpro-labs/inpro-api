@@ -4,12 +4,12 @@ import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
 import { ISessionRepository } from '@modules/auth/domain/interfaces/repositories/session.repository.interface';
 import { Session } from '@modules/auth/domain/aggregates/session.aggregate';
 import { Err, ID, Ok } from '@inpro-labs/core';
-import { ApplicationException } from '@inpro-labs/microservices';
-import { RevokeSessionHandler } from '@modules/auth/application/commands/session/revoke-session.handler';
+import { RevokeSessionHandler } from '@modules/auth/application/commands/session/handlers/revoke-session.handler';
 import { RevokeSessionInputDTO } from '@modules/auth/application/ports/in/session/revoke-session.port';
 import { RevokeSessionCommand } from '@modules/auth/application/commands/session/revoke-session.command';
 import { DEVICE_TYPES } from '@shared/constants/devices';
 import { RefreshTokenDigest } from '@modules/auth/domain/value-objects/refresh-token-hash.value-object';
+import { BusinessException } from '@shared/exceptions/business.exception';
 
 describe('RevokeSessionHandler', () => {
   let handler: RevokeSessionHandler;
@@ -75,23 +75,17 @@ describe('RevokeSessionHandler', () => {
     expect(session.get('revokedAt')).toBeDefined();
   });
 
-  it('should throw ApplicationException when session creation fails', async () => {
+  it('should throw BusinessException when session creation fails', async () => {
     sessionRepository.findById.mockImplementation(() =>
       Promise.resolve(
         Err(
-          new ApplicationException(
-            'Session not found',
-            404,
-            'SESSION_NOT_FOUND',
-          ),
+          new BusinessException('Session not found', 404, 'SESSION_NOT_FOUND'),
         ),
       ),
     );
 
     const command = new RevokeSessionCommand(validDto);
 
-    await expect(handler.execute(command)).rejects.toThrow(
-      ApplicationException,
-    );
+    await expect(handler.execute(command)).rejects.toThrow(BusinessException);
   });
 });

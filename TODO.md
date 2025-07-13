@@ -1,6 +1,9 @@
 1 - Find a way to move auth and session service to application layer (DONE)
+
 2 - Implement ConfigService
+
 3 - Check if all tests are well developed (DONE)
+
 4 - Check if any method is missing (DONE)
 
 PROBLEMS
@@ -42,3 +45,6 @@ Cons:
 
 - Adds much more complexity to model database
 - Adds unnecessary complexity to map data from database
+
+Fix redacted mapping
+Fix ID not on Idenfiable type when mapping child entities/VOs
