@@ -4,6 +4,7 @@ import { Profile } from '@modules/profile/domain/aggregates/profile.aggregate';
 export type CreateProfileInputDTO = {
   userId: string;
   userName: string;
+  name: string;
   bio: string;
   about: string;
   avatarUrl: string;

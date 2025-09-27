@@ -4,6 +4,7 @@ import z from 'zod';
 interface ProfileProps {
   id?: ID;
   userId: ID;
+  name: string;
   userName: string;
   bio: string;
   about: string;
@@ -18,6 +19,7 @@ export class Profile extends Aggregate<ProfileProps> {
   static readonly schema = z.object({
     id: z.optional(z.custom<ID>((value) => value instanceof ID)),
     userId: z.custom<ID>((value) => value instanceof ID),
+    name: z.string(),
     userName: z.string(),
     bio: z.string(),
     about: z.string(),

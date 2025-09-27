@@ -44,6 +44,7 @@ export class CreateProfileHandler
     }
 
     const profile = Profile.create({
+      name: command.dto.name,
       about: command.dto.about,
       avatarUrl: command.dto.avatarUrl,
       bannerUrl: command.dto.bannerUrl,

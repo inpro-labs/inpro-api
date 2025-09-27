@@ -6,6 +6,7 @@ interface ProfileProps {
   userId: ID;
   createdAt: Date;
   updatedAt: Date;
+  name: string;
   userName: string;
   bio: string;
   about: string;
@@ -19,6 +20,7 @@ export class ProfileFactory {
     return Profile.create({
       id: data.id,
       userId: data.userId,
+      name: data.name,
       userName: data.userName,
       bio: data.bio,
       about: data.about,

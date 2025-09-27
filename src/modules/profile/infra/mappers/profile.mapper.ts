@@ -8,6 +8,7 @@ export class ProfileMapper {
     return ProfileFactory.make({
       id: ID.create(notification.id).unwrap(),
       userId: ID.create(notification.userId).unwrap(),
+      name: notification.name,
       userName: notification.userName,
       bio: notification.bio,
       about: notification.about,
@@ -31,6 +32,7 @@ export class ProfileMapper {
       createdAt,
       updatedAt,
       userId,
+      name,
     } = item.toObject();
 
     return {
@@ -44,6 +46,7 @@ export class ProfileMapper {
       location,
       createdAt,
       updatedAt,
+      name,
     };
   }
 }
