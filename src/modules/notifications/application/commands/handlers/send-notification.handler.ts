@@ -45,8 +45,10 @@ export class SendNotificationHandler
         _id: notificationId.value(),
         userId,
         templateVariables: redactedTemplateVariables,
-        channel,
-        channelData,
+        channel: {
+          type: channel,
+          data: channelData,
+        },
         attempts: 0,
         status: NotificationStatus.PENDING,
         createdAt: new Date(),

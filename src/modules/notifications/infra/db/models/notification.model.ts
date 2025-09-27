@@ -4,8 +4,10 @@ import { NotificationStatus } from '@modules/notifications/domain/enums/notifica
 export type NotificationModel = {
   _id: string;
   userId: string;
-  channel: NotificationChannel;
-  channelData: Record<string, any>;
+  channel: {
+    type: NotificationChannel;
+    data: Record<string, unknown>;
+  };
   status: NotificationStatus;
   attempts: number;
   createdAt: Date;

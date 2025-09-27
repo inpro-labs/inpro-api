@@ -28,14 +28,14 @@ export class NotificationFactory {
       ).unwrap(),
     };
 
-    switch (data.channel) {
+    switch (data.channel.type) {
       case NotificationChannel.EMAIL:
         return Notification.create({
           ...commonProps,
           channel: Channel.create({
             type: NotificationChannel.EMAIL,
             data: EmailChannelData.create({
-              to: data.channelData.to as string,
+              to: data.channel.data.to as string,
             }).unwrap(),
           }).unwrap(),
           template: template,
@@ -46,7 +46,7 @@ export class NotificationFactory {
           channel: Channel.create({
             type: NotificationChannel.SMS,
             data: SmsChannelData.create({
-              phone: data.channelData.phone as string,
+              phone: data.channel.data.phone as string,
             }).unwrap(),
           }).unwrap(),
           template: template,
