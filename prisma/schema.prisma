@@ -25,3 +25,18 @@ model User {
   @@index([email])
   @@map("users")
 }
+
+model Profile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  userName  String   @unique
+  bio       String
+  about     String
+  avatarUrl String
+  bannerUrl String
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("profiles")
+}
